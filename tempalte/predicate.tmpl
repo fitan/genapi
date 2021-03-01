@@ -1,0 +1,331 @@
+{{ define "genrest/predicate" }}
+
+package ent
+import (
+    "{{$.Config.Package}}/predicate"
+    "github.com/gin-gonic/gin"
+    {{- range $n := $.Nodes }}
+    "{{$.Config.Package}}/{{snake $n.Name}}"
+    {{- end }}
+    {{$hasTime := "False"}}
+    {{$hasUuid := "False"}}
+    {{range $n := $.Nodes}}
+        {{range $f := $n.Fields}}
+            {{if eq (toString $f.Type) "uuid.UUID"}}
+                {{$hasUuid = "True"}}
+            {{end}}
+            {{if eq (toString $f.Type) "time.Time"}}
+                {{$hasTime = "True"}}
+            {{end}}
+        {{end}}
+    {{end}}
+    {{if eq $hasTime "True"}}
+    "time"
+    {{end}}
+    {{if eq $hasUuid "True"}}
+    "github.com/google/uuid"
+    {{end}}
+)
+
+func BindsGen(c *gin.Context,fs ...func(c *gin.Context) (predicate.Car, error)) ([]predicate.Car, error) {
+    ps := make([]predicate.Car,0,len(fs))
+    for _,f := range fs {
+        p, err := f(c)
+        if err != nil {
+            return nil, err
+        }
+        ps = append(ps, p)
+    }
+    return ps, nil
+}
+
+
+    {{ range $n := $.Nodes }}
+{{$page := (paseRestPaging $n.Annotations)}}
+type {{$n.Name}}Paging struct {
+	{{if eq (toString $page.MaxLimit) "0"}}
+    Limit int `form:"limit"`
+    {{else}}
+    Limit int `form:"limit" binding:"lte={{$page.MaxLimit}}"`
+    {{end}}
+    {{if eq (toString $page.Must) "true"}}
+    Page int `form:"page" binding:"gt=0"`
+    {{else}}
+    Page int `form:"page"`
+    {{end}}
+}
+
+func BindPaging{{$n.Name}}(queryer *ent.{{$n.Name}}Query,c *gin.Context) error  {
+    bindPaging := {{$n.Name}}Paging{}
+    err := c.ShouldBindQuery(&bindPaging)
+    if err != nil {
+        return err
+    }
+    if bindPaging.Page == 0{
+        return nil
+    }
+    queryer.Limit(bindPaging.Limit).Offset((bindPaging.Page - 1) * bindPaging.Limit)
+    return nil
+}
+        {{ range $f := $n.Fields }}
+            {{range $method := opsString (ops $f)}}
+{{ if eq $method  "EQ"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}),nil
+}
+{{end}}
+
+{{if eq $method "NEQ"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}),nil
+}
+{{end}}
+
+
+{{if eq $method "In"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} []{{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}...),nil
+}
+{{end}}
+
+
+
+{{if eq $method "NotIn"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} []{{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}...),nil
+}
+{{end}}
+
+{{if eq $method "GT"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}),nil
+}
+    {{end}}
+
+{{if eq $method "GTE"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}),nil
+}
+{{end}}
+
+{{if eq $method  "LT"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}),nil
+}
+    {{end}}
+
+{{if eq $method "LTE"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}),nil
+}
+{{end}}
+
+{{if eq $method "EQ"}}
+{{$TmpMethod := $method}}
+{{ $method = "Or"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} []{{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil,err
+    }
+    predicate := make([]predicate.{{$n.Name}},0,len(bindQuery.{{$f.StructField}}Or))
+    for i,_ := range bindQuery.{{$f.StructField}}Or {
+        predicate = append(predicate, {{snake $n.Name}}.{{$f.StructField}}EQ(bindQuery.{{$f.StructField}}Or[i]))
+    }
+    return {{snake $n.Name}}.Or(predicate...),nil
+}
+{{$method = $TmpMethod}}
+{{end}}
+
+{{if eq $method "Contains"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil, err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}), nil
+}
+{{end}}
+
+
+{{if eq $method "ContainsFold"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil, err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}), nil
+}
+    {{end}}
+
+
+{{if eq $method "HasPrefix"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil, err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}), nil
+}
+    {{end}}
+
+{{if eq $method "HasSuffix"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    {{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {
+    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}
+    err := c.ShouldBindQuery(&bindQuery)
+    if err != nil {
+        return nil, err
+    }
+    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}), nil
+}
+{{end}}
+
+{{end}}
+
+{{/*{{$method := "Ast"}}*/}}
+{{/*type {{$n.Name}}{{$f.StructField}}{{$method}} struct {*/}}
+{{/*{{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`*/}}
+{{/*}*/}}
+
+{{/*func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {*/}}
+{{/*    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}*/}}
+{{/*    err := c.ShouldBindQuery(&bindQuery)*/}}
+{{/*    if err != nil {*/}}
+{{/*        return nil, err*/}}
+{{/*    }*/}}
+{{/*    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}), nil*/}}
+{{/*}*/}}
+
+{{/*{{$method := "Desc"}}*/}}
+{{/*type {{$n.Name}}{{$f.StructField}}{{$method}} struct {*/}}
+{{/*{{$f.StructField}}{{$method}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `form:"{{snake $method}}_{{$f.Name}}"`*/}}
+{{/*}*/}}
+
+{{/*func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (predicate.{{$n.Name}}, error) {*/}}
+{{/*    bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}*/}}
+{{/*    err := c.ShouldBindQuery(&bindQuery)*/}}
+{{/*    if err != nil {*/}}
+{{/*        return nil, err*/}}
+{{/*    }*/}}
+{{/*    return {{snake $n.Name}}.{{$f.StructField}}{{$method}}(bindQuery.{{$f.StructField}}{{$method}}), nil*/}}
+{{/*}*/}}
+{{/*{{$method := "Order"}}*/}}
+{{/*type {{$n.Name}}{{$f.StructField}}{{$method}} struct {*/}}
+{{/*    {{$f.StructField}}{{$method}} string `form:"{{snake $method}}_{{$f.Name}}"`*/}}
+{{/*}*/}}
+
+{{/*func Bind{{$n.Name}}{{$f.StructField}}{{$method}}(c *gin.Context) (ent.OrderFunc,error)  {*/}}
+{{/*	bindQuery := {{$n.Name}}{{$f.StructField}}{{$method}}{}*/}}
+{{/*	err := c.ShouldBindQuery(&bindQuery)*/}}
+{{/*	if err != nil {*/}}
+{{/*		return nil, err*/}}
+{{/*	}*/}}
+{{/*	if strings.HasPrefix(bindQuery.{{$f.StructField}}{{$method}}, "-") {*/}}
+{{/*		if bindQuery.{{$f.StructField}}{{$method}}[1:len(bindQuery.{{$f.StructField}}{{$method}})] == {{snake $n.Name}}.Field{{$f.StructField}} {*/}}
+{{/*			return ent.Desc({{snake $n.Name}}.{{$f.StructField}}{{$method}}),nil*/}}
+{{/*		}*/}}
+{{/*	}*/}}
+{{/*	if bindQuery.{{$f.StructField}}{{$method}} == {{snake $n.Name}}.Field{{$f.StructField}} {*/}}
+{{/*		return ent.Asc({{$n.Name}}.Field{{$method}}),nil*/}}
+{{/*	}*/}}
+{{/*	return nil, fmt.Errorf("Parsing error: %v", bindQuery.{{$f.StructField}}{{$method}})*/}}
+{{/*}*/}}
+{{end}}
+{{end}}
+{{end}}
