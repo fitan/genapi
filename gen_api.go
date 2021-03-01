@@ -16,6 +16,7 @@ func EntApi() {
 			gen.MustParse(gen.NewTemplate("swag").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/swag.tmpl")),
 			gen.MustParse(gen.NewTemplate("router_swagger").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/router_swagger.tmpl")),
 			gen.MustParse(gen.NewTemplate("default_predicate").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/default_predicate.tmpl")),
+			gen.MustParse(gen.NewTemplate("tools").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/tools.tmpl")),
 		},
 	})
 	if err != nil {
