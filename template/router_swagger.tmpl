@@ -1,5 +1,5 @@
 {{ define "genrest/register_router"}}
-package ent
+package genrest
 import "github.com/gin-gonic/gin"
 {{ range $n := $.Nodes }}
 	{{$a := (PaseRestNodeMethod $n.Annotations)}}
@@ -22,7 +22,7 @@ func {{$n.Name}}{{$method}}(c *gin.Context) {
 // @Tags {{$n.Name}}
 // @Param data query {{$n.Name}}Query true " "
 // @Header 200 {string} Count "The total amount"
-// @Success 200 {object} RestReturn{data=[]{{$n.Name}}Node}
+// @Success 200 {object} RestReturn{data=Get{{$n.Name}}ListData}
 // @Router /{{snake (plural $n.Name)}} [get]
 func {{$n.Name}}{{$method}}(c *gin.Context) {
 }

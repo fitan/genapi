@@ -1,9 +1,9 @@
-{{ define "genrest/curd"}}
-package ent
+{{ define "genrest/tools"}}
+package genrest
 
 import (
+	"{{$.Config.Package}}"
 	"fmt"
-	"genrest/ent"
 	"github.com/gin-gonic/gin"
 	"strings"
 )

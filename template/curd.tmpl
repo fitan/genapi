@@ -1,5 +1,5 @@
 {{ define "genrest/curd"}}
-package ent
+package genrest
 
 import (
 	"context"
@@ -56,11 +56,10 @@ func (curd *{{$n.Name}}CURD) RegisterRouter(r *gin.Engine) {
 	// @Tags {{$n.Name}}
 	// @Param data query {{$n.Name}}Query true " "
 	// @Header 200 {string} Count "The total amount"
-	// @Success 200 {object} RestReturn{data=[]{{$n.Name}}Node}
+	// @Success 200 {object} RestReturn{data=Get{{$n.Name}}ListData}
 	// @Router /{{snake (plural $n.Name)}} [get]
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		data, count, err := curd.{{$method}}(c)
-		c.Header("Count", strconv.Itoa(count))
+		data, err := curd.{{$method}}(c)
 		RestReturnFunc(c, data, err)
 	})
 	{{end}}
@@ -289,45 +288,66 @@ func (curd *{{$n.Name}}CURD) GetOne(c *gin.Context) (*ent.{{$n.Name}}, error) {
 	return queryer.Only(context.Background())
 }
 
+func (curd *{{$n.Name}}CURD) BaseGetListCount(query *{{$n.Name}}DefaultQuery) (int, error) {
+	queryer := curd.Db.{{$n.Name}}.Query()
+	ps, err := query.PredicatesExec()
+	if err != nil {
+		return 0, err
+	}
+	return queryer.Where({{snake $n.Name}}.And(ps...)).Count(context.Background())
+}
+
 func (curd *{{$n.Name}}CURD) BaseGetListQueryer(query *{{$n.Name}}DefaultQuery) (*ent.{{$n.Name}}Query, error) {
 	queryer := curd.Db.{{$n.Name}}.Query()
 	err := query.Exec(queryer)
 	if err != nil {
 		return queryer, err
 	}
+
 	curd.selete(queryer)
 	curd.defaultOrder(queryer)
 
 	return queryer, nil
 }
 
-func (curd *{{$n.Name}}CURD) defaultGetListQueryer(c *gin.Context) (*ent.{{$n.Name}}Query, error) {
+func (curd *{{$n.Name}}CURD) defaultGetListQueryer(c *gin.Context) (*ent.{{$n.Name}}Query, int,error) {
 	query, err := curd.BindDefaultQuery(c)
 	if err != nil {
-		return nil, err
+		return nil,0, err
 	}
-	return curd.BaseGetListQueryer(query)
+
+	count, err := curd.BaseGetListCount(query)
+	if err != nil {
+		return nil,0,err
+	}
+	queryer, err := curd.BaseGetListQueryer(query)
+	if err != nil {
+		return nil,0,err
+	}
+	return queryer, count, nil
 }
 
 func (curd *{{$n.Name}}CURD) GetListRoutePath() string {
 	return "/{{snake (plural $n.Name)}}"
 }
 
-func (curd *{{$n.Name}}CURD) GetList(c *gin.Context) ([]*ent.{{$n.Name}},int, error) {
-	queryer, err := curd.defaultGetListQueryer(c)
+type Get{{$n.Name}}ListData struct {
+	Count int
+	Result []*ent.{{$n.Name}}
+}
+
+func (curd *{{$n.Name}}CURD) GetList(c *gin.Context) (*Get{{$n.Name}}ListData, error) {
+	queryer,count, err := curd.defaultGetListQueryer(c)
 	if err != nil {
-		return nil, 0,err
+		return nil, err
 	}
-	bg := context.Background()
-	count, err := queryer.Count(bg)
+
+	res, err := queryer.All(context.Background())
 	if err != nil {
-		return nil,0,err
+		return nil,err
 	}
-	res, err := queryer.All(bg)
-	if err != nil {
-		return nil,0,err
-	}
-	return res, count, nil
+
+	return &Get{{$n.Name}}ListData{count, res}, nil
 }
 
 
