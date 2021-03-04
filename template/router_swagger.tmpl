@@ -147,7 +147,7 @@ func {{$method}}One{{$e.Type.Name}}By{{$n.Name}}(c *gin.Context) {
 // @Produce  json
 // @Tags {{$e.Type.Name}} by {{$n.Name}}
 // @Param id path int true " "
-// @Param body body  []{{$e.Type.Name}}Node true " "
+// @Param body body  []{{$e.Type.Name}}NodeNotID true " "
 // @Success 200 {object} RestReturn{data=[]{{$e.Type.Name}}NodeNotID}
 // @Router /{{snake $n.Name}}/{id}/{{snake (plural $e.Type.Name)}} [post]
 	{{- end}}
