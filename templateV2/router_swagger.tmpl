@@ -1,0 +1,168 @@
+package genrest
+import "github.com/gin-gonic/gin"
+{{ range $n := $.Nodes }}
+	{{$a := (PaseRestNodeMethod $n.Annotations)}}
+	{{range $method, $route := $a}}
+	{{if eq $method "Get"}}
+	{{$method = "GetOne"}}
+// @Summary get one {{snake $n.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$n.Name}}
+// @Param id path int true " "
+// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
+// @Router /{{snake $n.Name}}/{id} [get]
+func {{$n.Name}}{{$method}}(c *gin.Context) {
+}
+	{{$method = "GetList"}}
+// @Summary get list {{snake $n.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$n.Name}}
+// @Param data query {{$n.Name}}Query true " "
+// @Header 200 {string} Count "The total amount"
+// @Success 200 {object} RestReturn{data=Get{{$n.Name}}ListData}
+// @Router /{{snake (plural $n.Name)}} [get]
+func {{$n.Name}}{{$method}}(c *gin.Context) {
+}
+	{{end}}
+	{{if eq $method "Create"}}
+	{{$method = "CreateOne"}}
+// @Summary create one {{snake $n.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$n.Name}}
+// @Param body body {{$n.Name}}NodeNotID true " "
+// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
+// @Router /{{snake $n.Name}} [post]
+func {{$n.Name}}{{$method}}(c *gin.Context) {
+}
+{{$method = "CreateList"}}
+// @Summary create list {{snake $n.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$n.Name}}
+// @Param body body []{{$n.Name}}Node true " "
+// @Success 200 {object} RestReturn{data=[]{{$n.Name}}NodeNotID}
+// @Router /{{snake (plural $n.Name)}} [post]
+func {{$n.Name}}{{$method}}(c *gin.Context) {
+}
+{{end}}
+{{if eq $method "Update"}}
+{{$method = "UpdateOne"}}
+// @Summary update one {{snake $n.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$n.Name}}
+// @Param id path int true " "
+// @Param body body {{$n.Name}}NodeNotID true " "
+// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
+// @Router /{{snake $n.Name}}/{id} [put]
+func {{$n.Name}}{{$method}}(c *gin.Context) {
+}
+{{$method = "UpdateList"}}
+// @Summary update list {{snake $n.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$n.Name}}
+// @Param body body []{{$n.Name}}Node true " "
+// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
+// @Router /{{snake (plural $n.Name)}} [put]
+func {{$n.Name}}{{$method}}(c *gin.Context) {
+}
+	{{end}}
+	{{if eq $method "Delete"}}
+	{{$method = "DeleteOne"}}
+// @Summary delete one {{snake $n.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$n.Name}}
+// @Param id path int true " "
+// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
+// @Router /{{snake $n.Name}}/{id} [delete]
+func {{$n.Name}}{{$method}}(c *gin.Context) {
+}
+{{$method = "DeleteList"}}
+// @Summary delete list {{snake $n.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$n.Name}}
+// @Param ids query IdsQuery true " "
+// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
+// @Router /{{snake (plural $n.Name)}} [delete]
+func {{$n.Name}}{{$method}}(c *gin.Context) {
+}
+	{{end}}
+
+	{{end}}
+	{{ range $e := $n.Edges}}
+	{{$a := (PaseRestEdgeMethod $e.Annotations)}}
+	{{range $method, $route := $a}}
+	{{if eq (toString $e.Unique) "true"}}
+	{{- if eq $method "Get"}}
+// @Summary get one {{snake $e.Type.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$e.Type.Name}} by {{$n.Name}}
+// @Param id path int true " "
+// @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
+// @Router /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [get]
+	{{- end}}
+{{- if eq $method "Create"}}
+// @Summary create one {{snake $e.Type.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$e.Type.Name}} by {{$n.Name}}
+// @Param id path int true " "
+// @Param body body  {{$e.Type.Name}}NodeNotID true " "
+// @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
+// @Router /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [post]
+	{{- end}}
+	{{- if eq $method "Delete"}}
+// @Summary delete one {{snake $e.Type.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$e.Type.Name}} by {{$n.Name}}
+// @Param id path int true " "
+// @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
+// @Router /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [delete]
+	{{- end}}
+func {{$method}}One{{$e.Type.Name}}By{{$n.Name}}(c *gin.Context) {
+}
+	{{else}}
+	{{- if eq $method "Get"}}
+// @Summary get list {{snake $e.Type.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$e.Type.Name}} by {{$n.Name}}
+// @Param id path int true " "
+// @Param query query  {{$e.Type.Name}}Query false " "
+// @Success 200 {object} RestReturn{data=[]{{$e.Type.Name}}Node}
+// @Router /{{snake $n.Name}}/{id}/{{snake (plural $e.Type.Name)}} [get]
+	{{- end}}
+	{{- if eq $method "Create"}}
+// @Summary create list {{snake $e.Type.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$e.Type.Name}} by {{$n.Name}}
+// @Param id path int true " "
+// @Param body body  []{{$e.Type.Name}}NodeNotID true " "
+// @Success 200 {object} RestReturn{data=[]{{$e.Type.Name}}NodeNotID}
+// @Router /{{snake $n.Name}}/{id}/{{snake (plural $e.Type.Name)}} [post]
+	{{- end}}
+	{{- if eq $method "Delete"}}
+// @Summary delete one {{snake $e.Type.Name}}
+// @Accept  json
+// @Produce  json
+// @Tags {{$e.Type.Name}} by {{$n.Name}}
+// @Param id path int true " "
+// @Param query query  {{$e.Type.Name}}Query false " "
+// @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
+// @Router /{{snake $n.Name}}/{id}/{{plural (snake $e.Type.Name)}} [delete]
+	{{- end}}
+func {{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}(c *gin.Context) {
+}
+	{{end}}
+	{{end}}
+	{{end}}
+{{end}}

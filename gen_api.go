@@ -1,34 +1,40 @@
 package genapi
 
 import (
+	"bytes"
 	_ "embed"
+	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
+	"fmt"
+	"log"
+	"path/filepath"
+	"text/template"
 )
 
-//go:embed template/predicateV2.tmpl
+//go:embed templateV2/predicateV2.tmpl
 var predicateV2_tmpl string
 
-//go:embed template/curd.tmpl
+//go:embed templateV2/curd.tmpl
 var curd_tmpl string
 
-//go:embed template/new_obj.tmpl
+//go:embed templateV2/new_obj.tmpl
 var new_obj_tmpl string
 
-//go:embed template/swag.tmpl
+//go:embed templateV2/swag.tmpl
 var swag_tmpl string
 
-//go:embed template/router_swagger.tmpl
+//go:embed templateV2/router_swagger.tmpl
 var router_swagger_tmpl string
 
-//go:embed template/default_predicate.tmpl
+//go:embed templateV2/default_predicate.tmpl
 var default_predicate_tmpl string
 
-//go:embed template/tools.tmpl
+//go:embed templateV2/tools.tmpl
 var tools_tmpl string
 
 var Templates []*gen.Template
 
-func init() {
+func InitStart() {
 
 	Templates = []*gen.Template{
 		gen.MustParse(gen.NewTemplate("predicateV2").Funcs(gen.Funcs).Funcs(FM).Parse(predicateV2_tmpl)),
@@ -45,5 +51,112 @@ func init() {
 		//gen.MustParse(gen.NewTemplate("router_swagger").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/router_swagger.tmpl")),
 		//gen.MustParse(gen.NewTemplate("default_predicate").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/default_predicate.tmpl")),
 		//gen.MustParse(gen.NewTemplate("tools").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/tools.tmpl")),
+	}
+}
+
+type tmplMsg struct {
+	Name string
+	Text string
+}
+
+func (t *tmplMsg) NameFormat(s string) string {
+	return fmt.Sprintf("%s_%s.go", s, t.Name)
+}
+
+func Load(schemaPath string) {
+	nodeTmps := []tmplMsg{
+		{
+			Name: "predicate",
+			Text: predicateV2_tmpl,
+		},
+		{
+			Name: "curd",
+			Text: curd_tmpl,
+		},
+		{
+			Name: "objswag",
+			Text: swag_tmpl,
+		},
+		{
+			Name: "router_swagger",
+			Text: router_swagger_tmpl,
+		},
+		{
+			"default_predicate",
+			default_predicate_tmpl,
+		},
+	}
+	gTmps := []tmplMsg{
+		{
+			Name: "new",
+			Text: new_obj_tmpl,
+		},
+		{
+			Name: "tools",
+			Text: tools_tmpl,
+		},
+	}
+
+	tpl := template.New("gen").Funcs(gen.Funcs).Funcs(FM)
+
+	g, err := entc.LoadGraph(schemaPath, &gen.Config{})
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	assets := assets{
+		dirs: []string{
+			filepath.Join(g.Config.Target, "service"),
+			filepath.Join(g.Config.Target, "client"),
+		},
+	}
+
+	for _, gTmp := range gTmps {
+		parse, err := tpl.Parse(gTmp.Text)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		b := bytes.NewBuffer(nil)
+		err = parse.Execute(b, g)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		assets.files = append(assets.files, file{
+			path:    filepath.Join(g.Config.Target, "service", gTmp.Name+".go"),
+			content: b.Bytes(),
+		})
+
+	}
+
+	for _, node := range g.Nodes {
+
+		tmpG := gen.Graph{
+			Config: g.Config,
+			Nodes:  []*gen.Type{node},
+		}
+		for _, nodeTmp := range nodeTmps {
+			parse, err := tpl.Parse(nodeTmp.Text)
+			if err != nil {
+				log.Fatalln(err.Error())
+			}
+			b := bytes.NewBuffer(nil)
+			err = parse.Execute(b, tmpG)
+			if err != nil {
+				log.Fatalln(err.Error())
+			}
+
+			assets.files = append(assets.files, file{
+				path:    filepath.Join(g.Config.Target, "service", nodeTmp.NameFormat(gen.Funcs["snake"].(func(string) string)(node.Name))),
+				content: b.Bytes(),
+			})
+		}
+	}
+
+	if err := assets.write(); err != nil {
+		log.Fatalln(err.Error())
+	}
+	err = assets.formatGo()
+	if err != nil {
+		log.Fatalln(err.Error())
 	}
 }

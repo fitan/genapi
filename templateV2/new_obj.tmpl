@@ -1,0 +1,37 @@
+package genrest
+import (
+    "{{$.Config.Package}}"
+)
+type CURDALL struct {
+{{- range $n := $.Nodes }}
+    {{$n.Name}} *{{$n.Name}}CURD
+{{- end}}
+}
+
+func NewCURDALL(db *ent.Client) *CURDALL {
+    return &CURDALL{
+{{- range $n := $.Nodes }}
+    {{$n.Name}}: New{{$n.Name}}CURD(db),
+{{- end}}
+    }
+}
+
+func (c *CURDALL)RegisterRouterALL(r *gin.Engine)  {
+{{- range $n := $.Nodes }}
+    c.{{$n.Name}}.RegisterRouter(r)
+{{- end}}
+}
+
+{{ range $n := $.Nodes }}
+
+
+func New{{$n.Name}}CURD(db *ent.Client) *{{$n.Name}}CURD {
+    return &{{$n.Name}}CURD{
+        Db:      db,
+        {{ range $e := $n.Edges}}
+        {{$e.Type.Name}}Obj: newBase{{$e.Type.Name}}CURD(db),
+        {{ end }}
+    }
+}
+
+{{end}}
