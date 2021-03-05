@@ -1,6 +1,8 @@
 package genrest
 import "github.com/gin-gonic/gin"
-{{ range $n := $.Nodes }}
+{{range $n := $.Nodes}}
+{{template "swaggerobj" $n}}
+
 	{{$a := (PaseRestNodeMethod $n.Annotations)}}
 	{{range $method, $route := $a}}
 	{{if eq $method "Get"}}

@@ -1,6 +1,5 @@
-package genrest
-
-{{ range $n := $.Nodes }}
+{{define "swaggerobj"}}
+{{$n := .}}
 type {{$n.Name}}Node struct {
     ID {{ $n.ID.Type }} {{ with $n.Annotations.Fields.StructTag.id }}`{{ . }}`{{ else }}`{{ $n.ID.StructTag }}`{{ end }}
     {{range $f := $n.Fields}}

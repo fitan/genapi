@@ -1,4 +1,4 @@
-package genapi
+package pkg
 
 import (
 	"encoding/json"

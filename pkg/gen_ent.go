@@ -1,4 +1,4 @@
-package genapi
+package pkg
 
 import (
 	"bytes"
@@ -11,25 +11,28 @@ import (
 	"text/template"
 )
 
-//go:embed templateV2/predicateV2.tmpl
+//go:embed internal/templateV2/predicateV2.tmpl
 var predicateV2_tmpl string
 
-//go:embed templateV2/curd.tmpl
+//go:embed internal/templateV2/curd.tmpl
 var curd_tmpl string
 
-//go:embed templateV2/new_obj.tmpl
+//go:embed internal/templateV2/router.tmpl
+var router_tmpl string
+
+//go:embed internal/templateV2/new_obj.tmpl
 var new_obj_tmpl string
 
-//go:embed templateV2/swag.tmpl
-var swag_tmpl string
+//go:embed internal/templateV2/swagger_obj.tmpl
+var swagger_obj_tmpl string
 
-//go:embed templateV2/router_swagger.tmpl
-var router_swagger_tmpl string
+//go:embed internal/templateV2/swagger.tmpl
+var swagger_tmpl string
 
-//go:embed templateV2/default_predicate.tmpl
+//go:embed internal/templateV2/default_predicate.tmpl
 var default_predicate_tmpl string
 
-//go:embed templateV2/tools.tmpl
+//go:embed internal/templateV2/tools.tmpl
 var tools_tmpl string
 
 var Templates []*gen.Template
@@ -40,8 +43,8 @@ func InitStart() {
 		gen.MustParse(gen.NewTemplate("predicateV2").Funcs(gen.Funcs).Funcs(FM).Parse(predicateV2_tmpl)),
 		gen.MustParse(gen.NewTemplate("curd").Funcs(gen.Funcs).Funcs(FM).Parse(curd_tmpl)),
 		gen.MustParse(gen.NewTemplate("new_obj").Funcs(gen.Funcs).Funcs(FM).Parse(new_obj_tmpl)),
-		gen.MustParse(gen.NewTemplate("swag").Funcs(gen.Funcs).Funcs(FM).Parse(swag_tmpl)),
-		gen.MustParse(gen.NewTemplate("router_swagger").Funcs(gen.Funcs).Funcs(FM).Parse(router_swagger_tmpl)),
+		gen.MustParse(gen.NewTemplate("swag").Funcs(gen.Funcs).Funcs(FM).Parse(swagger_obj_tmpl)),
+		gen.MustParse(gen.NewTemplate("router_swagger").Funcs(gen.Funcs).Funcs(FM).Parse(swagger_tmpl)),
 		gen.MustParse(gen.NewTemplate("default_predicate").Funcs(gen.Funcs).Funcs(FM).Parse(default_predicate_tmpl)),
 		gen.MustParse(gen.NewTemplate("tools").Funcs(gen.Funcs).Funcs(FM).Parse(tools_tmpl)),
 		//gen.MustParse(gen.NewTemplate("predicateV2").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/predicateV2.tmpl")),
@@ -63,7 +66,7 @@ func (t *tmplMsg) NameFormat(s string) string {
 	return fmt.Sprintf("%s_%s.go", s, t.Name)
 }
 
-func Load(schemaPath string) {
+func Load(schemaPath string, dest string, node []string) {
 	nodeTmps := []tmplMsg{
 		{
 			Name: "predicate",
@@ -74,12 +77,8 @@ func Load(schemaPath string) {
 			Text: curd_tmpl,
 		},
 		{
-			Name: "objswag",
-			Text: swag_tmpl,
-		},
-		{
-			Name: "router_swagger",
-			Text: router_swagger_tmpl,
+			Name: "swagger",
+			Text: swagger_tmpl,
 		},
 		{
 			"default_predicate",
@@ -97,7 +96,14 @@ func Load(schemaPath string) {
 		},
 	}
 
-	tpl := template.New("gen").Funcs(gen.Funcs).Funcs(FM)
+	tpl, err := template.New("gen").Funcs(gen.Funcs).Funcs(FM).Parse(router_tmpl)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	tpl, err = tpl.Parse(swagger_obj_tmpl)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 
 	g, err := entc.LoadGraph(schemaPath, &gen.Config{})
 	if err != nil {
@@ -106,8 +112,8 @@ func Load(schemaPath string) {
 
 	assets := assets{
 		dirs: []string{
-			filepath.Join(g.Config.Target, "service"),
-			filepath.Join(g.Config.Target, "client"),
+			filepath.Join(dest, "service"),
+			filepath.Join(dest, "client"),
 		},
 	}
 

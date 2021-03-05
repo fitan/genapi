@@ -16,7 +16,7 @@ func NewCURDALL(db *ent.Client) *CURDALL {
     }
 }
 
-func (c *CURDALL)RegisterRouterALL(r *gin.Engine)  {
+func (c *CURDALL)RegisterRouterALL(r interface{})  {
 {{- range $n := $.Nodes }}
     c.{{$n.Name}}.RegisterRouter(r)
 {{- end}}

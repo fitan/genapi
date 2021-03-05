@@ -32,31 +32,23 @@ type {{$n.Name}}CURD struct {
 	{{ end }}	
 }
 
-func (curd *{{$n.Name}}CURD) RegisterRouter(r *gin.Engine) {
-	{{$a := (PaseRestNodeMethod $n.Annotations)}}
+func (curd *{{$n.Name}}CURD) RegisterRouter(router interface{}) {
+	switch router.(type) {
+	case *gin.Engine:
+	r := router.(*gin.Engine)
+	{{template "router" $n}}
+
+	case *gin.RouterGroup:
+	r := router.(*gin.RouterGroup)
+		{{$a := (PaseRestNodeMethod $n.Annotations)}}
 	{{range $method, $route := $a}}
 	{{if eq $method "Get"}}
 	{{$method = "GetOne"}}
-	// @Summary get one {{snake $n.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$n.Name}}
-	// @Param id path int true " "
-	// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
-	// @Router /{{snake $n.Name}}/{id} [get]
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}(c)
 		RestReturnFunc(c, data, err)
 	})
 	{{$method = "GetList"}}
-	// @Summary get list {{snake $n.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$n.Name}}
-	// @Param data query {{$n.Name}}Query true " "
-	// @Header 200 {string} Count "The total amount"
-	// @Success 200 {object} RestReturn{data=Get{{$n.Name}}ListData}
-	// @Router /{{snake (plural $n.Name)}} [get]
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}(c)
 		RestReturnFunc(c, data, err)
@@ -64,25 +56,13 @@ func (curd *{{$n.Name}}CURD) RegisterRouter(r *gin.Engine) {
 	{{end}}
 	{{if eq $method "Create"}}
 	{{$method = "CreateOne"}}
-	// @Summary create one {{snake $n.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$n.Name}}
-	// @Param body body {{$n.Name}}NodeNotID true " "
-	// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
-	// @Router /{{snake $n.Name}} [post]
+
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}(c)
 		RestReturnFunc(c, data, err)
 	})
 	{{$method = "CreateList"}}
-	// @Summary create list {{snake $n.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$n.Name}}
-	// @Param body body []{{$n.Name}}Node true " "
-	// @Success 200 {object} RestReturn{data=[]{{$n.Name}}NodeNotID}
-	// @Router /{{snake (plural $n.Name)}} [post]
+
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}(c)
 		RestReturnFunc(c, data, err)
@@ -90,26 +70,13 @@ func (curd *{{$n.Name}}CURD) RegisterRouter(r *gin.Engine) {
 	{{end}}
 	{{if eq $method "Update"}}
 	{{$method = "UpdateOne"}}
-	// @Summary update one {{snake $n.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$n.Name}}
-	// @Param id path int true " "
-	// @Param body body {{$n.Name}}NodeNotID true " "
-	// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
-	// @Router /{{snake $n.Name}}/{id} [put]
+
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}(c)
 		RestReturnFunc(c, data, err)
 	})
 	{{$method = "UpdateList"}}
-	// @Summary update list {{snake $n.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$n.Name}}
-	// @Param body body []{{$n.Name}}Node true " "
-	// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
-	// @Router /{{snake (plural $n.Name)}} [put]
+
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
 		err := curd.{{$method}}(c)
 		RestReturnFunc(c, "", err)
@@ -117,25 +84,13 @@ func (curd *{{$n.Name}}CURD) RegisterRouter(r *gin.Engine) {
 	{{end}}
 	{{if eq $method "Delete"}}
 	{{$method = "DeleteOne"}}
-	// @Summary delete one {{snake $n.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$n.Name}}
-	// @Param id path int true " "
-	// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
-	// @Router /{{snake $n.Name}}/{id} [delete]
+
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}(c)
 		RestReturnFunc(c, data, err)
 	})
 	{{$method = "DeleteList"}}
-	// @Summary delete list {{snake $n.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$n.Name}}
-	// @Param ids query IdsQuery true " "
-	// @Success 200 {object} RestReturn{data={{$n.Name}}Node}
-	// @Router /{{snake (plural $n.Name)}} [delete]
+
 	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}(c)
 		RestReturnFunc(c, data, err)
@@ -148,32 +103,11 @@ func (curd *{{$n.Name}}CURD) RegisterRouter(r *gin.Engine) {
 	{{range $method, $route := $a}}
 	{{if eq (toString $e.Unique) "true"}}
 	{{if eq $method "Get"}}
-	// @Summary get one {{snake $e.Type.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$e.Type.Name}} by {{$n.Name}}
-	// @Param id path int true " "
-	// @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
-	// @Router /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [get]
+
 	{{end}}
 	{{if eq $method "Create"}}
-	// @Summary create one {{snake $e.Type.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$e.Type.Name}} by {{$n.Name}}
-	// @Param id path int true " "
-	// @Param body body  {{$e.Type.Name}}NodeNotID true " "
-	// @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
-	// @Router /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [post]
 	{{end}}
 	{{if eq $method "Delete"}}
-	// @Summary delete one {{snake $e.Type.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$e.Type.Name}} by {{$n.Name}}
-	// @Param id path int true " "
-	// @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
-	// @Router /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [delete]
 	{{end}}
 	r.{{$route}}(curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}Id(c)
@@ -181,34 +115,10 @@ func (curd *{{$n.Name}}CURD) RegisterRouter(r *gin.Engine) {
 	})
 	{{else}}
 	{{if eq $method "Get"}}
-	// @Summary get list {{snake $e.Type.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$e.Type.Name}} by {{$n.Name}}
-	// @Param id path int true " "
-	// @Param query query  {{$e.Type.Name}}Query false " "
-	// @Success 200 {object} RestReturn{data=[]{{$e.Type.Name}}Node}
-	// @Router /{{snake $n.Name}}/{id}/{{snake (plural $e.Type.Name)}} [get]
 	{{end}}
 	{{if eq $method "Create"}}
-	// @Summary create list {{snake $e.Type.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$e.Type.Name}} by {{$n.Name}}
-	// @Param id path int true " "
-	// @Param body body  []{{$e.Type.Name}}Node true " "
-	// @Success 200 {object} RestReturn{data=[]{{$e.Type.Name}}NodeNotID}
-	// @Router /{{snake $n.Name}}/{id}/{{snake (plural $e.Type.Name)}} [post]
 	{{end}}
 	{{if eq $method "Delete"}}
-	// @Summary delete one {{snake $e.Type.Name}}
-	// @Accept  json
-	// @Produce  json
-	// @Tags {{$e.Type.Name}} by {{$n.Name}}
-	// @Param id path int true " "
-	// @Param query query  {{$e.Type.Name}}Query false " "
-	// @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
-	// @Router /{{snake $n.Name}}/{id}/{{plural (snake $e.Type.Name)}} [delete]
 	{{end}}
 	r.{{$route}}(curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}Id(c)
@@ -217,19 +127,7 @@ func (curd *{{$n.Name}}CURD) RegisterRouter(r *gin.Engine) {
 	{{end}}
 	{{end}}
 	{{end}}
-}
-
-func (curd *{{$n.Name}}CURD) BindId(c *gin.Context) (IdUri, error) {
-	id := IdUri{}
-	err := c.ShouldBindUri(&id)
-	return id, err
-}
-
-func (curd *{{$n.Name}}CURD) BindIds(c *gin.Context) (IdsQuery, error) {
-	ids := IdsQuery{}
-	err := c.ShouldBindQuery(&ids)
-	return ids, err
-
+	}
 }
 
 func (curd *{{$n.Name}}CURD) BindObj(c *gin.Context) (*ent.{{$n.Name}}, error) {
@@ -257,7 +155,7 @@ func (curd *{{$n.Name}}CURD) BaseGetOneQueryer(id int) (*ent.{{$n.Name}}Query, e
 }
 
 func (curd *{{$n.Name}}CURD) defaultGetOneQueryer(c *gin.Context) (*ent.{{$n.Name}}Query, error) {
-	id, err := curd.BindId(c)
+	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
@@ -471,7 +369,7 @@ func (curd *{{$n.Name}}CURD) BaseUpdateOneUpdater(id int, body *ent.{{$n.Name}})
 }
 
 func (curd *{{$n.Name}}CURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.{{$n.Name}}UpdateOne, error) {
-	id, err := curd.BindId(c)
+	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
@@ -541,7 +439,7 @@ func (curd *{{$n.Name}}CURD) BaseDeleteOneDeleter(id int) (*ent.{{$n.Name}}Delet
 }
 
 func (curd *{{$n.Name}}CURD) defaultDeleteOneDeleter(c *gin.Context) (*ent.{{$n.Name}}Delete, error) {
-	id, err := curd.BindId(c)
+	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
@@ -566,7 +464,7 @@ func (curd *{{$n.Name}}CURD) BaseDeleteListDeleter(ids []int) (*ent.{{$n.Name}}D
 }
 
 func (curd *{{$n.Name}}CURD) defaultDeleteListDeleter(c *gin.Context) (*ent.{{$n.Name}}Delete, error) {
-	ids, err := curd.BindIds(c)
+	ids, err := BindIds(c)
 	if err != nil {
 		return nil, err
 	}
@@ -610,7 +508,7 @@ func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}IdRoutePath()
 
 
 func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context) (*ent.{{$e.Type.Name}}, error) {
-	id, err := curd.BindId(c)
+	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
@@ -673,7 +571,7 @@ func (curd *{{$n.Name}}CURD) CreateList{{plural $e.Type.Name}}By{{$n.Name}}IdRou
 }
 
 func (curd *{{$n.Name}}CURD) CreateList{{plural $e.Type.Name}}By{{$n.Name}}Id(c *gin.Context) ([]*ent.{{$e.Type.Name}}, error) {
-	id, err := curd.BindId(c)
+	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}

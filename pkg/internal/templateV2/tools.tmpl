@@ -11,8 +11,20 @@ type IdsQuery struct {
 	Ids []int `form:"ids"`
 }
 
+func BindIds(c *gin.Context) (IdsQuery, error) {
+	ids := IdsQuery{}
+	err := c.ShouldBindQuery(&ids)
+	return ids, err
+}
+
 type IdUri struct {
 	ID int `uri:"id"`
+}
+
+func BindId(c *gin.Context) (IdUri, error) {
+	id := IdUri{}
+	err := c.ShouldBindUri(&id)
+	return id, err
 }
 
 
