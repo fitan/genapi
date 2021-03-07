@@ -96,7 +96,7 @@ func Load(schemaPath string, dest string, node []string) {
 		},
 	}
 
-	tpl, err := template.New("gen").Funcs(gen.Funcs).Funcs(FM).Parse(router_tmpl)
+	tpl, err := template.New("gen_ent").Funcs(gen.Funcs).Funcs(FM).Parse(router_tmpl)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

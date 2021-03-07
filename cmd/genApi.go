@@ -16,32 +16,31 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"log"
+
+	"github.com/spf13/cobra"
 )
 
-// genEntCmd represents the genEnt command
-var genEntCmd = &cobra.Command{
-	Use:   "gen-ent",
-	Short: "gen ent restful",
+// genApiCmd represents the genApi command
+var genApiCmd = &cobra.Command{
+	Use:   "gen-api",
+	Short: "gen api template",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		//pkg.Load(src, dest, nodes)
 		log.Printf("src: %v, dest: %v", *src, *dest)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(genEntCmd)
+	rootCmd.AddCommand(genApiCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// genEntCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// genApiCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// genEntCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	// genApiCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

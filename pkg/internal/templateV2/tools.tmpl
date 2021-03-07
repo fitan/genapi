@@ -8,7 +8,7 @@ import (
 )
 
 type IdsQuery struct {
-	Ids []int `form:"ids"`
+	Ids []int `form:"ids" binding:"dive,gt=0"`
 }
 
 func BindIds(c *gin.Context) (IdsQuery, error) {
@@ -18,7 +18,7 @@ func BindIds(c *gin.Context) (IdsQuery, error) {
 }
 
 type IdUri struct {
-	ID int `uri:"id"`
+	ID int `uri:"id" binding:"gt=0"`
 }
 
 func BindId(c *gin.Context) (IdUri, error) {

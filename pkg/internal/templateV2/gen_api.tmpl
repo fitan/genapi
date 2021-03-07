@@ -1,0 +1,52 @@
+package gen
+
+import (
+	"ent_samp/api"
+	"ent_samp/models/api_models"
+	genrest "ent_samp/service"
+	"github.com/gin-gonic/gin"
+)
+
+{{range $funcName, $msg := .}}
+
+func {{$funcName}}(c *gin.Context)  {
+	var err error
+	{{if $msg.In.ObjectMsg.IsSelector}}
+	in := &{{$msg.In.ObjectMsg.SelectorX}}.{{$msg.In.ObjectMsg.SelectorSel}}{}
+	{{else}}
+    in := &{{$msg.In.ObjectMsg.PkgName}}.{{$msg.In.ObjectMsg.SelectorSel}}{}
+	{{end}}
+    {{if $msg.In.InHas.HasBody}}
+	err = c.ShouldBindJSON(&in.Body)
+	if err != nil {
+		genrest.RestReturnFunc(c, "", err)
+		return
+	}
+	{{end}}
+	{{if $msg.In.InHas.HasUri}}
+	err = c.ShouldBindUri(&in.Uri)
+	if err != nil {
+		genrest.RestReturnFunc(c, "", err)
+		return
+	}
+	{{end}}
+	{{if $msg.In.InHas.HasHeader}}
+	err = c.ShouldBindHeader(&in.Header)
+	if err != nil {
+		genrest.RestReturnFunc(c, "", err)
+		return
+	}
+	{{end}}
+	{{if $msg.In.InHas.HasQuery}}
+	err = c.ShouldBindQuery(&in.Query)
+	if err != nil {
+		genrest.RestReturnFunc(c, "", err)
+		return
+	}
+	{{end}}
+
+
+	data, err := {{$msg.SrcPkgName}}.{{$funcName}}(c, in)
+	genrest.RestReturnFunc(c, data, err)
+}
+{{end}}

@@ -29,7 +29,9 @@ func New{{$n.Name}}CURD(db *ent.Client) *{{$n.Name}}CURD {
     return &{{$n.Name}}CURD{
         Db:      db,
         {{ range $e := $n.Edges}}
-        {{$e.Type.Name}}Obj: newBase{{$e.Type.Name}}CURD(db),
+        {{$e.Type.Name}}Obj: &{{$e.Type.Name}}CURD{
+            db,
+        },
         {{ end }}
     }
 }

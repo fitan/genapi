@@ -15,15 +15,6 @@ import (
 {{ range $n := $.Nodes }}
 
 
-func newBase{{$n.Name}}CURD(db *ent.Client) *{{$n.Name}}CURD {
-	return &{{$n.Name}}CURD{
-		Db:      db,
-		{{ range $e := $n.Edges}}
-		{{$e.Type.Name}}Obj: nil,
-		{{ end }}
-	}
-}
-
 
 type {{$n.Name}}CURD struct {
 	Db     *ent.Client
