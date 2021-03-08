@@ -7,12 +7,12 @@ import (
 
 var DB *ent.Client
 
-func Init()  {
+func Init() {
 	DB = NewDB()
 }
 
 func NewDB() *ent.Client {
-	db, err := ent.Open("mysql", "root:123456@tcp(localhost:3306)/ent?charset=utf8&parseTime=true")
+	db, err := ent.Open("mysql", "root:123456@tcp(10.143.131.148:3306)/ent?charset=utf8&parseTime=true")
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

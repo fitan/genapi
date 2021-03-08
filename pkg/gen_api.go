@@ -10,16 +10,23 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
-	"html/template"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"strings"
+	"text/template"
 )
 
 //go:embed internal/templateV2/gen_api.tmpl
 var gen_api_tmpl string
+
+//go:embed internal/templateV2/register.tmpl
+var register_tmpl string
+
+//go:embed internal/templateV2/pkg_name.tmpl
+var pkg_name_tmpl string
 
 const GenMark string = "@GenApi"
 
@@ -145,9 +152,12 @@ func (c *ParseContext) FuncHasSwaggerRouter(doc *ast.CommentGroup) (bool, FuncRo
 			continue
 		}
 		if fields[0] == "//" && fields[1] == GenMark {
-			return true, FuncRouter{
-				Path:   fields[2],
-				Method: strings.ToUpper(fields[4]),
+			method := fields[3]
+			if len(method) > 2 {
+				return true, FuncRouter{
+					Path:   fields[2],
+					Method: strings.ToUpper(method[1 : len(method)-1]),
+				}
 			}
 		}
 	}
@@ -293,7 +303,7 @@ func LoadPkgs(path string) (*token.FileSet, map[string]*ast.Package) {
 func (c *ParseContext) FindInHas(api ApiMsg) InHas {
 	if api.In.ObjectMsg.IsSelector {
 		fset, pkgs := LoadPkgs(api.In.ObjectMsg.ObjectImportMsg.PathDir)
-		fileAst, structType, has := FindStructByPkgs(pkgs[api.In.ObjectMsg.SelectorX], api.In.ObjectMsg.SelectorSel)
+		fileAst, structType, has := FindStructByPkg(pkgs[api.In.ObjectMsg.SelectorX], api.In.ObjectMsg.SelectorSel)
 		if !has {
 			log.Fatalln(fmt.Sprintf("not find struct %v by pkg %v", api.In.ObjectMsg.SelectorSel, api.In.ObjectMsg.SelectorX))
 		}
@@ -301,7 +311,7 @@ func (c *ParseContext) FindInHas(api ApiMsg) InHas {
 		inHas := FindInByStructType(structType, fset, pkgs[api.In.ObjectMsg.SelectorX], parseImport, api.In.ObjectMsg.ObjectImportMsg.RawImport)
 		return inHas
 	} else {
-		fileAst, structType, has := FindStructByPkgs(c.Pkgs[api.In.ObjectMsg.PkgName], api.In.ObjectMsg.SelectorSel)
+		fileAst, structType, has := FindStructByPkg(c.Pkgs[api.In.ObjectMsg.PkgName], api.In.ObjectMsg.SelectorSel)
 		if !has {
 			log.Fatalln(fmt.Sprintf("not find struct %v by pkg %v", api.In.ObjectMsg.SelectorSel, api.In.ObjectMsg.PkgName))
 		}
@@ -313,7 +323,43 @@ func (c *ParseContext) FindInHas(api ApiMsg) InHas {
 
 }
 
-func FindStructByPkgs(pkg *ast.Package, structName string) (*ast.File, *ast.StructType, bool) {
+type FieldTag struct {
+	FieldName string
+	TagName   string
+}
+
+func FilterStructFieldByTag(structType *ast.StructType, tagName string) []FieldTag {
+	fieldTags := make([]FieldTag, 0, 0)
+	if tagName == "" {
+		return fieldTags
+	}
+	for _, field := range structType.Fields.List {
+		if field.Tag == nil {
+			continue
+		}
+		tag := reflect.StructTag(field.Tag.Value)
+		value, ok := tag.Lookup(tagName)
+		if ok {
+			fieldTags = append(fieldTags, FieldTag{
+				FieldName: field.Names[0].Name,
+				TagName:   value,
+			})
+		}
+	}
+	return fieldTags
+}
+
+func FindStructByPkgs(pkgs map[string]*ast.Package, structName string) (*ast.File, *ast.StructType, bool) {
+	for _, pkg := range pkgs {
+		fileType, structType, has := FindStructByPkg(pkg, structName)
+		if has {
+			return fileType, structType, has
+		}
+	}
+	return nil, nil, false
+}
+
+func FindStructByPkg(pkg *ast.Package, structName string) (*ast.File, *ast.StructType, bool) {
 	var structType *ast.StructType
 	var fileAst *ast.File
 
@@ -350,16 +396,16 @@ func FindInByStructType(structType *ast.StructType, fset *token.FileSet, pkg *as
 			switch ident.Name {
 			case "Query":
 				inHas.HasQuery = true
-				inHas.QueryMsg = FieldTypeIsStruct(field, fset, pkg, importMsgs, byFindImportPath)
+				inHas.QueryMsg = FieldTypeIsStruct(field, fset, pkg, importMsgs, byFindImportPath, "form")
 			case "Body":
 				inHas.HasBody = true
-				inHas.BodyMsg = FieldTypeIsStruct(field, fset, pkg, importMsgs, byFindImportPath)
+				inHas.BodyMsg = FieldTypeIsStruct(field, fset, pkg, importMsgs, byFindImportPath, "")
 			case "Uri":
 				inHas.HasUri = true
-				inHas.UriMsg = FieldTypeIsStruct(field, fset, pkg, importMsgs, byFindImportPath)
+				inHas.UriMsg = FieldTypeIsStruct(field, fset, pkg, importMsgs, byFindImportPath, "uri")
 			case "Header":
 				inHas.HasHeader = true
-				inHas.HeaderMsg = FieldTypeIsStruct(field, fset, pkg, importMsgs, byFindImportPath)
+				inHas.HeaderMsg = FieldTypeIsStruct(field, fset, pkg, importMsgs, byFindImportPath, "header")
 			}
 		}
 
@@ -368,26 +414,38 @@ func FindInByStructType(structType *ast.StructType, fset *token.FileSet, pkg *as
 }
 
 type FieldMsg struct {
+	IsSelector bool
+	PkgName    string
 	Raw        string
+	FieldTags  []FieldTag
 	ImportPath string
 }
 
-func FieldTypeIsStruct(field *ast.Field, fset *token.FileSet, pkg *ast.Package, importMsg map[string]ObjectImportMsg, byFindImportPath string) FieldMsg {
+func FieldTypeIsStruct(field *ast.Field, fset *token.FileSet, pkg *ast.Package, importMsg map[string]ObjectImportMsg, byFindImportPath string, tagMark string) FieldMsg {
 	fieldMsg := FieldMsg{Raw: NodeString(fset, field.Type)}
 	switch field.Type.(type) {
 	case *ast.SelectorExpr:
 		selectorExpr, _ := field.Type.(*ast.SelectorExpr)
 		x := selectorExpr.X.(*ast.Ident).Name
 		//sel := selectorExpr.Sel.Name
+		fieldMsg.IsSelector = true
 		fieldMsg.ImportPath = importMsg[x].RawImport
+		_, pkgs := LoadPkgs(importMsg[x].PathDir)
+		_, structType, has := FindStructByPkgs(pkgs, selectorExpr.Sel.Name)
+		if !has {
+			log.Fatalln(fmt.Sprintf("import pkg not found struct %v", x))
+		}
+		fieldMsg.FieldTags = FilterStructFieldByTag(structType, tagMark)
 		return fieldMsg
 	case *ast.Ident:
 		ident, _ := field.Type.(*ast.Ident)
 		name := ident.Name
-		_, _, has := FindStructByPkgs(pkg, name)
+		_, structType, has := FindStructByPkg(pkg, name)
 		if !has {
 			log.Fatalln(fmt.Sprintf("local pkg not found struct %v", ident.Name))
 		}
+		fieldMsg.FieldTags = FilterStructFieldByTag(structType, tagMark)
+		fieldMsg.PkgName = pkg.Name
 		fieldMsg.ImportPath = byFindImportPath
 		return fieldMsg
 	}
@@ -397,7 +455,10 @@ func FieldTypeIsStruct(field *ast.Field, fset *token.FileSet, pkg *ast.Package, 
 }
 
 func GenApi(apiMap map[string]map[string]map[string]ApiMsg, dest string) {
-	tpl, err := template.New("gen_api").Parse(gen_api_tmpl)
+	parse, err := template.New("gen_api").Parse(pkg_name_tmpl)
+	if err != nil {
+		log.Panicln(err.Error())
+	}
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -409,9 +470,19 @@ func GenApi(apiMap map[string]map[string]map[string]ApiMsg, dest string) {
 
 	for _, fileMap := range apiMap {
 		for fileName, funcMap := range fileMap {
-			log.Println("filename" + fileName)
+			tpl, err := parse.Parse(gen_api_tmpl)
+			if err != nil {
+				log.Fatalln(err.Error())
+			}
 			b := bytes.NewBuffer(nil)
-			err := tpl.Execute(b, funcMap)
+			err = tpl.Execute(b, struct {
+				PkgName string
+				FuncMap map[string]ApiMsg
+			}{
+				PkgName: path.Base(dest),
+				FuncMap: funcMap,
+			})
+
 			if err != nil {
 				log.Fatalln(err.Error())
 			}
@@ -421,6 +492,26 @@ func GenApi(apiMap map[string]map[string]map[string]ApiMsg, dest string) {
 			})
 		}
 	}
+
+	tpl, err := parse.New("register").Parse(register_tmpl)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	b := bytes.NewBuffer(nil)
+	err = tpl.Execute(b, struct {
+		PkgName string
+		ApiMap  map[string]map[string]map[string]ApiMsg
+	}{
+		PkgName: path.Base(dest),
+		ApiMap:  apiMap,
+	})
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	assets.files = append(assets.files, file{
+		path:    filepath.Join(dest, path.Base("register.go")),
+		content: b.Bytes(),
+	})
 
 	if err := assets.write(); err != nil {
 		log.Fatalln(err.Error())

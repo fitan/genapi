@@ -1,6 +1,37 @@
-import "github.com/gin-gonic/gin"
+{{template "pkg_name" $.PkgName}}
+import (
+    "github.com/gin-gonic/gin"
+)
 
 func RegisterAll(c *gin.Engine) {
-    c.GET("/post", Hello)
-    c.POST("/post",Hello)
+{{range $fileMap := $.ApiMap}}
+    {{range $funcMap := $fileMap}}
+        {{range $funcName, $msg := $funcMap}}
+    c.{{$msg.FuncRouter.Method}}("{{$msg.FuncRouter.Path}}", func(c *gin.Context) {
+        GinResult(c, {{$funcName}})
+    })
+        {{end}}
+    {{end}}
+{{end}}
+}
+
+
+type Result struct {
+	Code int `json:"code"`
+	Data interface{}
+	Err error
+}
+
+func GinResult(c *gin.Context, fc func(c *gin.Context) (data interface{}, err error))  {
+	data ,err := fc(c)
+	res := Result{
+		Code: 0,
+		Data: data,
+		Err:  err,
+	}
+	if err != nil {
+		res.Code = 503
+	} else {
+		res.Code = 200
+	}
 }

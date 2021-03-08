@@ -11,4 +11,4 @@ require (
 	github.com/swaggo/swag v1.5.1
 )
 
-replace github.com/fitan/genapi => ../genapi
+replace github.com/fitan/genapi => ../../../genapi

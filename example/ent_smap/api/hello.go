@@ -9,9 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @GenApi /user [post]
+// @GenApi /user [get]
 func Hello(c *gin.Context, in *api_models.In) ([]*ent.User, error) {
-	return public.GetDB().User.Query().All(context.Background())
+	ps, err := genrest.UserPredicatesExec(in.Query.BindUserNameEQ)
+	if err != nil {
+		return nil, err
+	}
+	return public.GetDB().User.Query().Where(ps...).All(context.Background())
 }
 
 type CarIn struct {
@@ -19,8 +23,6 @@ type CarIn struct {
 }
 
 // @GenApi /car [get]
-func Car(c *gin.Context, in *CarIn) ([]*ent.Car, error) {
-	return public.GetDB().Car.Query().All(context.Background())
+func Car(c *gin.Context, in *CarIn) ([]*ent.User, error) {
+	return public.GetDB().User.Query().All(context.Background())
 }
-
-例子
