@@ -55,8 +55,23 @@ type InHas struct {
 }
 
 type FuncRouter struct {
-	Path   string
-	Method string
+	SwagRouter string
+	Method     string
+	GinPath    string
+}
+
+func ApiRouterToGinRouter(fields []string) FuncRouter {
+	fields[1] = "@Router"
+	method := fields[3]
+	swagPath := fields[2]
+	swagPath = strings.ReplaceAll(swagPath, "{", ":")
+	swagPath = strings.ReplaceAll(swagPath, "}", "")
+
+	return FuncRouter{
+		SwagRouter: strings.Join(fields, " "),
+		Method:     strings.ToUpper(method[1 : len(method)-1]),
+		GinPath:    swagPath,
+	}
 }
 
 type ApiMsg struct {
@@ -151,14 +166,8 @@ func (c *ParseContext) FuncHasSwaggerRouter(doc *ast.CommentGroup) (bool, FuncRo
 		if len(fields) < 4 {
 			continue
 		}
-		if fields[0] == "//" && fields[1] == GenMark {
-			method := fields[3]
-			if len(method) > 2 {
-				return true, FuncRouter{
-					Path:   fields[2],
-					Method: strings.ToUpper(method[1 : len(method)-1]),
-				}
-			}
+		if fields[0] == "//" && fields[1] == GenMark && len(fields[3]) > 2 {
+			return true, ApiRouterToGinRouter(fields)
 		}
 	}
 	return false, FuncRouter{}
@@ -408,12 +417,16 @@ func (s *StructTypeTools) Parse(tagName string) []FieldTag {
 					StructType: structType,
 				}
 				fieldTags = append(fieldTags, sturctTypeTool.Parse(tagName)...)
+			default:
+				log.Fatalln(fmt.Sprintf("未知类型%v", NodeString(s.Fset, field)))
 			}
+			continue
 		}
+
 		if field.Tag == nil {
 			continue
 		}
-		tagTool := reflect.StructTag(field.Tag.Value)
+		tagTool := reflect.StructTag(field.Tag.Value[1 : len(field.Tag.Value)-1])
 		value, ok := tagTool.Lookup(tagName)
 		if ok {
 			fieldTags = append(fieldTags, FieldTag{

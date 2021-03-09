@@ -8,7 +8,22 @@ import (
 
 {{range $funcName, $msg := $.FuncMap}}
 
-
+// @Accept  json
+// @Produce  json{{if $msg.In.InHas.HasBody}}
+// @Param body body {{$msg.In.InHas.BodyMsg.PkgName}}.{{$msg.In.InHas.BodyMsg.Raw}} true " "
+{{- end}}{{if $msg.In.InHas.HasQuery}}
+// @Param query query {{if eq $msg.In.InHas.QueryMsg.PkgName ""}}{{else}}{{$msg.In.InHas.QueryMsg.PkgName}}.{{end}}{{$msg.In.InHas.QueryMsg.Raw}} false " "
+{{- end}}{{if $msg.In.InHas.HasUri}}
+{{- range $fieldTag := $msg.In.InHas.UriMsg.FieldTags}}
+// @Param {{$fieldTag.TagName}} path int true " "
+{{- end}}{{if $msg.In.InHas.HasHeader}}
+{{- range $fieldTag := $msg.In.InHas.HeaderMsg.FieldTags}}
+// @Param {{$fieldTag.TagName}} header string false " "
+{{- end}}
+{{- end}}
+{{- end}}
+// @Success 200 {object} Result{data={{$msg.Out.RawName}}}
+{{$msg.FuncRouter.SwagRouter}}
 func {{$funcName}}(c *gin.Context) (interface{}, error) {
 	var err error
 	{{if $msg.In.ObjectMsg.IsSelector}}

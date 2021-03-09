@@ -5,6 +5,7 @@ import (
 	"ent_samp/gen"
 	"ent_samp/public"
 	genrest "ent_samp/service"
+	"flag"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/fitan/genapi/pkg"
 
@@ -17,9 +18,15 @@ import (
 )
 
 func main() {
-	parse := pkg.ParseFuncApi("ent_smap", "./api", "./gen")
-	spew.Dump(parse.ApiMap)
-	return
+	var b bool
+	flag.BoolVar(&b, "ast", false, "")
+	flag.Parse()
+	if b {
+		parse := pkg.ParseFuncApi("ent_smap", "./api", "./gen")
+		spew.Dump(parse.ApiMap)
+		return
+	}
+	//return
 	//pkg.Load("./ent/schema", "./", nil)
 	r := gin.Default()
 	curd := genrest.NewCURDALL(public.GetDB())

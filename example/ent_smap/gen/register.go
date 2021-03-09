@@ -6,7 +6,7 @@ import (
 
 func RegisterAll(c *gin.Engine) {
 
-	c.GET("/car", func(c *gin.Context) {
+	c.GET("/genapi/car/:id", func(c *gin.Context) {
 		GinResult(c, Car)
 	})
 
@@ -17,9 +17,9 @@ func RegisterAll(c *gin.Engine) {
 }
 
 type Result struct {
-	Code int `json:"code"`
-	Data interface{}
-	Err  error
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
+	Err  string      `json:"err"`
 }
 
 func GinResult(c *gin.Context, fc func(c *gin.Context) (data interface{}, err error)) {
@@ -27,11 +27,13 @@ func GinResult(c *gin.Context, fc func(c *gin.Context) (data interface{}, err er
 	res := Result{
 		Code: 0,
 		Data: data,
-		Err:  err,
+		Err:  "",
 	}
 	if err != nil {
 		res.Code = 503
+		res.Err = err.Error()
 	} else {
 		res.Code = 200
 	}
+	c.JSON(200, res)
 }
