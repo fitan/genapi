@@ -4,8 +4,13 @@ import (
 	"fmt"
 	"golang.org/x/tools/imports"
 	"io/ioutil"
+	"log"
 	"os"
 )
+
+func init() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+}
 
 type (
 	file struct {

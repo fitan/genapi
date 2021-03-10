@@ -1,4 +1,4 @@
-package genrest
+package genent
 
 import (
 	"ent_samp/ent/user"

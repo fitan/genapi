@@ -10,7 +10,7 @@ func RegisterAll(c *gin.Engine) {
 		GinResult(c, Car)
 	})
 
-	c.GET("/user", func(c *gin.Context) {
+	c.GET("/genapi/car", func(c *gin.Context) {
 		GinResult(c, Hello)
 	})
 

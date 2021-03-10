@@ -118,6 +118,7 @@ func (c *ParseContext) Enter() {
 			for _, f := range filterFuncs {
 				inObjectMsg := c.FindObjectMsg(f.Type.Params.List[1], file, filePath, parseImport)
 				outObjectMsg := c.FindObjectMsg(f.Type.Results.List[0], file, filePath, parseImport)
+				outObjectMsg.RawName = strings.ReplaceAll(outObjectMsg.RawName, "*", "")
 				_, funcRouter := c.FuncHasSwaggerRouter(f.Doc)
 				apiMsg := ApiMsg{
 					SrcPkgName: pkgName,
@@ -300,6 +301,7 @@ func FindPkg(pkgPath string) (string, string) {
 
 func LoadPkgs(path string) (*token.FileSet, map[string]*ast.Package) {
 	fset := token.NewFileSet()
+	fmt.Println(path)
 	pkgs, err := parser.ParseDir(fset, path, func(info os.FileInfo) bool {
 		return true
 	}, parser.ParseComments)

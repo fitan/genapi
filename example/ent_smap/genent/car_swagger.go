@@ -1,4 +1,4 @@
-package genrest
+package genent
 
 import (
 	"time"

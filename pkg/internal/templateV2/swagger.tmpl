@@ -1,4 +1,4 @@
-package genrest
+{{template "pkg_name" $.PkgName}}
 import "github.com/gin-gonic/gin"
 {{range $n := $.Nodes}}
 {{template "swaggerobj" $n}}

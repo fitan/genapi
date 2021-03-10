@@ -4,29 +4,25 @@ import (
 	"context"
 	"ent_samp/ent"
 	"ent_samp/ent/user"
+	"ent_samp/genent"
 	"ent_samp/models/api_models"
 	"ent_samp/public"
-	genrest "ent_samp/service"
 	"github.com/gin-gonic/gin"
 )
 
-// @GenApi /user [get]
+// @GenApi /genapi/car [get]
 func Hello(c *gin.Context, in *api_models.In) ([]*ent.User, error) {
-	ps, err := genrest.UserPredicatesExec(in.Query.BindUserNameEQ)
-	if err != nil {
-		return nil, err
-	}
-	return public.GetDB().User.Query().Where(ps...).All(context.Background())
+	return public.GetDB().User.Query().All(context.Background())
 }
 
 type CarIn struct {
-	Uri   genrest.IdUri
-	Query genrest.UserNameEQ
+	Uri   genent.IdUri
+	Query genent.UserNameEQ
 }
 
 // @GenApi /genapi/car/{id} [get]
 func Car(c *gin.Context, in *CarIn) ([]*ent.User, error) {
-	ps, err := genrest.UserPredicatesExec(in.Query.BindUserNameEQ)
+	ps, err := genent.UserPredicatesExec(in.Query.BindUserNameEQ)
 	if err != nil {
 		return nil, err
 	}

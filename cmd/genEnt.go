@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/fitan/genapi/pkg"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -27,6 +28,7 @@ var genEntCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		//pkg.Load(src, dest, nodes)
+		pkg.Load(*src, *dest)
 		log.Printf("src: %v, dest: %v", *src, *dest)
 	},
 }

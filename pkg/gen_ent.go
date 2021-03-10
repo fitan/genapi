@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/entc/gen"
 	"fmt"
 	"log"
+	"path"
 	"path/filepath"
 	"text/template"
 )
@@ -62,11 +63,16 @@ type tmplMsg struct {
 	Text string
 }
 
+type GPacking struct {
+	gen.Graph
+	PkgName string
+}
+
 func (t *tmplMsg) NameFormat(s string) string {
 	return fmt.Sprintf("%s_%s.go", s, t.Name)
 }
 
-func Load(schemaPath string, dest string, node []string) {
+func Load(schemaPath string, dest string) {
 	nodeTmps := []tmplMsg{
 		{
 			Name: "predicate",
@@ -100,6 +106,10 @@ func Load(schemaPath string, dest string, node []string) {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+	tpl, err = tpl.Parse(pkg_name_tmpl)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 	tpl, err = tpl.Parse(swagger_obj_tmpl)
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -109,11 +119,14 @@ func Load(schemaPath string, dest string, node []string) {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+	gPacking := GPacking{
+		Graph:   *g,
+		PkgName: path.Base(dest),
+	}
 
 	assets := assets{
 		dirs: []string{
-			filepath.Join(dest, "service"),
-			filepath.Join(dest, "client"),
+			filepath.Join(dest),
 		},
 	}
 
@@ -123,12 +136,12 @@ func Load(schemaPath string, dest string, node []string) {
 			log.Fatalln(err.Error())
 		}
 		b := bytes.NewBuffer(nil)
-		err = parse.Execute(b, g)
+		err = parse.Execute(b, gPacking)
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
 		assets.files = append(assets.files, file{
-			path:    filepath.Join(g.Config.Target, "service", gTmp.Name+".go"),
+			path:    filepath.Join(gPacking.Config.Target, path.Base(dest), gTmp.Name+".go"),
 			content: b.Bytes(),
 		})
 
@@ -140,19 +153,21 @@ func Load(schemaPath string, dest string, node []string) {
 			Config: g.Config,
 			Nodes:  []*gen.Type{node},
 		}
+		gPacking.Graph = tmpG
+
 		for _, nodeTmp := range nodeTmps {
 			parse, err := tpl.Parse(nodeTmp.Text)
 			if err != nil {
 				log.Fatalln(err.Error())
 			}
 			b := bytes.NewBuffer(nil)
-			err = parse.Execute(b, tmpG)
+			err = parse.Execute(b, gPacking)
 			if err != nil {
 				log.Fatalln(err.Error())
 			}
 
 			assets.files = append(assets.files, file{
-				path:    filepath.Join(g.Config.Target, "service", nodeTmp.NameFormat(gen.Funcs["snake"].(func(string) string)(node.Name))),
+				path:    filepath.Join(g.Config.Target, path.Base(dest), nodeTmp.NameFormat(gen.Funcs["snake"].(func(string) string)(node.Name))),
 				content: b.Bytes(),
 			})
 		}
