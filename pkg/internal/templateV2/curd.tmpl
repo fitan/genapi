@@ -8,7 +8,7 @@ import (
 	"{{$.Config.Package}}/predicate"
 	"github.com/gin-gonic/gin"
 {{- range $n := $.Nodes }}
-	"{{$.Config.Package}}/{{snake $n.Name}}"
+	"{{$.Config.Package}}/{{lower $n.Name}}"
 {{- end }}
 )
 
@@ -142,7 +142,7 @@ func (curd *{{$n.Name}}CURD) BindDefaultQuery(c *gin.Context) (*{{$n.Name}}Defau
 
 
 func (curd *{{$n.Name}}CURD) BaseGetOneQueryer(id int) (*ent.{{$n.Name}}Query, error) {
-	return curd.Db.{{$n.Name}}.Query().Where({{snake $n.Name}}.IDEQ(id)), nil
+	return curd.Db.{{$n.Name}}.Query().Where({{lower $n.Name}}.IDEQ(id)), nil
 }
 
 func (curd *{{$n.Name}}CURD) defaultGetOneQueryer(c *gin.Context) (*ent.{{$n.Name}}Query, error) {
@@ -171,7 +171,7 @@ func (curd *{{$n.Name}}CURD) BaseGetListCount(queryer *ent.{{$n.Name}}Query,quer
 	if err != nil {
 		return err
 	}
-	queryer.Where({{snake $n.Name}}.And(ps...))
+	queryer.Where({{lower $n.Name}}.And(ps...))
     return nil
 }
 
@@ -289,7 +289,7 @@ func (curd *{{$n.Name}}CURD) selete(queryer *ent.{{$n.Name}}Query) {
 	queryer.Select(
 	{{range $f := $n.Fields}}
 	{{if eq (PaseRestFieldOperability $f.Annotations "Selete") "true"}}
-		{{snake $n.Name}}.Field{{$f.StructField}},
+		{{lower $n.Name}}.Field{{$f.StructField}},
 	{{end}}
 	{{end}}
 	)
@@ -426,7 +426,7 @@ func (curd *{{$n.Name}}CURD) UpdateList(c *gin.Context) error {
 }
 
 func (curd *{{$n.Name}}CURD) BaseDeleteOneDeleter(id int) (*ent.{{$n.Name}}Delete) {
-	return curd.Db.{{$n.Name}}.Delete().Where({{snake $n.Name}}.IDEQ(id))
+	return curd.Db.{{$n.Name}}.Delete().Where({{lower $n.Name}}.IDEQ(id))
 }
 
 func (curd *{{$n.Name}}CURD) defaultDeleteOneDeleter(c *gin.Context) (*ent.{{$n.Name}}Delete, error) {
@@ -451,7 +451,7 @@ func (curd *{{$n.Name}}CURD) DeleteOne(c *gin.Context) (int, error) {
 }
 
 func (curd *{{$n.Name}}CURD) BaseDeleteListDeleter(ids []int) (*ent.{{$n.Name}}Delete) {
-	return curd.Db.{{$n.Name}}.Delete().Where({{snake $n.Name}}.IDIn(ids...))
+	return curd.Db.{{$n.Name}}.Delete().Where({{lower $n.Name}}.IDIn(ids...))
 }
 
 func (curd *{{$n.Name}}CURD) defaultDeleteListDeleter(c *gin.Context) (*ent.{{$n.Name}}Delete, error) {
@@ -524,7 +524,7 @@ func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Con
 		return 0, err
 	}
 
-	return curd.Db.{{$e.Type.Name}}.Delete().Where({{snake $e.Type.Name}}.IDEQ(id)).Exec(context.Background())
+	return curd.Db.{{$e.Type.Name}}.Delete().Where({{lower $e.Type.Name}}.IDEQ(id)).Exec(context.Background())
 }
 
 {{else}}
@@ -625,7 +625,7 @@ func (curd *{{$n.Name}}CURD) DeleteList{{plural $e.Type.Name}}By{{$n.Name}}Id(c 
 		return 0, err
 	}
 
-	return curd.Db.{{$e.Type.Name}}.Delete().Where({{snake $e.Type.Name}}.IDIn(ids...)).Exec(context.Background())
+	return curd.Db.{{$e.Type.Name}}.Delete().Where({{lower $e.Type.Name}}.IDIn(ids...)).Exec(context.Background())
 }
 {{end}}
 

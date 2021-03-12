@@ -1,4 +1,13 @@
 definitions:
+  api_models.UserOut:
+    properties:
+      len:
+        type: integer
+      user:
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+    type: object
   ent.Car:
     properties:
       id:
@@ -39,16 +48,7 @@ definitions:
           $ref: '#/definitions/ent.Car'
         type: array
     type: object
-  gen.Result:
-    properties:
-      code:
-        type: integer
-      data:
-        type: object
-      err:
-        type: string
-    type: object
-  genent.CarNode:
+  entt.CarNode:
     properties:
       id:
         type: integer
@@ -58,7 +58,7 @@ definitions:
         format: date-time
         type: string
     type: object
-  genent.CarNodeNotID:
+  entt.CarNodeNotID:
     properties:
       model:
         type: string
@@ -66,7 +66,7 @@ definitions:
         format: date-time
         type: string
     type: object
-  genent.GetCarListData:
+  entt.GetCarListData:
     properties:
       count:
         type: integer
@@ -75,7 +75,7 @@ definitions:
           $ref: '#/definitions/ent.Car'
         type: array
     type: object
-  genent.GetUserListData:
+  entt.GetUserListData:
     properties:
       count:
         type: integer
@@ -84,7 +84,7 @@ definitions:
           $ref: '#/definitions/ent.User'
         type: array
     type: object
-  genent.RestReturn:
+  entt.RestReturn:
     properties:
       code:
         type: integer
@@ -93,7 +93,7 @@ definitions:
       msg:
         type: object
     type: object
-  genent.UserNode:
+  entt.UserNode:
     properties:
       age1:
         type: integer
@@ -108,7 +108,7 @@ definitions:
       name:
         type: string
     type: object
-  genent.UserNodeNotID:
+  entt.UserNodeNotID:
     properties:
       age1:
         type: integer
@@ -119,6 +119,15 @@ definitions:
         - "3"
         type: string
       name:
+        type: string
+    type: object
+  router.Result:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      err:
         type: string
     type: object
 info:
@@ -134,7 +143,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/genent.CarNodeNotID'
+          $ref: '#/definitions/entt.CarNodeNotID'
       produces:
       - application/json
       responses:
@@ -142,10 +151,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.CarNode'
+                  $ref: '#/definitions/entt.CarNode'
               type: object
       summary: create one car
       tags:
@@ -167,10 +176,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.CarNode'
+                  $ref: '#/definitions/entt.CarNode'
               type: object
       summary: delete one car
       tags:
@@ -191,10 +200,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.CarNode'
+                  $ref: '#/definitions/entt.CarNode'
               type: object
       summary: get one car
       tags:
@@ -213,7 +222,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/genent.CarNodeNotID'
+          $ref: '#/definitions/entt.CarNodeNotID'
       produces:
       - application/json
       responses:
@@ -221,10 +230,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.CarNode'
+                  $ref: '#/definitions/entt.CarNode'
               type: object
       summary: update one car
       tags:
@@ -246,10 +255,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.CarNode'
+                  $ref: '#/definitions/entt.CarNode'
               type: object
       summary: delete list car
       tags:
@@ -264,10 +273,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.GetCarListData'
+                  $ref: '#/definitions/entt.GetCarListData'
               type: object
       summary: get list car
       tags:
@@ -282,7 +291,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/genent.CarNode'
+            $ref: '#/definitions/entt.CarNode'
           type: array
       produces:
       - application/json
@@ -291,11 +300,11 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/genent.CarNodeNotID'
+                    $ref: '#/definitions/entt.CarNodeNotID'
                   type: array
               type: object
       summary: create list car
@@ -311,7 +320,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/genent.CarNode'
+            $ref: '#/definitions/entt.CarNode'
           type: array
       produces:
       - application/json
@@ -320,10 +329,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.CarNode'
+                  $ref: '#/definitions/entt.CarNode'
               type: object
       summary: update list car
       tags:
@@ -343,14 +352,14 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/gen.Result'
+            - $ref: '#/definitions/router.Result'
             - properties:
                 data:
                   items:
                     $ref: '#/definitions/ent.User'
                   type: array
               type: object
-  /genapi/car/{id}:
+  /genapi/user:
     get:
       consumes:
       - application/json
@@ -358,11 +367,6 @@ paths:
       - in: query
         name: eq_name
         type: string
-      - description: ' '
-        in: path
-        name: id
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -370,12 +374,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/gen.Result'
+            - $ref: '#/definitions/router.Result'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/ent.User'
-                  type: array
+                  $ref: '#/definitions/api_models.UserOut'
               type: object
   /user:
     post:
@@ -387,7 +389,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/genent.UserNodeNotID'
+          $ref: '#/definitions/entt.UserNodeNotID'
       produces:
       - application/json
       responses:
@@ -395,10 +397,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.UserNode'
+                  $ref: '#/definitions/entt.UserNode'
               type: object
       summary: create one user
       tags:
@@ -420,10 +422,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.UserNode'
+                  $ref: '#/definitions/entt.UserNode'
               type: object
       summary: delete one user
       tags:
@@ -444,10 +446,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.UserNode'
+                  $ref: '#/definitions/entt.UserNode'
               type: object
       summary: get one user
       tags:
@@ -466,7 +468,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/genent.UserNodeNotID'
+          $ref: '#/definitions/entt.UserNodeNotID'
       produces:
       - application/json
       responses:
@@ -474,10 +476,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.UserNode'
+                  $ref: '#/definitions/entt.UserNode'
               type: object
       summary: update one user
       tags:
@@ -499,10 +501,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.CarNode'
+                  $ref: '#/definitions/entt.CarNode'
               type: object
       summary: delete one car
       tags:
@@ -523,11 +525,11 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/genent.CarNode'
+                    $ref: '#/definitions/entt.CarNode'
                   type: array
               type: object
       summary: get list car
@@ -548,7 +550,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/genent.CarNodeNotID'
+            $ref: '#/definitions/entt.CarNodeNotID'
           type: array
       produces:
       - application/json
@@ -557,11 +559,11 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/genent.CarNodeNotID'
+                    $ref: '#/definitions/entt.CarNodeNotID'
                   type: array
               type: object
       summary: create list car
@@ -584,10 +586,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.UserNode'
+                  $ref: '#/definitions/entt.UserNode'
               type: object
       summary: delete list user
       tags:
@@ -612,10 +614,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.GetUserListData'
+                  $ref: '#/definitions/entt.GetUserListData'
               type: object
       summary: get list user
       tags:
@@ -630,7 +632,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/genent.UserNode'
+            $ref: '#/definitions/entt.UserNode'
           type: array
       produces:
       - application/json
@@ -639,11 +641,11 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/genent.UserNodeNotID'
+                    $ref: '#/definitions/entt.UserNodeNotID'
                   type: array
               type: object
       summary: create list user
@@ -659,7 +661,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/genent.UserNode'
+            $ref: '#/definitions/entt.UserNode'
           type: array
       produces:
       - application/json
@@ -668,10 +670,10 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/genent.RestReturn'
+            - $ref: '#/definitions/entt.RestReturn'
             - properties:
                 data:
-                  $ref: '#/definitions/genent.UserNode'
+                  $ref: '#/definitions/entt.UserNode'
               type: object
       summary: update list user
       tags:

@@ -43,7 +43,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/genent.CarNodeNotID"
+                            "$ref": "#/definitions/entt.CarNodeNotID"
                         }
                     }
                 ],
@@ -53,13 +53,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -96,13 +96,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -136,7 +136,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/genent.CarNodeNotID"
+                            "$ref": "#/definitions/entt.CarNodeNotID"
                         }
                     }
                 ],
@@ -146,13 +146,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -187,13 +187,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -221,13 +221,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.GetCarListData"
+                                            "$ref": "#/definitions/entt.GetCarListData"
                                         }
                                     }
                                 }
@@ -256,7 +256,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.CarNode"
+                                "$ref": "#/definitions/entt.CarNode"
                             }
                         }
                     }
@@ -267,13 +267,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -302,7 +302,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.CarNode"
+                                "$ref": "#/definitions/entt.CarNode"
                             }
                         }
                     }
@@ -313,7 +313,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
@@ -321,7 +321,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/genent.CarNodeNotID"
+                                                "$ref": "#/definitions/entt.CarNodeNotID"
                                             }
                                         }
                                     }
@@ -358,13 +358,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -395,7 +395,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/gen.Result"
+                                    "$ref": "#/definitions/router.Result"
                                 },
                                 {
                                     "type": "object",
@@ -414,7 +414,7 @@ var doc = `{
                 }
             }
         },
-        "/genapi/car/{id}": {
+        "/genapi/user": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -427,13 +427,6 @@ var doc = `{
                         "type": "string",
                         "name": "eq_name",
                         "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -442,16 +435,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/gen.Result"
+                                    "$ref": "#/definitions/router.Result"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/ent.User"
-                                            }
+                                            "$ref": "#/definitions/api_models.UserOut"
                                         }
                                     }
                                 }
@@ -480,7 +470,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/genent.UserNodeNotID"
+                            "$ref": "#/definitions/entt.UserNodeNotID"
                         }
                     }
                 ],
@@ -490,13 +480,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -533,13 +523,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -573,7 +563,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/genent.UserNodeNotID"
+                            "$ref": "#/definitions/entt.UserNodeNotID"
                         }
                     }
                 ],
@@ -583,13 +573,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -624,13 +614,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -667,7 +657,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
@@ -675,7 +665,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/genent.CarNode"
+                                                "$ref": "#/definitions/entt.CarNode"
                                             }
                                         }
                                     }
@@ -712,7 +702,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.CarNodeNotID"
+                                "$ref": "#/definitions/entt.CarNodeNotID"
                             }
                         }
                     }
@@ -723,7 +713,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
@@ -731,7 +721,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/genent.CarNodeNotID"
+                                                "$ref": "#/definitions/entt.CarNodeNotID"
                                             }
                                         }
                                     }
@@ -767,13 +757,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -818,13 +808,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.GetUserListData"
+                                            "$ref": "#/definitions/entt.GetUserListData"
                                         }
                                     }
                                 }
@@ -853,7 +843,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.UserNode"
+                                "$ref": "#/definitions/entt.UserNode"
                             }
                         }
                     }
@@ -864,13 +854,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -899,7 +889,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.UserNode"
+                                "$ref": "#/definitions/entt.UserNode"
                             }
                         }
                     }
@@ -910,7 +900,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
@@ -918,7 +908,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/genent.UserNodeNotID"
+                                                "$ref": "#/definitions/entt.UserNodeNotID"
                                             }
                                         }
                                     }
@@ -955,13 +945,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -973,6 +963,20 @@ var doc = `{
         }
     },
     "definitions": {
+        "api_models.UserOut": {
+            "type": "object",
+            "properties": {
+                "len": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                }
+            }
+        },
         "ent.Car": {
             "type": "object",
             "properties": {
@@ -1027,21 +1031,7 @@ var doc = `{
                 }
             }
         },
-        "gen.Result": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "object"
-                },
-                "err": {
-                    "type": "string"
-                }
-            }
-        },
-        "genent.CarNode": {
+        "entt.CarNode": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1056,7 +1046,7 @@ var doc = `{
                 }
             }
         },
-        "genent.CarNodeNotID": {
+        "entt.CarNodeNotID": {
             "type": "object",
             "properties": {
                 "model": {
@@ -1068,7 +1058,7 @@ var doc = `{
                 }
             }
         },
-        "genent.GetCarListData": {
+        "entt.GetCarListData": {
             "type": "object",
             "properties": {
                 "count": {
@@ -1082,7 +1072,7 @@ var doc = `{
                 }
             }
         },
-        "genent.GetUserListData": {
+        "entt.GetUserListData": {
             "type": "object",
             "properties": {
                 "count": {
@@ -1096,7 +1086,7 @@ var doc = `{
                 }
             }
         },
-        "genent.RestReturn": {
+        "entt.RestReturn": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1110,7 +1100,7 @@ var doc = `{
                 }
             }
         },
-        "genent.UserNode": {
+        "entt.UserNode": {
             "type": "object",
             "properties": {
                 "age1": {
@@ -1132,7 +1122,7 @@ var doc = `{
                 }
             }
         },
-        "genent.UserNodeNotID": {
+        "entt.UserNodeNotID": {
             "type": "object",
             "properties": {
                 "age1": {
@@ -1147,6 +1137,20 @@ var doc = `{
                     ]
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "router.Result": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object"
+                },
+                "err": {
                     "type": "string"
                 }
             }

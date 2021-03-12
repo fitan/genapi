@@ -23,7 +23,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/genent.CarNodeNotID"
+                            "$ref": "#/definitions/entt.CarNodeNotID"
                         }
                     }
                 ],
@@ -33,13 +33,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -76,13 +76,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -116,7 +116,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/genent.CarNodeNotID"
+                            "$ref": "#/definitions/entt.CarNodeNotID"
                         }
                     }
                 ],
@@ -126,13 +126,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -167,13 +167,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -201,13 +201,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.GetCarListData"
+                                            "$ref": "#/definitions/entt.GetCarListData"
                                         }
                                     }
                                 }
@@ -236,7 +236,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.CarNode"
+                                "$ref": "#/definitions/entt.CarNode"
                             }
                         }
                     }
@@ -247,13 +247,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -282,7 +282,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.CarNode"
+                                "$ref": "#/definitions/entt.CarNode"
                             }
                         }
                     }
@@ -293,7 +293,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
@@ -301,7 +301,7 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/genent.CarNodeNotID"
+                                                "$ref": "#/definitions/entt.CarNodeNotID"
                                             }
                                         }
                                     }
@@ -338,13 +338,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -375,7 +375,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/gen.Result"
+                                    "$ref": "#/definitions/router.Result"
                                 },
                                 {
                                     "type": "object",
@@ -394,7 +394,7 @@
                 }
             }
         },
-        "/genapi/car/{id}": {
+        "/genapi/user": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -407,13 +407,6 @@
                         "type": "string",
                         "name": "eq_name",
                         "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -422,16 +415,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/gen.Result"
+                                    "$ref": "#/definitions/router.Result"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/ent.User"
-                                            }
+                                            "$ref": "#/definitions/api_models.UserOut"
                                         }
                                     }
                                 }
@@ -460,7 +450,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/genent.UserNodeNotID"
+                            "$ref": "#/definitions/entt.UserNodeNotID"
                         }
                     }
                 ],
@@ -470,13 +460,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -513,13 +503,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -553,7 +543,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/genent.UserNodeNotID"
+                            "$ref": "#/definitions/entt.UserNodeNotID"
                         }
                     }
                 ],
@@ -563,13 +553,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -604,13 +594,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -647,7 +637,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
@@ -655,7 +645,7 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/genent.CarNode"
+                                                "$ref": "#/definitions/entt.CarNode"
                                             }
                                         }
                                     }
@@ -692,7 +682,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.CarNodeNotID"
+                                "$ref": "#/definitions/entt.CarNodeNotID"
                             }
                         }
                     }
@@ -703,7 +693,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
@@ -711,7 +701,7 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/genent.CarNodeNotID"
+                                                "$ref": "#/definitions/entt.CarNodeNotID"
                                             }
                                         }
                                     }
@@ -747,13 +737,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.CarNode"
+                                            "$ref": "#/definitions/entt.CarNode"
                                         }
                                     }
                                 }
@@ -798,13 +788,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.GetUserListData"
+                                            "$ref": "#/definitions/entt.GetUserListData"
                                         }
                                     }
                                 }
@@ -833,7 +823,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.UserNode"
+                                "$ref": "#/definitions/entt.UserNode"
                             }
                         }
                     }
@@ -844,13 +834,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -879,7 +869,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/genent.UserNode"
+                                "$ref": "#/definitions/entt.UserNode"
                             }
                         }
                     }
@@ -890,7 +880,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
@@ -898,7 +888,7 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/genent.UserNodeNotID"
+                                                "$ref": "#/definitions/entt.UserNodeNotID"
                                             }
                                         }
                                     }
@@ -935,13 +925,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/genent.RestReturn"
+                                    "$ref": "#/definitions/entt.RestReturn"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/genent.UserNode"
+                                            "$ref": "#/definitions/entt.UserNode"
                                         }
                                     }
                                 }
@@ -953,6 +943,20 @@
         }
     },
     "definitions": {
+        "api_models.UserOut": {
+            "type": "object",
+            "properties": {
+                "len": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                }
+            }
+        },
         "ent.Car": {
             "type": "object",
             "properties": {
@@ -1007,21 +1011,7 @@
                 }
             }
         },
-        "gen.Result": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "data": {
-                    "type": "object"
-                },
-                "err": {
-                    "type": "string"
-                }
-            }
-        },
-        "genent.CarNode": {
+        "entt.CarNode": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1036,7 +1026,7 @@
                 }
             }
         },
-        "genent.CarNodeNotID": {
+        "entt.CarNodeNotID": {
             "type": "object",
             "properties": {
                 "model": {
@@ -1048,7 +1038,7 @@
                 }
             }
         },
-        "genent.GetCarListData": {
+        "entt.GetCarListData": {
             "type": "object",
             "properties": {
                 "count": {
@@ -1062,7 +1052,7 @@
                 }
             }
         },
-        "genent.GetUserListData": {
+        "entt.GetUserListData": {
             "type": "object",
             "properties": {
                 "count": {
@@ -1076,7 +1066,7 @@
                 }
             }
         },
-        "genent.RestReturn": {
+        "entt.RestReturn": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1090,7 +1080,7 @@
                 }
             }
         },
-        "genent.UserNode": {
+        "entt.UserNode": {
             "type": "object",
             "properties": {
                 "age1": {
@@ -1112,7 +1102,7 @@
                 }
             }
         },
-        "genent.UserNodeNotID": {
+        "entt.UserNodeNotID": {
             "type": "object",
             "properties": {
                 "age1": {
@@ -1127,6 +1117,20 @@
                     ]
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "router.Result": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object"
+                },
+                "err": {
                     "type": "string"
                 }
             }

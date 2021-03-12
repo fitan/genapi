@@ -47,17 +47,12 @@ func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
-var src *string
-var dest *string
-
 func init() {
 	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	src = genEntCmd.Flags().StringP("src", "s", "./ent/schema", "ent schema src")
-	dest = genEntCmd.Flags().StringP("dest", "d", "./gen", "generate dest")
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.genapi.yaml)")
 

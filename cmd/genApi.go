@@ -16,23 +16,34 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/fitan/genapi/pkg"
 	"log"
 
 	"github.com/spf13/cobra"
 )
 
+var genApiSrc *string
+var genApiDest *string
+
 // genApiCmd represents the genApi command
 var genApiCmd = &cobra.Command{
-	Use:   "gen-api",
-	Short: "gen api template",
+	Use:   "router",
+	Short: "gen gin router",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Printf("src: %v, dest: %v", *src, *dest)
+		if *genApiSrc == "" {
+			log.Fatalln("src is nil")
+		}
+		pkg.ParseFuncApi(*genApiSrc, *genApiDest)
+
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(genApiCmd)
+
+	genApiSrc = genApiCmd.Flags().StringP("src", "s", "./controllers", "generate src.")
+	genApiDest = genApiCmd.Flags().StringP("dest", "d", "./gen/router", "generate dest.")
 
 	// Here you will define your flags and configuration settings.
 

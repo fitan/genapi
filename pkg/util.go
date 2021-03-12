@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"golang.org/x/mod/modfile"
 	"golang.org/x/tools/imports"
 	"io/ioutil"
 	"log"
@@ -10,6 +11,27 @@ import (
 
 func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
+}
+
+type GoMod struct {
+	Module Module
+}
+
+type Module struct {
+	Path    string
+	Version string
+}
+
+func GetModuleName() string {
+	goModBytes, err := ioutil.ReadFile("go.mod")
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	modName := modfile.ModulePath(goModBytes)
+	fmt.Fprintf(os.Stdout, "modName=%+v\n", modName)
+
+	return modName
 }
 
 type (

@@ -30,10 +30,10 @@ var pkg_name_tmpl string
 
 const GenMark string = "@GenApi"
 
-func ParseFuncApi(modName string, src string, dest string) ParseContext {
+func ParseFuncApi(src string, dest string) ParseContext {
 	fset, pkgs := LoadPkgs(src)
 	context := ParseContext{
-		LocalModuleName: modName,
+		LocalModuleName: GetModuleName(),
 		ParsePath:       src,
 		Fset:            fset,
 		Pkgs:            pkgs,

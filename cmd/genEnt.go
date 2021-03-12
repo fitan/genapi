@@ -18,23 +18,26 @@ package cmd
 import (
 	"github.com/fitan/genapi/pkg"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 // genEntCmd represents the genEnt command
 var genEntCmd = &cobra.Command{
-	Use:   "gen-ent",
+	Use:   "ent",
 	Short: "gen ent restful",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		//pkg.Load(src, dest, nodes)
-		pkg.Load(*src, *dest)
-		log.Printf("src: %v, dest: %v", *src, *dest)
+		pkg.Load(*genEntSrc, *genEntDest)
 	},
 }
 
+var genEntSrc *string
+var genEntDest *string
+
 func init() {
 	rootCmd.AddCommand(genEntCmd)
+	genEntSrc = genEntCmd.Flags().StringP("src", "s", "./ent/schema", "ent schema src.")
+	genEntDest = genEntCmd.Flags().StringP("dest", "d", "./gen/entt", "generate dest.")
 
 	// Here you will define your flags and configuration settings.
 

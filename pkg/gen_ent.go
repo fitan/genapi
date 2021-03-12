@@ -36,27 +36,21 @@ var default_predicate_tmpl string
 //go:embed internal/templateV2/tools.tmpl
 var tools_tmpl string
 
-var Templates []*gen.Template
-
-func InitStart() {
-
-	Templates = []*gen.Template{
-		gen.MustParse(gen.NewTemplate("predicateV2").Funcs(gen.Funcs).Funcs(FM).Parse(predicateV2_tmpl)),
-		gen.MustParse(gen.NewTemplate("curd").Funcs(gen.Funcs).Funcs(FM).Parse(curd_tmpl)),
-		gen.MustParse(gen.NewTemplate("new_obj").Funcs(gen.Funcs).Funcs(FM).Parse(new_obj_tmpl)),
-		gen.MustParse(gen.NewTemplate("swag").Funcs(gen.Funcs).Funcs(FM).Parse(swagger_obj_tmpl)),
-		gen.MustParse(gen.NewTemplate("router_swagger").Funcs(gen.Funcs).Funcs(FM).Parse(swagger_tmpl)),
-		gen.MustParse(gen.NewTemplate("default_predicate").Funcs(gen.Funcs).Funcs(FM).Parse(default_predicate_tmpl)),
-		gen.MustParse(gen.NewTemplate("tools").Funcs(gen.Funcs).Funcs(FM).Parse(tools_tmpl)),
-		//gen.MustParse(gen.NewTemplate("predicateV2").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/predicateV2.tmpl")),
-		//gen.MustParse(gen.NewTemplate("curd").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/curd.tmpl")),
-		//gen.MustParse(gen.NewTemplate("new_obj").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/new_obj.tmpl")),
-		//gen.MustParse(gen.NewTemplate("swag").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/swag.tmpl")),
-		//gen.MustParse(gen.NewTemplate("router_swagger").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/router_swagger.tmpl")),
-		//gen.MustParse(gen.NewTemplate("default_predicate").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/default_predicate.tmpl")),
-		//gen.MustParse(gen.NewTemplate("tools").Funcs(gen.Funcs).Funcs(FM).ParseFiles("template/tools.tmpl")),
-	}
-}
+//var Templates []*gen.Template
+//
+//func InitStart() {
+//
+//	Templates = []*gen.Template{
+//		gen.MustParse(gen.NewTemplate("predicateV2").Funcs(gen.Funcs).Funcs(FM).Parse(predicateV2_tmpl)),
+//		gen.MustParse(gen.NewTemplate("curd").Funcs(gen.Funcs).Funcs(FM).Parse(curd_tmpl)),
+//		gen.MustParse(gen.NewTemplate("new_obj").Funcs(gen.Funcs).Funcs(FM).Parse(new_obj_tmpl)),
+//		gen.MustParse(gen.NewTemplate("swag").Funcs(gen.Funcs).Funcs(FM).Parse(swagger_obj_tmpl)),
+//		gen.MustParse(gen.NewTemplate("router_swagger").Funcs(gen.Funcs).Funcs(FM).Parse(swagger_tmpl)),
+//		gen.MustParse(gen.NewTemplate("default_predicate").Funcs(gen.Funcs).Funcs(FM).Parse(default_predicate_tmpl)),
+//		gen.MustParse(gen.NewTemplate("tools").Funcs(gen.Funcs).Funcs(FM).Parse(tools_tmpl)),
+//
+//	}
+//}
 
 type tmplMsg struct {
 	Name string
@@ -141,7 +135,7 @@ func Load(schemaPath string, dest string) {
 			log.Fatalln(err.Error())
 		}
 		assets.files = append(assets.files, file{
-			path:    filepath.Join(gPacking.Config.Target, path.Base(dest), gTmp.Name+".go"),
+			path:    filepath.Join(gPacking.Config.Target, dest, gTmp.Name+".go"),
 			content: b.Bytes(),
 		})
 
@@ -167,7 +161,7 @@ func Load(schemaPath string, dest string) {
 			}
 
 			assets.files = append(assets.files, file{
-				path:    filepath.Join(g.Config.Target, path.Base(dest), nodeTmp.NameFormat(gen.Funcs["snake"].(func(string) string)(node.Name))),
+				path:    filepath.Join(g.Config.Target, dest, nodeTmp.NameFormat(gen.Funcs["snake"].(func(string) string)(node.Name))),
 				content: b.Bytes(),
 			})
 		}

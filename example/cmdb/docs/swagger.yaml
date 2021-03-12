@@ -1,0 +1,2262 @@
+definitions:
+  ent.Project:
+    properties:
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      edges:
+        $ref: '#/definitions/ent.ProjectEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ProjectQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+    type: object
+  ent.ProjectEdges:
+    properties:
+      role_bindings:
+        description: RoleBindings holds the value of the role_bindings edge.
+        items:
+          $ref: '#/definitions/ent.RoleBinding'
+        type: array
+      services:
+        description: Services holds the value of the services edge.
+        items:
+          $ref: '#/definitions/ent.Service'
+        type: array
+    type: object
+  ent.RoleBinding:
+    properties:
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      edges:
+        $ref: '#/definitions/ent.RoleBindingEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the RoleBindingQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      role:
+        description: Role holds the value of the "role" field.
+        type: string
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+    type: object
+  ent.RoleBindingEdges:
+    properties:
+      project:
+        $ref: '#/definitions/ent.Project'
+        description: Project holds the value of the project edge.
+      service:
+        $ref: '#/definitions/ent.Service'
+        description: Service holds the value of the service edge.
+      user:
+        $ref: '#/definitions/ent.User'
+        description: User holds the value of the user edge.
+    type: object
+  ent.Server:
+    properties:
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      edges:
+        $ref: '#/definitions/ent.ServerEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ServerQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      ip:
+        description: IP holds the value of the "ip" field.
+        type: string
+      machine_type:
+        description: MachineType holds the value of the "machine_type" field.
+        type: string
+      platform_type:
+        description: PlatformType holds the value of the "platform_type" field.
+        type: string
+      system_type:
+        description: SystemType holds the value of the "system_type" field.
+        type: string
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+    type: object
+  ent.ServerEdges:
+    properties:
+      services:
+        description: Services holds the value of the services edge.
+        items:
+          $ref: '#/definitions/ent.Service'
+        type: array
+    type: object
+  ent.Service:
+    properties:
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      edges:
+        $ref: '#/definitions/ent.ServiceEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ServiceQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: integer
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+    type: object
+  ent.ServiceEdges:
+    properties:
+      project:
+        $ref: '#/definitions/ent.Project'
+        description: Project holds the value of the project edge.
+      role_bindings:
+        description: RoleBindings holds the value of the role_bindings edge.
+        items:
+          $ref: '#/definitions/ent.RoleBinding'
+        type: array
+      servers:
+        description: Servers holds the value of the servers edge.
+        items:
+          $ref: '#/definitions/ent.Server'
+        type: array
+    type: object
+  ent.User:
+    properties:
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      edges:
+        $ref: '#/definitions/ent.UserEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the UserQuery when eager-loading is set.
+      email:
+        description: Email holds the value of the "email" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: integer
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      phone:
+        description: Phone holds the value of the "phone" field.
+        type: string
+      role:
+        description: Role holds the value of the "role" field.
+        type: string
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+    type: object
+  ent.UserEdges:
+    properties:
+      role_bindings:
+        description: RoleBindings holds the value of the role_bindings edge.
+        items:
+          $ref: '#/definitions/ent.RoleBinding'
+        type: array
+    type: object
+  entt.GetProjectListData:
+    properties:
+      count:
+        type: integer
+      result:
+        items:
+          $ref: '#/definitions/ent.Project'
+        type: array
+    type: object
+  entt.GetRoleBindingListData:
+    properties:
+      count:
+        type: integer
+      result:
+        items:
+          $ref: '#/definitions/ent.RoleBinding'
+        type: array
+    type: object
+  entt.GetServerListData:
+    properties:
+      count:
+        type: integer
+      result:
+        items:
+          $ref: '#/definitions/ent.Server'
+        type: array
+    type: object
+  entt.GetServiceListData:
+    properties:
+      count:
+        type: integer
+      result:
+        items:
+          $ref: '#/definitions/ent.Service'
+        type: array
+    type: object
+  entt.GetUserListData:
+    properties:
+      count:
+        type: integer
+      result:
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+    type: object
+  entt.ProjectNode:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.ProjectNodeNotID:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      name:
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.RestReturn:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      msg:
+        type: object
+    type: object
+  entt.RoleBindingNode:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      id:
+        type: integer
+      role:
+        enum:
+        - admin
+        - user
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.RoleBindingNodeNotID:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      role:
+        enum:
+        - admin
+        - user
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.ServerNode:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      machine_type:
+        enum:
+        - physical
+        - virtual
+        type: string
+      platform_type:
+        enum:
+        - zstack
+        - k8s
+        - openstack
+        type: string
+      system_type:
+        enum:
+        - linux
+        - windows
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.ServerNodeNotID:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      ip:
+        type: string
+      machine_type:
+        enum:
+        - physical
+        - virtual
+        type: string
+      platform_type:
+        enum:
+        - zstack
+        - k8s
+        - openstack
+        type: string
+      system_type:
+        enum:
+        - linux
+        - windows
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.ServiceNode:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.ServiceNodeNotID:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      name:
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.UserNode:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        enum:
+        - user
+        - admin
+        - tourist
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+  entt.UserNodeNotID:
+    properties:
+      create_time:
+        format: date-time
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        enum:
+        - user
+        - admin
+        - tourist
+        type: string
+      update_time:
+        format: date-time
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /project:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ProjectNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: create one project
+      tags:
+      - Project
+  /project/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: delete one project
+      tags:
+      - Project
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: get one project
+      tags:
+      - Project
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ProjectNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: update one project
+      tags:
+      - Project
+  /project/{id}/role_bindings:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: delete one role_binding
+      tags:
+      - RoleBinding by Project
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.RoleBindingNode'
+                  type: array
+              type: object
+      summary: get list role_binding
+      tags:
+      - RoleBinding by Project
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.RoleBindingNodeNotID'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.RoleBindingNodeNotID'
+                  type: array
+              type: object
+      summary: create list role_binding
+      tags:
+      - RoleBinding by Project
+  /project/{id}/services:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: delete one service
+      tags:
+      - Service by Project
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ServiceNode'
+                  type: array
+              type: object
+      summary: get list service
+      tags:
+      - Service by Project
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ServiceNodeNotID'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ServiceNodeNotID'
+                  type: array
+              type: object
+      summary: create list service
+      tags:
+      - Service by Project
+  /projects:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        items:
+          type: integer
+        name: ids
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: delete list project
+      tags:
+      - Project
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.GetProjectListData'
+              type: object
+      summary: get list project
+      tags:
+      - Project
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ProjectNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ProjectNodeNotID'
+                  type: array
+              type: object
+      summary: create list project
+      tags:
+      - Project
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ProjectNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: update list project
+      tags:
+      - Project
+  /role_binding:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.RoleBindingNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: create one role_binding
+      tags:
+      - RoleBinding
+  /role_binding/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: delete one role_binding
+      tags:
+      - RoleBinding
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: get one role_binding
+      tags:
+      - RoleBinding
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.RoleBindingNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: update one role_binding
+      tags:
+      - RoleBinding
+  /role_binding/{id}/project:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: delete one project
+      tags:
+      - Project by RoleBinding
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: get one project
+      tags:
+      - Project by RoleBinding
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ProjectNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: create one project
+      tags:
+      - Project by RoleBinding
+  /role_binding/{id}/service:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: delete one service
+      tags:
+      - Service by RoleBinding
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: get one service
+      tags:
+      - Service by RoleBinding
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ServiceNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: create one service
+      tags:
+      - Service by RoleBinding
+  /role_binding/{id}/user:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: delete one user
+      tags:
+      - User by RoleBinding
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: get one user
+      tags:
+      - User by RoleBinding
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.UserNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: create one user
+      tags:
+      - User by RoleBinding
+  /role_bindings:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        items:
+          type: integer
+        name: ids
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: delete list role_binding
+      tags:
+      - RoleBinding
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.GetRoleBindingListData'
+              type: object
+      summary: get list role_binding
+      tags:
+      - RoleBinding
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.RoleBindingNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.RoleBindingNodeNotID'
+                  type: array
+              type: object
+      summary: create list role_binding
+      tags:
+      - RoleBinding
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.RoleBindingNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: update list role_binding
+      tags:
+      - RoleBinding
+  /server:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ServerNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServerNode'
+              type: object
+      summary: create one server
+      tags:
+      - Server
+  /server/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServerNode'
+              type: object
+      summary: delete one server
+      tags:
+      - Server
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServerNode'
+              type: object
+      summary: get one server
+      tags:
+      - Server
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ServerNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServerNode'
+              type: object
+      summary: update one server
+      tags:
+      - Server
+  /server/{id}/services:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: delete one service
+      tags:
+      - Service by Server
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ServiceNode'
+                  type: array
+              type: object
+      summary: get list service
+      tags:
+      - Service by Server
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ServiceNodeNotID'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ServiceNodeNotID'
+                  type: array
+              type: object
+      summary: create list service
+      tags:
+      - Service by Server
+  /servers:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        items:
+          type: integer
+        name: ids
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServerNode'
+              type: object
+      summary: delete list server
+      tags:
+      - Server
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.GetServerListData'
+              type: object
+      summary: get list server
+      tags:
+      - Server
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ServerNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ServerNodeNotID'
+                  type: array
+              type: object
+      summary: create list server
+      tags:
+      - Server
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ServerNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServerNode'
+              type: object
+      summary: update list server
+      tags:
+      - Server
+  /service:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ServiceNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: create one service
+      tags:
+      - Service
+  /service/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: delete one service
+      tags:
+      - Service
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: get one service
+      tags:
+      - Service
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ServiceNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: update one service
+      tags:
+      - Service
+  /service/{id}/project:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: delete one project
+      tags:
+      - Project by Service
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: get one project
+      tags:
+      - Project by Service
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.ProjectNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ProjectNode'
+              type: object
+      summary: create one project
+      tags:
+      - Project by Service
+  /service/{id}/role_bindings:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: delete one role_binding
+      tags:
+      - RoleBinding by Service
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.RoleBindingNode'
+                  type: array
+              type: object
+      summary: get list role_binding
+      tags:
+      - RoleBinding by Service
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.RoleBindingNodeNotID'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.RoleBindingNodeNotID'
+                  type: array
+              type: object
+      summary: create list role_binding
+      tags:
+      - RoleBinding by Service
+  /service/{id}/servers:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServerNode'
+              type: object
+      summary: delete one server
+      tags:
+      - Server by Service
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ServerNode'
+                  type: array
+              type: object
+      summary: get list server
+      tags:
+      - Server by Service
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ServerNodeNotID'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ServerNodeNotID'
+                  type: array
+              type: object
+      summary: create list server
+      tags:
+      - Server by Service
+  /services:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        items:
+          type: integer
+        name: ids
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: delete list service
+      tags:
+      - Service
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.GetServiceListData'
+              type: object
+      summary: get list service
+      tags:
+      - Service
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ServiceNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.ServiceNodeNotID'
+                  type: array
+              type: object
+      summary: create list service
+      tags:
+      - Service
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.ServiceNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.ServiceNode'
+              type: object
+      summary: update list service
+      tags:
+      - Service
+  /user:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.UserNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: create one user
+      tags:
+      - User
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: delete one user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: get one user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.UserNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: update one user
+      tags:
+      - User
+  /user/{id}/role_bindings:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.RoleBindingNode'
+              type: object
+      summary: delete one role_binding
+      tags:
+      - RoleBinding by User
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.RoleBindingNode'
+                  type: array
+              type: object
+      summary: get list role_binding
+      tags:
+      - RoleBinding by User
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.RoleBindingNodeNotID'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.RoleBindingNodeNotID'
+                  type: array
+              type: object
+      summary: create list role_binding
+      tags:
+      - RoleBinding by User
+  /users:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        items:
+          type: integer
+        name: ids
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: delete list user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.GetUserListData'
+              type: object
+      summary: get list user
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.UserNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.UserNodeNotID'
+                  type: array
+              type: object
+      summary: create list user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.UserNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.UserNode'
+              type: object
+      summary: update list user
+      tags:
+      - User
+swagger: "2.0"

@@ -4,7 +4,7 @@ import (
     "{{$.Config.Package}}"
     "{{$.Config.Package}}/predicate"
     {{- range $n := $.Nodes}}
-    "{{$.Config.Package}}/{{snake $n.Name}}"
+    "{{$.Config.Package}}/{{lower $n.Name}}"
     {{- end}}
     "github.com/gin-gonic/gin"
 )
