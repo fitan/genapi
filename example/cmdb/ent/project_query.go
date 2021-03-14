@@ -472,7 +472,7 @@ func (pq *ProjectQuery) sqlCount(ctx context.Context) (int, error) {
 func (pq *ProjectQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := pq.sqlCount(ctx)
 	if err != nil {
-		return false, fmt.Errorf("ent: check existence: %w", err)
+		return false, fmt.Errorf("ent: check existence: %v", err)
 	}
 	return n > 0, nil
 }

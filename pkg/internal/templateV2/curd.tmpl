@@ -31,93 +31,7 @@ func (curd *{{$n.Name}}CURD) RegisterRouter(router interface{}) {
 
 	case *gin.RouterGroup:
 	r := router.(*gin.RouterGroup)
-		{{$a := (PaseRestNodeMethod $n.Annotations)}}
-	{{range $method, $route := $a}}
-	{{if eq $method "Get"}}
-	{{$method = "GetOne"}}
-	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{$method = "GetList"}}
-	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{end}}
-	{{if eq $method "Create"}}
-	{{$method = "CreateOne"}}
-
-	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{$method = "CreateList"}}
-
-	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{end}}
-	{{if eq $method "Update"}}
-	{{$method = "UpdateOne"}}
-
-	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{$method = "UpdateList"}}
-
-	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		err := curd.{{$method}}(c)
-		RestReturnFunc(c, "", err)
-	})
-	{{end}}
-	{{if eq $method "Delete"}}
-	{{$method = "DeleteOne"}}
-
-	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{$method = "DeleteList"}}
-
-	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{end}}
-
-	{{end}}
-	{{ range $e := $n.Edges}}
-	{{$a := (PaseRestEdgeMethod $e.Annotations)}}
-	{{range $method, $route := $a}}
-	{{if eq (toString $e.Unique) "true"}}
-	{{if eq $method "Get"}}
-
-	{{end}}
-	{{if eq $method "Create"}}
-	{{end}}
-	{{if eq $method "Delete"}}
-	{{end}}
-	r.{{$route}}(curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}Id(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{else}}
-	{{if eq $method "Get"}}
-	{{end}}
-	{{if eq $method "Create"}}
-	{{end}}
-	{{if eq $method "Delete"}}
-	{{end}}
-	r.{{$route}}(curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
-		data, err := curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}Id(c)
-		RestReturnFunc(c, data, err)
-	})
-	{{end}}
-	{{end}}
-	{{end}}
+	{{template "router" $n}}
 	}
 }
 
@@ -137,6 +51,14 @@ func (curd *{{$n.Name}}CURD) BindDefaultQuery(c *gin.Context) (*{{$n.Name}}Defau
 	body := new({{$n.Name}}DefaultQuery)
 	err := c.ShouldBindQuery(body)
 	return body, err
+}
+
+func (curd *{{$n.Name}}CURD) GetIDs({{snake (plural $n.Name)}} ent.{{plural $n.Name}}) []int {
+	IDs := make([]int, 0, len({{snake (plural $n.Name)}}))
+	for _,{{snake $n.Name}} := range {{snake (plural $n.Name)}} {
+		IDs = append(IDs, {{snake $n.Name}}.ID)
+	}
+	return IDs
 }
 
 
@@ -241,6 +163,15 @@ func (curd *{{$n.Name}}CURD) createMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{
 	{{range $f := $n.Fields}}
 	{{if eq (PaseRestFieldOperability $f.Annotations "Create") "true"}}
 	m.Set{{$f.StructField}}(v.{{$f.StructField}})
+	{{end}}
+	{{end}}
+	{{range $e := $n.Edges}}
+    {{if $e.Inverse}}
+	{{if $e.Unique}}
+	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
+	{{else}}
+	m.Add{{$e.Type.Name}}IDs(curd.{{$e.Type.Name}}Obj.GetIDs(v.Edges.{{plural $e.Type.Name}})...)
+    {{end}}
 	{{end}}
 	{{end}}
 }
@@ -477,7 +408,9 @@ func (curd *{{$n.Name}}CURD) DeleteList(c *gin.Context) (int, error) {
 }
 
 {{ range $e := $n.Edges}}
-{{if eq (toString $e.Unique) "true"}}
+{{if $e.Inverse}}
+{{else}}
+{{if $e.Unique}}
 
 func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}IdRoutePath() string {
 	return "/{{snake $n.Name}}/:id/{{snake $e.Type.Name}}"
@@ -629,5 +562,6 @@ func (curd *{{$n.Name}}CURD) DeleteList{{plural $e.Type.Name}}By{{$n.Name}}Id(c 
 }
 {{end}}
 
+{{end}}
 {{end}}
 {{end}}

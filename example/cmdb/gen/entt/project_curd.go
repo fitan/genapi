@@ -188,6 +188,14 @@ func (curd *ProjectCURD) BindDefaultQuery(c *gin.Context) (*ProjectDefaultQuery,
 	return body, err
 }
 
+func (curd *ProjectCURD) GetIDs(projects ent.Projects) []int {
+	IDs := make([]int, 0, len(projects))
+	for _, project := range projects {
+		IDs = append(IDs, project.ID)
+	}
+	return IDs
+}
+
 func (curd *ProjectCURD) BaseGetOneQueryer(id int) (*ent.ProjectQuery, error) {
 	return curd.Db.Project.Query().Where(project.IDEQ(id)), nil
 }

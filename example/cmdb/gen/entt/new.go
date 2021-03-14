@@ -5,6 +5,7 @@ import (
 )
 
 type CURDALL struct {
+	Alert       *AlertCURD
 	Project     *ProjectCURD
 	RoleBinding *RoleBindingCURD
 	Server      *ServerCURD
@@ -14,6 +15,7 @@ type CURDALL struct {
 
 func NewCURDALL(db *ent.Client) *CURDALL {
 	return &CURDALL{
+		Alert:       NewAlertCURD(db),
 		Project:     NewProjectCURD(db),
 		RoleBinding: NewRoleBindingCURD(db),
 		Server:      NewServerCURD(db),
@@ -23,6 +25,7 @@ func NewCURDALL(db *ent.Client) *CURDALL {
 }
 
 func (c *CURDALL) RegisterRouterALL(r interface{}) {
+	c.Alert.RegisterRouter(r)
 	c.Project.RegisterRouter(r)
 	c.RoleBinding.RegisterRouter(r)
 	c.Server.RegisterRouter(r)
@@ -30,16 +33,22 @@ func (c *CURDALL) RegisterRouterALL(r interface{}) {
 	c.User.RegisterRouter(r)
 }
 
+func NewAlertCURD(db *ent.Client) *AlertCURD {
+	return &AlertCURD{
+		Db: db,
+	}
+}
+
 func NewProjectCURD(db *ent.Client) *ProjectCURD {
 	return &ProjectCURD{
 		Db: db,
 
 		RoleBindingObj: &RoleBindingCURD{
-			db,
+			Db: db,
 		},
 
 		ServiceObj: &ServiceCURD{
-			db,
+			Db: db,
 		},
 	}
 }
@@ -49,15 +58,15 @@ func NewRoleBindingCURD(db *ent.Client) *RoleBindingCURD {
 		Db: db,
 
 		ProjectObj: &ProjectCURD{
-			db,
+			Db: db,
 		},
 
 		ServiceObj: &ServiceCURD{
-			db,
+			Db: db,
 		},
 
 		UserObj: &UserCURD{
-			db,
+			Db: db,
 		},
 	}
 }
@@ -67,7 +76,7 @@ func NewServerCURD(db *ent.Client) *ServerCURD {
 		Db: db,
 
 		ServiceObj: &ServiceCURD{
-			db,
+			Db: db,
 		},
 	}
 }
@@ -77,15 +86,15 @@ func NewServiceCURD(db *ent.Client) *ServiceCURD {
 		Db: db,
 
 		RoleBindingObj: &RoleBindingCURD{
-			db,
+			Db: db,
 		},
 
 		ServerObj: &ServerCURD{
-			db,
+			Db: db,
 		},
 
 		ProjectObj: &ProjectCURD{
-			db,
+			Db: db,
 		},
 	}
 }
@@ -95,7 +104,11 @@ func NewUserCURD(db *ent.Client) *UserCURD {
 		Db: db,
 
 		RoleBindingObj: &RoleBindingCURD{
-			db,
+			Db: db,
+		},
+
+		AlertObj: &AlertCURD{
+			Db: db,
 		},
 	}
 }

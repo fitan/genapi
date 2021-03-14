@@ -26,8 +26,12 @@ const (
 	FieldPhone = "phone"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+
 	// EdgeRoleBindings holds the string denoting the role_bindings edge name in mutations.
 	EdgeRoleBindings = "role_bindings"
+	// EdgeAlerts holds the string denoting the alerts edge name in mutations.
+	EdgeAlerts = "alerts"
+
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleBindingsTable is the table the holds the role_bindings relation/edge.
@@ -37,6 +41,13 @@ const (
 	RoleBindingsInverseTable = "role_bindings"
 	// RoleBindingsColumn is the table column denoting the role_bindings relation/edge.
 	RoleBindingsColumn = "user_role_bindings"
+	// AlertsTable is the table the holds the alerts relation/edge.
+	AlertsTable = "alerts"
+	// AlertsInverseTable is the table name for the Alert entity.
+	// It exists in this package in order to avoid circular dependency with the "alert" package.
+	AlertsInverseTable = "alerts"
+	// AlertsColumn is the table column denoting the alerts relation/edge.
+	AlertsColumn = "user_alerts"
 )
 
 // Columns holds all SQL columns for user fields.

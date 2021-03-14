@@ -412,7 +412,7 @@ func (sq *ServerQuery) sqlAll(ctx context.Context) ([]*Server, error) {
 			},
 		}
 		if err := sqlgraph.QueryEdges(ctx, sq.driver, _spec); err != nil {
-			return nil, fmt.Errorf(`query edges "services": %w`, err)
+			return nil, fmt.Errorf(`query edges "services": %v`, err)
 		}
 		query.Where(service.IDIn(edgeids...))
 		neighbors, err := query.All(ctx)
@@ -441,7 +441,7 @@ func (sq *ServerQuery) sqlCount(ctx context.Context) (int, error) {
 func (sq *ServerQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := sq.sqlCount(ctx)
 	if err != nil {
-		return false, fmt.Errorf("ent: check existence: %w", err)
+		return false, fmt.Errorf("ent: check existence: %v", err)
 	}
 	return n > 0, nil
 }

@@ -6,18 +6,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ServiceNode struct {
+type ServiceID struct {
 	ID int `json:"id,omitempty"`
+}
 
-	CreateTime time.Time `json:"create_time,omitempty"  format:"date-time" `
-	UpdateTime time.Time `json:"update_time,omitempty"  format:"date-time" `
-	Name       string    `json:"name,omitempty"   `
+type ServiceNode struct {
+	ServiceID
+	ServiceNodeNotID
+}
+
+type ServiceEdges struct {
+	RoleBindings []*RoleBindingID `json:"role_bindings,omitempty"`
+
+	Servers []*ServerID `json:"servers,omitempty"`
+
+	Project *ProjectID `json:"project,omitempty"`
 }
 
 type ServiceNodeNotID struct {
-	CreateTime time.Time `json:"create_time,omitempty"  format:"date-time" `
-	UpdateTime time.Time `json:"update_time,omitempty"  format:"date-time" `
-	Name       string    `json:"name,omitempty"   `
+	CreateTime time.Time    `json:"create_time,omitempty"  format:"date-time" `
+	UpdateTime time.Time    `json:"update_time,omitempty"  format:"date-time" `
+	Name       string       `json:"name,omitempty"   `
+	Edges      ServiceEdges `json:"edges"`
 }
 
 type ServiceQuery struct {

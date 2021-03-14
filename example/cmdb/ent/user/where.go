@@ -821,6 +821,34 @@ func HasRoleBindingsWith(preds ...predicate.RoleBinding) predicate.User {
 	})
 }
 
+// HasAlerts applies the HasEdge predicate on the "alerts" edge.
+func HasAlerts() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(AlertsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AlertsTable, AlertsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAlertsWith applies the HasEdge predicate on the "alerts" edge with a given conditions (other predicates).
+func HasAlertsWith(preds ...predicate.Alert) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(AlertsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AlertsTable, AlertsColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(func(s *sql.Selector) {

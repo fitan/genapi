@@ -7,15 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ServerNode struct {
+type ServerID struct {
 	ID int `json:"id,omitempty"`
+}
 
-	CreateTime   time.Time           `json:"create_time,omitempty"  format:"date-time" `
-	UpdateTime   time.Time           `json:"update_time,omitempty"  format:"date-time" `
-	IP           string              `json:"ip,omitempty"   `
-	MachineType  server.MachineType  `json:"machine_type,omitempty"   enums:"physical,virtual" binding:"oneof=physical,virtual"`
-	PlatformType server.PlatformType `json:"platform_type,omitempty"   enums:"zstack,k8s,openstack" binding:"oneof=zstack,k8s,openstack"`
-	SystemType   server.SystemType   `json:"system_type,omitempty"   enums:"linux,windows" binding:"oneof=linux,windows"`
+type ServerNode struct {
+	ServerID
+	ServerNodeNotID
+}
+
+type ServerEdges struct {
+	Services []*ServiceID `json:"services,omitempty"`
 }
 
 type ServerNodeNotID struct {
@@ -25,6 +27,7 @@ type ServerNodeNotID struct {
 	MachineType  server.MachineType  `json:"machine_type,omitempty"   enums:"physical,virtual" binding:"oneof=physical,virtual"`
 	PlatformType server.PlatformType `json:"platform_type,omitempty"   enums:"zstack,k8s,openstack" binding:"oneof=zstack,k8s,openstack"`
 	SystemType   server.SystemType   `json:"system_type,omitempty"   enums:"linux,windows" binding:"oneof=linux,windows"`
+	Edges        ServerEdges         `json:"edges"`
 }
 
 type ServerQuery struct {

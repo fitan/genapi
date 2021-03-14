@@ -1,4 +1,13 @@
 definitions:
+  ent.Alert:
+    properties:
+      id:
+        description: ID of the ent.
+        type: integer
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+    type: object
   ent.Project:
     properties:
       create_time:
@@ -168,10 +177,47 @@ definitions:
     type: object
   ent.UserEdges:
     properties:
+      alerts:
+        description: Alerts holds the value of the alerts edge.
+        items:
+          $ref: '#/definitions/ent.Alert'
+        type: array
       role_bindings:
         description: RoleBindings holds the value of the role_bindings edge.
         items:
           $ref: '#/definitions/ent.RoleBinding'
+        type: array
+    type: object
+  entt.AlertEdges:
+    type: object
+  entt.AlertID:
+    properties:
+      id:
+        type: integer
+    type: object
+  entt.AlertNode:
+    properties:
+      edges:
+        $ref: '#/definitions/entt.AlertEdges'
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  entt.AlertNodeNotID:
+    properties:
+      edges:
+        $ref: '#/definitions/entt.AlertEdges'
+      name:
+        type: string
+    type: object
+  entt.GetAlertListData:
+    properties:
+      count:
+        type: integer
+      result:
+        items:
+          $ref: '#/definitions/ent.Alert'
         type: array
     type: object
   entt.GetProjectListData:
@@ -219,11 +265,29 @@ definitions:
           $ref: '#/definitions/ent.User'
         type: array
     type: object
+  entt.ProjectEdges:
+    properties:
+      role_bindings:
+        items:
+          $ref: '#/definitions/entt.RoleBindingID'
+        type: array
+      services:
+        items:
+          $ref: '#/definitions/entt.ServiceID'
+        type: array
+    type: object
+  entt.ProjectID:
+    properties:
+      id:
+        type: integer
+    type: object
   entt.ProjectNode:
     properties:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.ProjectEdges'
       id:
         type: integer
       name:
@@ -237,6 +301,8 @@ definitions:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.ProjectEdges'
       name:
         type: string
       update_time:
@@ -252,11 +318,27 @@ definitions:
       msg:
         type: object
     type: object
+  entt.RoleBindingEdges:
+    properties:
+      project:
+        $ref: '#/definitions/entt.ProjectID'
+      service:
+        $ref: '#/definitions/entt.ServiceID'
+      user:
+        $ref: '#/definitions/entt.UserID'
+    type: object
+  entt.RoleBindingID:
+    properties:
+      id:
+        type: integer
+    type: object
   entt.RoleBindingNode:
     properties:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.RoleBindingEdges'
       id:
         type: integer
       role:
@@ -273,6 +355,8 @@ definitions:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.RoleBindingEdges'
       role:
         enum:
         - admin
@@ -282,11 +366,25 @@ definitions:
         format: date-time
         type: string
     type: object
+  entt.ServerEdges:
+    properties:
+      services:
+        items:
+          $ref: '#/definitions/entt.ServiceID'
+        type: array
+    type: object
+  entt.ServerID:
+    properties:
+      id:
+        type: integer
+    type: object
   entt.ServerNode:
     properties:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.ServerEdges'
       id:
         type: integer
       ip:
@@ -316,6 +414,8 @@ definitions:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.ServerEdges'
       ip:
         type: string
       machine_type:
@@ -338,11 +438,31 @@ definitions:
         format: date-time
         type: string
     type: object
+  entt.ServiceEdges:
+    properties:
+      project:
+        $ref: '#/definitions/entt.ProjectID'
+      role_bindings:
+        items:
+          $ref: '#/definitions/entt.RoleBindingID'
+        type: array
+      servers:
+        items:
+          $ref: '#/definitions/entt.ServerID'
+        type: array
+    type: object
+  entt.ServiceID:
+    properties:
+      id:
+        type: integer
+    type: object
   entt.ServiceNode:
     properties:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.ServiceEdges'
       id:
         type: integer
       name:
@@ -356,17 +476,37 @@ definitions:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.ServiceEdges'
       name:
         type: string
       update_time:
         format: date-time
         type: string
     type: object
+  entt.UserEdges:
+    properties:
+      alerts:
+        items:
+          $ref: '#/definitions/entt.AlertID'
+        type: array
+      role_bindings:
+        items:
+          $ref: '#/definitions/entt.RoleBindingID'
+        type: array
+    type: object
+  entt.UserID:
+    properties:
+      id:
+        type: integer
+    type: object
   entt.UserNode:
     properties:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.UserEdges'
       email:
         type: string
       id:
@@ -392,6 +532,8 @@ definitions:
       create_time:
         format: date-time
         type: string
+      edges:
+        $ref: '#/definitions/entt.UserEdges'
       email:
         type: string
       name:
@@ -413,6 +555,210 @@ definitions:
 info:
   contact: {}
 paths:
+  /alert:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.AlertNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.AlertNode'
+              type: object
+      summary: create one alert
+      tags:
+      - Alert
+  /alert/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.AlertNode'
+              type: object
+      summary: delete one alert
+      tags:
+      - Alert
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.AlertNode'
+              type: object
+      summary: get one alert
+      tags:
+      - Alert
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entt.AlertNodeNotID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.AlertNode'
+              type: object
+      summary: update one alert
+      tags:
+      - Alert
+  /alerts:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        items:
+          type: integer
+        name: ids
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.AlertNode'
+              type: object
+      summary: delete list alert
+      tags:
+      - Alert
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.GetAlertListData'
+              type: object
+      summary: get list alert
+      tags:
+      - Alert
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.AlertNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.AlertNodeNotID'
+                  type: array
+              type: object
+      summary: create list alert
+      tags:
+      - Alert
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.AlertNode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.AlertNode'
+              type: object
+      summary: update list alert
+      tags:
+      - Alert
   /project:
     post:
       consumes:
@@ -2075,6 +2421,91 @@ paths:
       summary: update one user
       tags:
       - User
+  /user/{id}/alerts:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  $ref: '#/definitions/entt.AlertNode'
+              type: object
+      summary: delete one alert
+      tags:
+      - Alert by User
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.AlertNode'
+                  type: array
+              type: object
+      summary: get list alert
+      tags:
+      - Alert by User
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ' '
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/entt.AlertNodeNotID'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/entt.RestReturn'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entt.AlertNodeNotID'
+                  type: array
+              type: object
+      summary: create list alert
+      tags:
+      - Alert by User
   /user/{id}/role_bindings:
     delete:
       consumes:

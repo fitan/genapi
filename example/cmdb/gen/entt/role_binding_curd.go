@@ -2,10 +2,7 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
-	"cmdb/ent/service"
-	"cmdb/ent/user"
 	"context"
 	"fmt"
 
@@ -67,51 +64,6 @@ func (curd *RoleBindingCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, "", err)
 		})
 
-		r.POST(curd.CreateOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOneProjectByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOneProjectByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.GET(curd.GetOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.GetOneProjectByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.POST(curd.CreateOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOneServiceByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOneServiceByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.GET(curd.GetOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.GetOneServiceByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.POST(curd.CreateOneUserByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOneUserByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneUserByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOneUserByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.GET(curd.GetOneUserByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.GetOneUserByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
 	case *gin.RouterGroup:
 		r := router.(*gin.RouterGroup)
 
@@ -155,51 +107,6 @@ func (curd *RoleBindingCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, "", err)
 		})
 
-		r.POST(curd.CreateOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOneProjectByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOneProjectByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.GET(curd.GetOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.GetOneProjectByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.POST(curd.CreateOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOneServiceByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOneServiceByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.GET(curd.GetOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.GetOneServiceByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.POST(curd.CreateOneUserByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOneUserByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneUserByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOneUserByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.GET(curd.GetOneUserByRoleBindingIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.GetOneUserByRoleBindingId(c)
-			RestReturnFunc(c, data, err)
-		})
-
 	}
 }
 
@@ -219,6 +126,14 @@ func (curd *RoleBindingCURD) BindDefaultQuery(c *gin.Context) (*RoleBindingDefau
 	body := new(RoleBindingDefaultQuery)
 	err := c.ShouldBindQuery(body)
 	return body, err
+}
+
+func (curd *RoleBindingCURD) GetIDs(role_bindings ent.RoleBindings) []int {
+	IDs := make([]int, 0, len(role_bindings))
+	for _, role_binding := range role_bindings {
+		IDs = append(IDs, role_binding.ID)
+	}
+	return IDs
 }
 
 func (curd *RoleBindingCURD) BaseGetOneQueryer(id int) (*ent.RoleBindingQuery, error) {
@@ -322,6 +237,12 @@ func (curd *RoleBindingCURD) createMutation(m *ent.RoleBindingMutation, v *ent.R
 	m.SetUpdateTime(v.UpdateTime)
 
 	m.SetRole(v.Role)
+
+	m.SetProjectID(v.Edges.Project.ID)
+
+	m.SetServiceID(v.Edges.Service.ID)
+
+	m.SetUserID(v.Edges.User.ID)
 
 }
 
@@ -536,140 +457,4 @@ func (curd *RoleBindingCURD) DeleteList(c *gin.Context) (int, error) {
 		return 0, nil
 	}
 	return deleter.Exec(context.Background())
-}
-
-func (curd *RoleBindingCURD) GetOneProjectByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/project"
-}
-
-func (curd *RoleBindingCURD) GetOneProjectByRoleBindingId(c *gin.Context) (*ent.Project, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return queryer.QueryProject().First(context.Background())
-}
-
-func (curd *RoleBindingCURD) CreateOneProjectByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/project"
-}
-
-func (curd *RoleBindingCURD) CreateOneProjectByRoleBindingId(c *gin.Context) (*ent.Project, error) {
-	id, err := BindId(c)
-	if err != nil {
-		return nil, err
-	}
-
-	role_bindingCreater, err := curd.ProjectObj.defaultCreateOneCreater(c)
-	role_bindingCreater.AddRoleBindingIDs()
-	return role_bindingCreater.AddRoleBindingIDs()RoleBindingID(id.ID).Save(context.Background())
-}
-
-func (curd *RoleBindingCURD) DeleteOneProjectByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/project"
-}
-
-func (curd *RoleBindingCURD) DeleteOneProjectByRoleBindingId(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := queryer.QueryProject().OnlyID(context.Background())
-	if err != nil {
-		return 0, err
-	}
-
-	return curd.Db.Project.Delete().Where(project.IDEQ(id)).Exec(context.Background())
-}
-
-func (curd *RoleBindingCURD) GetOneServiceByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/service"
-}
-
-func (curd *RoleBindingCURD) GetOneServiceByRoleBindingId(c *gin.Context) (*ent.Service, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return queryer.QueryService().First(context.Background())
-}
-
-func (curd *RoleBindingCURD) CreateOneServiceByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/service"
-}
-
-func (curd *RoleBindingCURD) CreateOneServiceByRoleBindingId(c *gin.Context) (*ent.Service, error) {
-	id, err := BindId(c)
-	if err != nil {
-		return nil, err
-	}
-
-	role_bindingCreater, err := curd.ServiceObj.defaultCreateOneCreater(c)
-	return role_bindingCreater.SetRoleBindingID(id.ID).Save(context.Background())
-}
-
-func (curd *RoleBindingCURD) DeleteOneServiceByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/service"
-}
-
-func (curd *RoleBindingCURD) DeleteOneServiceByRoleBindingId(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := queryer.QueryService().OnlyID(context.Background())
-	if err != nil {
-		return 0, err
-	}
-
-	return curd.Db.Service.Delete().Where(service.IDEQ(id)).Exec(context.Background())
-}
-
-func (curd *RoleBindingCURD) GetOneUserByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/user"
-}
-
-func (curd *RoleBindingCURD) GetOneUserByRoleBindingId(c *gin.Context) (*ent.User, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return queryer.QueryUser().First(context.Background())
-}
-
-func (curd *RoleBindingCURD) CreateOneUserByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/user"
-}
-
-func (curd *RoleBindingCURD) CreateOneUserByRoleBindingId(c *gin.Context) (*ent.User, error) {
-	id, err := BindId(c)
-	if err != nil {
-		return nil, err
-	}
-
-	role_bindingCreater, err := curd.UserObj.defaultCreateOneCreater(c)
-	return role_bindingCreater.SetRoleBindingID(id.ID).Save(context.Background())
-}
-
-func (curd *RoleBindingCURD) DeleteOneUserByRoleBindingIdRoutePath() string {
-	return "/role_binding/:id/user"
-}
-
-func (curd *RoleBindingCURD) DeleteOneUserByRoleBindingId(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := queryer.QueryUser().OnlyID(context.Background())
-	if err != nil {
-		return 0, err
-	}
-
-	return curd.Db.User.Delete().Where(user.IDEQ(id)).Exec(context.Background())
 }

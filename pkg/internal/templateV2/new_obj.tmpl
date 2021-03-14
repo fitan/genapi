@@ -30,7 +30,7 @@ func New{{$n.Name}}CURD(db *ent.Client) *{{$n.Name}}CURD {
         Db:      db,
         {{ range $e := $n.Edges}}
         {{$e.Type.Name}}Obj: &{{$e.Type.Name}}CURD{
-            db,
+            Db: db,
         },
         {{ end }}
     }

@@ -6,18 +6,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProjectNode struct {
+type ProjectID struct {
 	ID int `json:"id,omitempty"`
+}
 
-	CreateTime time.Time `json:"create_time,omitempty"  format:"date-time" `
-	UpdateTime time.Time `json:"update_time,omitempty"  format:"date-time" `
-	Name       string    `json:"name,omitempty"   `
+type ProjectNode struct {
+	ProjectID
+	ProjectNodeNotID
+}
+
+type ProjectEdges struct {
+	RoleBindings []*RoleBindingID `json:"role_bindings,omitempty"`
+
+	Services []*ServiceID `json:"services,omitempty"`
 }
 
 type ProjectNodeNotID struct {
-	CreateTime time.Time `json:"create_time,omitempty"  format:"date-time" `
-	UpdateTime time.Time `json:"update_time,omitempty"  format:"date-time" `
-	Name       string    `json:"name,omitempty"   `
+	CreateTime time.Time    `json:"create_time,omitempty"  format:"date-time" `
+	UpdateTime time.Time    `json:"update_time,omitempty"  format:"date-time" `
+	Name       string       `json:"name,omitempty"   `
+	Edges      ProjectEdges `json:"edges"`
 }
 
 type ProjectQuery struct {

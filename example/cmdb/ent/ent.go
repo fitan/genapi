@@ -5,6 +5,7 @@ package ent
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -237,8 +238,22 @@ func IsConstraintError(err error) bool {
 }
 
 func isSQLConstraintError(err error) (*ConstraintError, bool) {
-	if sqlgraph.IsConstraintError(err) {
-		return &ConstraintError{err.Error(), err}, true
+	var (
+		msg = err.Error()
+		// error format per dialect.
+		errors = [...]string{
+			"Error 1062",               // MySQL 1062 error (ER_DUP_ENTRY).
+			"UNIQUE constraint failed", // SQLite.
+			"duplicate key value violates unique constraint", // PostgreSQL.
+		}
+	)
+	if _, ok := err.(*sqlgraph.ConstraintError); ok {
+		return &ConstraintError{msg, err}, true
+	}
+	for i := range errors {
+		if strings.Contains(msg, errors[i]) {
+			return &ConstraintError{msg, err}, true
+		}
 	}
 	return nil, false
 }
@@ -246,7 +261,7 @@ func isSQLConstraintError(err error) (*ConstraintError, bool) {
 // rollback calls tx.Rollback and wraps the given error with the rollback error if present.
 func rollback(tx dialect.Tx, err error) error {
 	if rerr := tx.Rollback(); rerr != nil {
-		err = fmt.Errorf("%w: %v", err, rerr)
+		err = fmt.Errorf("%s: %v", err.Error(), rerr)
 	}
 	if err, ok := isSQLConstraintError(err); ok {
 		return err

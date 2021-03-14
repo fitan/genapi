@@ -17,12 +17,14 @@ const (
 	FieldUpdateTime = "update_time"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+
 	// EdgeRoleBindings holds the string denoting the role_bindings edge name in mutations.
 	EdgeRoleBindings = "role_bindings"
 	// EdgeServers holds the string denoting the servers edge name in mutations.
 	EdgeServers = "servers"
 	// EdgeProject holds the string denoting the project edge name in mutations.
 	EdgeProject = "project"
+
 	// Table holds the table name of the service in the database.
 	Table = "services"
 	// RoleBindingsTable is the table the holds the role_bindings relation/edge.
@@ -54,8 +56,7 @@ var Columns = []string{
 	FieldName,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "services"
-// table and are not defined as standalone fields in the schema.
+// ForeignKeys holds the SQL foreign-keys that are owned by the Service type.
 var ForeignKeys = []string{
 	"project_services",
 }

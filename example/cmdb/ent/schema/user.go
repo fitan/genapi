@@ -33,5 +33,6 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("role_bindings", RoleBinding.Type),
+		edge.To("alerts", Alert.Type),
 	}
 }

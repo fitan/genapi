@@ -18,12 +18,14 @@ const (
 	FieldUpdateTime = "update_time"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+
 	// EdgeProject holds the string denoting the project edge name in mutations.
 	EdgeProject = "project"
 	// EdgeService holds the string denoting the service edge name in mutations.
 	EdgeService = "service"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+
 	// Table holds the table name of the rolebinding in the database.
 	Table = "role_bindings"
 	// ProjectTable is the table the holds the project relation/edge.
@@ -57,8 +59,7 @@ var Columns = []string{
 	FieldRole,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "role_bindings"
-// table and are not defined as standalone fields in the schema.
+// ForeignKeys holds the SQL foreign-keys that are owned by the RoleBinding type.
 var ForeignKeys = []string{
 	"project_role_bindings",
 	"service_role_bindings",

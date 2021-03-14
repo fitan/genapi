@@ -7,18 +7,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RoleBindingNode struct {
+type RoleBindingID struct {
 	ID int `json:"id,omitempty"`
+}
 
-	CreateTime time.Time        `json:"create_time,omitempty"  format:"date-time" `
-	UpdateTime time.Time        `json:"update_time,omitempty"  format:"date-time" `
-	Role       rolebinding.Role `json:"role,omitempty"   enums:"admin,user" binding:"oneof=admin,user"`
+type RoleBindingNode struct {
+	RoleBindingID
+	RoleBindingNodeNotID
+}
+
+type RoleBindingEdges struct {
+	Project *ProjectID `json:"project,omitempty"`
+
+	Service *ServiceID `json:"service,omitempty"`
+
+	User *UserID `json:"user,omitempty"`
 }
 
 type RoleBindingNodeNotID struct {
 	CreateTime time.Time        `json:"create_time,omitempty"  format:"date-time" `
 	UpdateTime time.Time        `json:"update_time,omitempty"  format:"date-time" `
 	Role       rolebinding.Role `json:"role,omitempty"   enums:"admin,user" binding:"oneof=admin,user"`
+	Edges      RoleBindingEdges `json:"edges"`
 }
 
 type RoleBindingQuery struct {

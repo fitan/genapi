@@ -24,6 +24,356 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/alert": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "create one alert",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entt.AlertNodeNotID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entt.AlertNode"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/alert/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "get one alert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": " ",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entt.AlertNode"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "update one alert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": " ",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": " ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entt.AlertNodeNotID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entt.AlertNode"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "delete one alert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": " ",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entt.AlertNode"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "get list alert",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entt.GetAlertListData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "update list alert",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entt.AlertNode"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entt.AlertNode"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "create list alert",
+                "parameters": [
+                    {
+                        "description": " ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entt.AlertNode"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/entt.AlertNodeNotID"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "delete list alert",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "name": "ids",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entt.AlertNode"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/project": {
             "post": {
                 "consumes": [
@@ -2854,6 +3204,149 @@ var doc = `{
                 }
             }
         },
+        "/user/{id}/alerts": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert by User"
+                ],
+                "summary": "get list alert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": " ",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/entt.AlertNode"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert by User"
+                ],
+                "summary": "create list alert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": " ",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": " ",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entt.AlertNodeNotID"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/entt.AlertNodeNotID"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert by User"
+                ],
+                "summary": "delete one alert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": " ",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/entt.RestReturn"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entt.AlertNode"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/user/{id}/role_bindings": {
             "get": {
                 "consumes": [
@@ -3170,6 +3663,19 @@ var doc = `{
         }
     },
     "definitions": {
+        "ent.Alert": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                }
+            }
+        },
         "ent.Project": {
             "type": "object",
             "properties": {
@@ -3393,11 +3899,68 @@ var doc = `{
         "ent.UserEdges": {
             "type": "object",
             "properties": {
+                "alerts": {
+                    "description": "Alerts holds the value of the alerts edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Alert"
+                    }
+                },
                 "role_bindings": {
                     "description": "RoleBindings holds the value of the role_bindings edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/ent.RoleBinding"
+                    }
+                }
+            }
+        },
+        "entt.AlertEdges": {
+            "type": "object"
+        },
+        "entt.AlertID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entt.AlertNode": {
+            "type": "object",
+            "properties": {
+                "edges": {
+                    "$ref": "#/definitions/entt.AlertEdges"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "entt.AlertNodeNotID": {
+            "type": "object",
+            "properties": {
+                "edges": {
+                    "$ref": "#/definitions/entt.AlertEdges"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "entt.GetAlertListData": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Alert"
                     }
                 }
             }
@@ -3472,12 +4035,40 @@ var doc = `{
                 }
             }
         },
+        "entt.ProjectEdges": {
+            "type": "object",
+            "properties": {
+                "role_bindings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entt.RoleBindingID"
+                    }
+                },
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entt.ServiceID"
+                    }
+                }
+            }
+        },
+        "entt.ProjectID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "entt.ProjectNode": {
             "type": "object",
             "properties": {
                 "create_time": {
                     "type": "string",
                     "format": "date-time"
+                },
+                "edges": {
+                    "$ref": "#/definitions/entt.ProjectEdges"
                 },
                 "id": {
                     "type": "integer"
@@ -3497,6 +4088,9 @@ var doc = `{
                 "create_time": {
                     "type": "string",
                     "format": "date-time"
+                },
+                "edges": {
+                    "$ref": "#/definitions/entt.ProjectEdges"
                 },
                 "name": {
                     "type": "string"
@@ -3521,12 +4115,37 @@ var doc = `{
                 }
             }
         },
+        "entt.RoleBindingEdges": {
+            "type": "object",
+            "properties": {
+                "project": {
+                    "$ref": "#/definitions/entt.ProjectID"
+                },
+                "service": {
+                    "$ref": "#/definitions/entt.ServiceID"
+                },
+                "user": {
+                    "$ref": "#/definitions/entt.UserID"
+                }
+            }
+        },
+        "entt.RoleBindingID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "entt.RoleBindingNode": {
             "type": "object",
             "properties": {
                 "create_time": {
                     "type": "string",
                     "format": "date-time"
+                },
+                "edges": {
+                    "$ref": "#/definitions/entt.RoleBindingEdges"
                 },
                 "id": {
                     "type": "integer"
@@ -3551,6 +4170,9 @@ var doc = `{
                     "type": "string",
                     "format": "date-time"
                 },
+                "edges": {
+                    "$ref": "#/definitions/entt.RoleBindingEdges"
+                },
                 "role": {
                     "type": "string",
                     "enum": [
@@ -3564,12 +4186,34 @@ var doc = `{
                 }
             }
         },
+        "entt.ServerEdges": {
+            "type": "object",
+            "properties": {
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entt.ServiceID"
+                    }
+                }
+            }
+        },
+        "entt.ServerID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "entt.ServerNode": {
             "type": "object",
             "properties": {
                 "create_time": {
                     "type": "string",
                     "format": "date-time"
+                },
+                "edges": {
+                    "$ref": "#/definitions/entt.ServerEdges"
                 },
                 "id": {
                     "type": "integer"
@@ -3612,6 +4256,9 @@ var doc = `{
                     "type": "string",
                     "format": "date-time"
                 },
+                "edges": {
+                    "$ref": "#/definitions/entt.ServerEdges"
+                },
                 "ip": {
                     "type": "string"
                 },
@@ -3643,12 +4290,43 @@ var doc = `{
                 }
             }
         },
+        "entt.ServiceEdges": {
+            "type": "object",
+            "properties": {
+                "project": {
+                    "$ref": "#/definitions/entt.ProjectID"
+                },
+                "role_bindings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entt.RoleBindingID"
+                    }
+                },
+                "servers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entt.ServerID"
+                    }
+                }
+            }
+        },
+        "entt.ServiceID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "entt.ServiceNode": {
             "type": "object",
             "properties": {
                 "create_time": {
                     "type": "string",
                     "format": "date-time"
+                },
+                "edges": {
+                    "$ref": "#/definitions/entt.ServiceEdges"
                 },
                 "id": {
                     "type": "integer"
@@ -3669,6 +4347,9 @@ var doc = `{
                     "type": "string",
                     "format": "date-time"
                 },
+                "edges": {
+                    "$ref": "#/definitions/entt.ServiceEdges"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -3678,12 +4359,40 @@ var doc = `{
                 }
             }
         },
+        "entt.UserEdges": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entt.AlertID"
+                    }
+                },
+                "role_bindings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entt.RoleBindingID"
+                    }
+                }
+            }
+        },
+        "entt.UserID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
         "entt.UserNode": {
             "type": "object",
             "properties": {
                 "create_time": {
                     "type": "string",
                     "format": "date-time"
+                },
+                "edges": {
+                    "$ref": "#/definitions/entt.UserEdges"
                 },
                 "email": {
                     "type": "string"
@@ -3720,6 +4429,9 @@ var doc = `{
                 "create_time": {
                     "type": "string",
                     "format": "date-time"
+                },
+                "edges": {
+                    "$ref": "#/definitions/entt.UserEdges"
                 },
                 "email": {
                     "type": "string"

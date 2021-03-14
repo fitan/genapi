@@ -59,6 +59,8 @@
 
 	{{end}}
 	{{ range $e := $n.Edges}}
+	{{if $e.Inverse}}
+	{{else}}
 	{{$a := (PaseRestEdgeMethod $e.Annotations)}}
 	{{range $method, $route := $a}}
 	{{if eq (toString $e.Unique) "true"}}
@@ -84,6 +86,7 @@
 		data, err := curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}Id(c)
 		RestReturnFunc(c, data, err)
 	})
+	{{end}}
 	{{end}}
 	{{end}}
 	{{end}}

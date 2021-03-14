@@ -7,16 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserNode struct {
+type UserID struct {
 	ID int `json:"id,omitempty"`
+}
 
-	CreateTime time.Time `json:"create_time,omitempty"  format:"date-time" `
-	UpdateTime time.Time `json:"update_time,omitempty"  format:"date-time" `
-	Name       string    `json:"name,omitempty"   `
-	Password   string    `json:"password,omitempty"   `
-	Email      string    `json:"email,omitempty"   `
-	Phone      string    `json:"phone,omitempty"   `
-	Role       user.Role `json:"role,omitempty"   enums:"user,admin,tourist" binding:"oneof=user,admin,tourist"`
+type UserNode struct {
+	UserID
+	UserNodeNotID
+}
+
+type UserEdges struct {
+	RoleBindings []*RoleBindingID `json:"role_bindings,omitempty"`
+
+	Alerts []*AlertID `json:"alerts,omitempty"`
 }
 
 type UserNodeNotID struct {
@@ -27,6 +30,7 @@ type UserNodeNotID struct {
 	Email      string    `json:"email,omitempty"   `
 	Phone      string    `json:"phone,omitempty"   `
 	Role       user.Role `json:"role,omitempty"   enums:"user,admin,tourist" binding:"oneof=user,admin,tourist"`
+	Edges      UserEdges `json:"edges"`
 }
 
 type UserQuery struct {
@@ -145,4 +149,37 @@ func DeleteListRoleBindingsByUser(c *gin.Context) {
 // @Success 200 {object} RestReturn{data=[]RoleBindingNode}
 // @Router /user/{id}/role_bindings [get]
 func GetListRoleBindingsByUser(c *gin.Context) {
+}
+
+// @Summary create list alert
+// @Accept  json
+// @Produce  json
+// @Tags Alert by User
+// @Param id path int true " "
+// @Param body body  []AlertNodeNotID true " "
+// @Success 200 {object} RestReturn{data=[]AlertNodeNotID}
+// @Router /user/{id}/alerts [post]
+func CreateListAlertsByUser(c *gin.Context) {
+}
+
+// @Summary delete one alert
+// @Accept  json
+// @Produce  json
+// @Tags Alert by User
+// @Param id path int true " "
+// @Param query query  AlertQuery false " "
+// @Success 200 {object} RestReturn{data=AlertNode}
+// @Router /user/{id}/alerts [delete]
+func DeleteListAlertsByUser(c *gin.Context) {
+}
+
+// @Summary get list alert
+// @Accept  json
+// @Produce  json
+// @Tags Alert by User
+// @Param id path int true " "
+// @Param query query  AlertQuery false " "
+// @Success 200 {object} RestReturn{data=[]AlertNode}
+// @Router /user/{id}/alerts [get]
+func GetListAlertsByUser(c *gin.Context) {
 }

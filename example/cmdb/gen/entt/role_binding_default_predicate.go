@@ -3,6 +3,7 @@ package entt
 import (
 	"cmdb/ent"
 	"cmdb/ent/predicate"
+	"cmdb/ent/rolebinding"
 )
 
 type RoleBindingDefaultQuery struct {
@@ -18,7 +19,7 @@ func (rb *RoleBindingDefaultQuery) Exec(queryer *ent.RoleBindingQuery) error {
 		return err
 	}
 
-	queryer.Where(role_binding.And(ps...))
+	queryer.Where(rolebinding.And(ps...))
 
 	return nil
 }

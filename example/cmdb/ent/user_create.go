@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"cmdb/ent/alert"
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/user"
 	"context"
@@ -100,6 +101,21 @@ func (uc *UserCreate) AddRoleBindings(r ...*RoleBinding) *UserCreate {
 		ids[i] = r[i].ID
 	}
 	return uc.AddRoleBindingIDs(ids...)
+}
+
+// AddAlertIDs adds the "alerts" edge to the Alert entity by IDs.
+func (uc *UserCreate) AddAlertIDs(ids ...int) *UserCreate {
+	uc.mutation.AddAlertIDs(ids...)
+	return uc
+}
+
+// AddAlerts adds the "alerts" edges to the Alert entity.
+func (uc *UserCreate) AddAlerts(a ...*Alert) *UserCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uc.AddAlertIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -283,6 +299,25 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: rolebinding.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.AlertsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AlertsTable,
+			Columns: []string{user.AlertsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
 				},
 			},
 		}

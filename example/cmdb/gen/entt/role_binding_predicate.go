@@ -44,7 +44,7 @@ func (m *RoleBindingCreateTimeEQ) BindRoleBindingCreateTimeEQ() (predicate.RoleB
 	if m.CreateTimeEQ == nil {
 		return nil, nil
 	}
-	return role_binding.CreateTimeEQ(*m.CreateTimeEQ), nil
+	return rolebinding.CreateTimeEQ(*m.CreateTimeEQ), nil
 }
 
 type RoleBindingCreateTimeOr struct {
@@ -57,9 +57,9 @@ func (m *RoleBindingCreateTimeOr) BindRoleBindingCreateTimeOr() (predicate.RoleB
 	}
 	predicate := make([]predicate.RoleBinding, 0, len(m.CreateTimeOr))
 	for i, _ := range m.CreateTimeOr {
-		predicate = append(predicate, role_binding.CreateTimeEQ(m.CreateTimeOr[i]))
+		predicate = append(predicate, rolebinding.CreateTimeEQ(m.CreateTimeOr[i]))
 	}
-	return role_binding.Or(predicate...), nil
+	return rolebinding.Or(predicate...), nil
 }
 
 type RoleBindingCreateTimeNEQ struct {
@@ -70,7 +70,7 @@ func (m *RoleBindingCreateTimeNEQ) BindRoleBindingCreateTimeNEQ() (predicate.Rol
 	if m.CreateTimeNEQ == nil {
 		return nil, nil
 	}
-	return role_binding.CreateTimeNEQ(*m.CreateTimeNEQ), nil
+	return rolebinding.CreateTimeNEQ(*m.CreateTimeNEQ), nil
 }
 
 type RoleBindingCreateTimeIn struct {
@@ -81,7 +81,7 @@ func (m *RoleBindingCreateTimeIn) BindRoleBindingCreateTimeIn() (predicate.RoleB
 	if len(m.CreateTimeIn) == 0 {
 		return nil, nil
 	}
-	return role_binding.CreateTimeIn(m.CreateTimeIn...), nil
+	return rolebinding.CreateTimeIn(m.CreateTimeIn...), nil
 }
 
 type RoleBindingCreateTimeNotIn struct {
@@ -92,7 +92,7 @@ func (m *RoleBindingCreateTimeNotIn) BindRoleBindingCreateTimeNotIn() (predicate
 	if len(m.CreateTimeNotIn) == 0 {
 		return nil, nil
 	}
-	return role_binding.CreateTimeNotIn(m.CreateTimeNotIn...), nil
+	return rolebinding.CreateTimeNotIn(m.CreateTimeNotIn...), nil
 }
 
 type RoleBindingCreateTimeGT struct {
@@ -103,7 +103,7 @@ func (m *RoleBindingCreateTimeGT) BindRoleBindingCreateTimeGT() (predicate.RoleB
 	if m.CreateTimeGT == nil {
 		return nil, nil
 	}
-	return role_binding.CreateTimeGT(*m.CreateTimeGT), nil
+	return rolebinding.CreateTimeGT(*m.CreateTimeGT), nil
 }
 
 type RoleBindingCreateTimeGTE struct {
@@ -114,7 +114,7 @@ func (m *RoleBindingCreateTimeGTE) BindRoleBindingCreateTimeGTE() (predicate.Rol
 	if m.CreateTimeGTE == nil {
 		return nil, nil
 	}
-	return role_binding.CreateTimeGTE(*m.CreateTimeGTE), nil
+	return rolebinding.CreateTimeGTE(*m.CreateTimeGTE), nil
 }
 
 type RoleBindingCreateTimeLT struct {
@@ -125,7 +125,7 @@ func (m *RoleBindingCreateTimeLT) BindRoleBindingCreateTimeLT() (predicate.RoleB
 	if m.CreateTimeLT == nil {
 		return nil, nil
 	}
-	return role_binding.CreateTimeLT(*m.CreateTimeLT), nil
+	return rolebinding.CreateTimeLT(*m.CreateTimeLT), nil
 }
 
 type RoleBindingCreateTimeLTE struct {
@@ -136,7 +136,7 @@ func (m *RoleBindingCreateTimeLTE) BindRoleBindingCreateTimeLTE() (predicate.Rol
 	if m.CreateTimeLTE == nil {
 		return nil, nil
 	}
-	return role_binding.CreateTimeLTE(*m.CreateTimeLTE), nil
+	return rolebinding.CreateTimeLTE(*m.CreateTimeLTE), nil
 }
 
 type RoleBindingUpdateTimeEQ struct {
@@ -147,7 +147,7 @@ func (m *RoleBindingUpdateTimeEQ) BindRoleBindingUpdateTimeEQ() (predicate.RoleB
 	if m.UpdateTimeEQ == nil {
 		return nil, nil
 	}
-	return role_binding.UpdateTimeEQ(*m.UpdateTimeEQ), nil
+	return rolebinding.UpdateTimeEQ(*m.UpdateTimeEQ), nil
 }
 
 type RoleBindingUpdateTimeOr struct {
@@ -160,9 +160,9 @@ func (m *RoleBindingUpdateTimeOr) BindRoleBindingUpdateTimeOr() (predicate.RoleB
 	}
 	predicate := make([]predicate.RoleBinding, 0, len(m.UpdateTimeOr))
 	for i, _ := range m.UpdateTimeOr {
-		predicate = append(predicate, role_binding.UpdateTimeEQ(m.UpdateTimeOr[i]))
+		predicate = append(predicate, rolebinding.UpdateTimeEQ(m.UpdateTimeOr[i]))
 	}
-	return role_binding.Or(predicate...), nil
+	return rolebinding.Or(predicate...), nil
 }
 
 type RoleBindingUpdateTimeNEQ struct {
@@ -173,7 +173,7 @@ func (m *RoleBindingUpdateTimeNEQ) BindRoleBindingUpdateTimeNEQ() (predicate.Rol
 	if m.UpdateTimeNEQ == nil {
 		return nil, nil
 	}
-	return role_binding.UpdateTimeNEQ(*m.UpdateTimeNEQ), nil
+	return rolebinding.UpdateTimeNEQ(*m.UpdateTimeNEQ), nil
 }
 
 type RoleBindingUpdateTimeIn struct {
@@ -184,7 +184,7 @@ func (m *RoleBindingUpdateTimeIn) BindRoleBindingUpdateTimeIn() (predicate.RoleB
 	if len(m.UpdateTimeIn) == 0 {
 		return nil, nil
 	}
-	return role_binding.UpdateTimeIn(m.UpdateTimeIn...), nil
+	return rolebinding.UpdateTimeIn(m.UpdateTimeIn...), nil
 }
 
 type RoleBindingUpdateTimeNotIn struct {
@@ -195,7 +195,7 @@ func (m *RoleBindingUpdateTimeNotIn) BindRoleBindingUpdateTimeNotIn() (predicate
 	if len(m.UpdateTimeNotIn) == 0 {
 		return nil, nil
 	}
-	return role_binding.UpdateTimeNotIn(m.UpdateTimeNotIn...), nil
+	return rolebinding.UpdateTimeNotIn(m.UpdateTimeNotIn...), nil
 }
 
 type RoleBindingUpdateTimeGT struct {
@@ -206,7 +206,7 @@ func (m *RoleBindingUpdateTimeGT) BindRoleBindingUpdateTimeGT() (predicate.RoleB
 	if m.UpdateTimeGT == nil {
 		return nil, nil
 	}
-	return role_binding.UpdateTimeGT(*m.UpdateTimeGT), nil
+	return rolebinding.UpdateTimeGT(*m.UpdateTimeGT), nil
 }
 
 type RoleBindingUpdateTimeGTE struct {
@@ -217,7 +217,7 @@ func (m *RoleBindingUpdateTimeGTE) BindRoleBindingUpdateTimeGTE() (predicate.Rol
 	if m.UpdateTimeGTE == nil {
 		return nil, nil
 	}
-	return role_binding.UpdateTimeGTE(*m.UpdateTimeGTE), nil
+	return rolebinding.UpdateTimeGTE(*m.UpdateTimeGTE), nil
 }
 
 type RoleBindingUpdateTimeLT struct {
@@ -228,7 +228,7 @@ func (m *RoleBindingUpdateTimeLT) BindRoleBindingUpdateTimeLT() (predicate.RoleB
 	if m.UpdateTimeLT == nil {
 		return nil, nil
 	}
-	return role_binding.UpdateTimeLT(*m.UpdateTimeLT), nil
+	return rolebinding.UpdateTimeLT(*m.UpdateTimeLT), nil
 }
 
 type RoleBindingUpdateTimeLTE struct {
@@ -239,7 +239,7 @@ func (m *RoleBindingUpdateTimeLTE) BindRoleBindingUpdateTimeLTE() (predicate.Rol
 	if m.UpdateTimeLTE == nil {
 		return nil, nil
 	}
-	return role_binding.UpdateTimeLTE(*m.UpdateTimeLTE), nil
+	return rolebinding.UpdateTimeLTE(*m.UpdateTimeLTE), nil
 }
 
 type RoleBindingRoleEQ struct {
@@ -250,7 +250,7 @@ func (m *RoleBindingRoleEQ) BindRoleBindingRoleEQ() (predicate.RoleBinding, erro
 	if m.RoleEQ == nil {
 		return nil, nil
 	}
-	return role_binding.RoleEQ(*m.RoleEQ), nil
+	return rolebinding.RoleEQ(*m.RoleEQ), nil
 }
 
 type RoleBindingRoleOr struct {
@@ -263,9 +263,9 @@ func (m *RoleBindingRoleOr) BindRoleBindingRoleOr() (predicate.RoleBinding, erro
 	}
 	predicate := make([]predicate.RoleBinding, 0, len(m.RoleOr))
 	for i, _ := range m.RoleOr {
-		predicate = append(predicate, role_binding.RoleEQ(m.RoleOr[i]))
+		predicate = append(predicate, rolebinding.RoleEQ(m.RoleOr[i]))
 	}
-	return role_binding.Or(predicate...), nil
+	return rolebinding.Or(predicate...), nil
 }
 
 type RoleBindingRoleNEQ struct {
@@ -276,7 +276,7 @@ func (m *RoleBindingRoleNEQ) BindRoleBindingRoleNEQ() (predicate.RoleBinding, er
 	if m.RoleNEQ == nil {
 		return nil, nil
 	}
-	return role_binding.RoleNEQ(*m.RoleNEQ), nil
+	return rolebinding.RoleNEQ(*m.RoleNEQ), nil
 }
 
 type RoleBindingRoleIn struct {
@@ -287,7 +287,7 @@ func (m *RoleBindingRoleIn) BindRoleBindingRoleIn() (predicate.RoleBinding, erro
 	if len(m.RoleIn) == 0 {
 		return nil, nil
 	}
-	return role_binding.RoleIn(m.RoleIn...), nil
+	return rolebinding.RoleIn(m.RoleIn...), nil
 }
 
 type RoleBindingRoleNotIn struct {
@@ -298,5 +298,5 @@ func (m *RoleBindingRoleNotIn) BindRoleBindingRoleNotIn() (predicate.RoleBinding
 	if len(m.RoleNotIn) == 0 {
 		return nil, nil
 	}
-	return role_binding.RoleNotIn(m.RoleNotIn...), nil
+	return rolebinding.RoleNotIn(m.RoleNotIn...), nil
 }

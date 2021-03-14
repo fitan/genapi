@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"cmdb/ent/alert"
 	"cmdb/ent/predicate"
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/user"
@@ -86,6 +87,21 @@ func (uu *UserUpdate) AddRoleBindings(r ...*RoleBinding) *UserUpdate {
 	return uu.AddRoleBindingIDs(ids...)
 }
 
+// AddAlertIDs adds the "alerts" edge to the Alert entity by IDs.
+func (uu *UserUpdate) AddAlertIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddAlertIDs(ids...)
+	return uu
+}
+
+// AddAlerts adds the "alerts" edges to the Alert entity.
+func (uu *UserUpdate) AddAlerts(a ...*Alert) *UserUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.AddAlertIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -110,6 +126,27 @@ func (uu *UserUpdate) RemoveRoleBindings(r ...*RoleBinding) *UserUpdate {
 		ids[i] = r[i].ID
 	}
 	return uu.RemoveRoleBindingIDs(ids...)
+}
+
+// ClearAlerts clears all "alerts" edges to the Alert entity.
+func (uu *UserUpdate) ClearAlerts() *UserUpdate {
+	uu.mutation.ClearAlerts()
+	return uu
+}
+
+// RemoveAlertIDs removes the "alerts" edge to Alert entities by IDs.
+func (uu *UserUpdate) RemoveAlertIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveAlertIDs(ids...)
+	return uu
+}
+
+// RemoveAlerts removes "alerts" edges to Alert entities.
+func (uu *UserUpdate) RemoveAlerts(a ...*Alert) *UserUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.RemoveAlertIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -308,6 +345,60 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.AlertsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AlertsTable,
+			Columns: []string{user.AlertsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedAlertsIDs(); len(nodes) > 0 && !uu.mutation.AlertsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AlertsTable,
+			Columns: []string{user.AlertsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.AlertsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AlertsTable,
+			Columns: []string{user.AlertsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -385,6 +476,21 @@ func (uuo *UserUpdateOne) AddRoleBindings(r ...*RoleBinding) *UserUpdateOne {
 	return uuo.AddRoleBindingIDs(ids...)
 }
 
+// AddAlertIDs adds the "alerts" edge to the Alert entity by IDs.
+func (uuo *UserUpdateOne) AddAlertIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddAlertIDs(ids...)
+	return uuo
+}
+
+// AddAlerts adds the "alerts" edges to the Alert entity.
+func (uuo *UserUpdateOne) AddAlerts(a ...*Alert) *UserUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.AddAlertIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -409,6 +515,27 @@ func (uuo *UserUpdateOne) RemoveRoleBindings(r ...*RoleBinding) *UserUpdateOne {
 		ids[i] = r[i].ID
 	}
 	return uuo.RemoveRoleBindingIDs(ids...)
+}
+
+// ClearAlerts clears all "alerts" edges to the Alert entity.
+func (uuo *UserUpdateOne) ClearAlerts() *UserUpdateOne {
+	uuo.mutation.ClearAlerts()
+	return uuo
+}
+
+// RemoveAlertIDs removes the "alerts" edge to Alert entities by IDs.
+func (uuo *UserUpdateOne) RemoveAlertIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveAlertIDs(ids...)
+	return uuo
+}
+
+// RemoveAlerts removes "alerts" edges to Alert entities.
+func (uuo *UserUpdateOne) RemoveAlerts(a ...*Alert) *UserUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.RemoveAlertIDs(ids...)
 }
 
 // Save executes the query and returns the updated User entity.
@@ -604,6 +731,60 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: rolebinding.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.AlertsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AlertsTable,
+			Columns: []string{user.AlertsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedAlertsIDs(); len(nodes) > 0 && !uuo.mutation.AlertsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AlertsTable,
+			Columns: []string{user.AlertsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.AlertsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AlertsTable,
+			Columns: []string{user.AlertsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
 				},
 			},
 		}

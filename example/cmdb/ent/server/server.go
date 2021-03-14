@@ -24,8 +24,10 @@ const (
 	FieldPlatformType = "platform_type"
 	// FieldSystemType holds the string denoting the system_type field in the database.
 	FieldSystemType = "system_type"
+
 	// EdgeServices holds the string denoting the services edge name in mutations.
 	EdgeServices = "services"
+
 	// Table holds the table name of the server in the database.
 	Table = "servers"
 	// ServicesTable is the table the holds the services relation/edge. The primary key declared below.

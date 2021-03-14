@@ -39,9 +39,11 @@ type User struct {
 type UserEdges struct {
 	// RoleBindings holds the value of the role_bindings edge.
 	RoleBindings []*RoleBinding `json:"role_bindings,omitempty"`
+	// Alerts holds the value of the alerts edge.
+	Alerts []*Alert `json:"alerts,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // RoleBindingsOrErr returns the RoleBindings value or an error if the edge
@@ -51,6 +53,15 @@ func (e UserEdges) RoleBindingsOrErr() ([]*RoleBinding, error) {
 		return e.RoleBindings, nil
 	}
 	return nil, &NotLoadedError{edge: "role_bindings"}
+}
+
+// AlertsOrErr returns the Alerts value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AlertsOrErr() ([]*Alert, error) {
+	if e.loadedTypes[1] {
+		return e.Alerts, nil
+	}
+	return nil, &NotLoadedError{edge: "alerts"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -135,6 +146,11 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 // QueryRoleBindings queries the "role_bindings" edge of the User entity.
 func (u *User) QueryRoleBindings() *RoleBindingQuery {
 	return (&UserClient{config: u.config}).QueryRoleBindings(u)
+}
+
+// QueryAlerts queries the "alerts" edge of the User entity.
+func (u *User) QueryAlerts() *AlertQuery {
+	return (&UserClient{config: u.config}).QueryAlerts(u)
 }
 
 // Update returns a builder for updating this User.
