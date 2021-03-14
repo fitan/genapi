@@ -2,7 +2,6 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/server"
 	"cmdb/ent/service"
@@ -97,21 +96,6 @@ func (curd *ServiceCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, data, err)
 		})
 
-		r.POST(curd.CreateOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOneProjectByServiceId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOneProjectByServiceId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.GET(curd.GetOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.GetOneProjectByServiceId(c)
-			RestReturnFunc(c, data, err)
-		})
-
 	case *gin.RouterGroup:
 		r := router.(*gin.RouterGroup)
 
@@ -185,21 +169,6 @@ func (curd *ServiceCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, data, err)
 		})
 
-		r.POST(curd.CreateOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOneProjectByServiceId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOneProjectByServiceId(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.GET(curd.GetOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
-			data, err := curd.GetOneProjectByServiceId(c)
-			RestReturnFunc(c, data, err)
-		})
-
 	}
 }
 
@@ -219,6 +188,14 @@ func (curd *ServiceCURD) BindDefaultQuery(c *gin.Context) (*ServiceDefaultQuery,
 	body := new(ServiceDefaultQuery)
 	err := c.ShouldBindQuery(body)
 	return body, err
+}
+
+func (curd *ServiceCURD) GetIDs(services ent.Services) []int {
+	IDs := make([]int, 0, len(services))
+	for _, service := range services {
+		IDs = append(IDs, service.ID)
+	}
+	return IDs
 }
 
 func (curd *ServiceCURD) BaseGetOneQueryer(id int) (*ent.ServiceQuery, error) {
@@ -323,6 +300,8 @@ func (curd *ServiceCURD) createMutation(m *ent.ServiceMutation, v *ent.Service) 
 
 	m.SetName(v.Name)
 
+	m.SetProjectID(v.Edges.Project.ID)
+
 }
 
 func (curd *ServiceCURD) updateMutation(m *ent.ServiceMutation, v *ent.Service) {
@@ -360,6 +339,8 @@ func (curd *ServiceCURD) selete(queryer *ent.ServiceQuery) {
 		service.FieldUpdateTime,
 
 		service.FieldName,
+
+		server.EdgeServices,
 	)
 }
 
@@ -732,49 +713,4 @@ func (curd *ServiceCURD) DeleteListServersByServiceId(c *gin.Context) (int, erro
 	}
 
 	return curd.Db.Server.Delete().Where(server.IDIn(ids...)).Exec(context.Background())
-}
-
-func (curd *ServiceCURD) GetOneProjectByServiceIdRoutePath() string {
-	return "/service/:id/project"
-}
-
-func (curd *ServiceCURD) GetOneProjectByServiceId(c *gin.Context) (*ent.Project, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return queryer.QueryProject().First(context.Background())
-}
-
-func (curd *ServiceCURD) CreateOneProjectByServiceIdRoutePath() string {
-	return "/service/:id/project"
-}
-
-func (curd *ServiceCURD) CreateOneProjectByServiceId(c *gin.Context) (*ent.Project, error) {
-	id, err := BindId(c)
-	if err != nil {
-		return nil, err
-	}
-
-	serviceCreater, err := curd.ProjectObj.defaultCreateOneCreater(c)
-	return serviceCreater.SetServiceID(id.ID).Save(context.Background())
-}
-
-func (curd *ServiceCURD) DeleteOneProjectByServiceIdRoutePath() string {
-	return "/service/:id/project"
-}
-
-func (curd *ServiceCURD) DeleteOneProjectByServiceId(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := queryer.QueryProject().OnlyID(context.Background())
-	if err != nil {
-		return 0, err
-	}
-
-	return curd.Db.Project.Delete().Where(project.IDEQ(id)).Exec(context.Background())
 }

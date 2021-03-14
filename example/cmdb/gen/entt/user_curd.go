@@ -2,10 +2,14 @@ package entt
 
 import (
 	"cmdb/ent"
+	"cmdb/ent/alert"
+	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
+	"cmdb/ent/service"
 	"cmdb/ent/user"
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +18,8 @@ type UserCURD struct {
 	Db *ent.Client
 
 	RoleBindingObj *RoleBindingCURD
+
+	AlertObj *AlertCURD
 }
 
 func (curd *UserCURD) RegisterRouter(router interface{}) {
@@ -76,6 +82,21 @@ func (curd *UserCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, data, err)
 		})
 
+		r.POST(curd.CreateListAlertsByUserIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateListAlertsByUserId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.DELETE(curd.DeleteListAlertsByUserIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.DeleteListAlertsByUserId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.GET(curd.GetListAlertsByUserIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.GetListAlertsByUserId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 	case *gin.RouterGroup:
 		r := router.(*gin.RouterGroup)
 
@@ -134,6 +155,21 @@ func (curd *UserCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, data, err)
 		})
 
+		r.POST(curd.CreateListAlertsByUserIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateListAlertsByUserId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.DELETE(curd.DeleteListAlertsByUserIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.DeleteListAlertsByUserId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.GET(curd.GetListAlertsByUserIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.GetListAlertsByUserId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 	}
 }
 
@@ -153,6 +189,14 @@ func (curd *UserCURD) BindDefaultQuery(c *gin.Context) (*UserDefaultQuery, error
 	body := new(UserDefaultQuery)
 	err := c.ShouldBindQuery(body)
 	return body, err
+}
+
+func (curd *UserCURD) GetIDs(users ent.Users) []int {
+	IDs := make([]int, 0, len(users))
+	for _, user := range users {
+		IDs = append(IDs, user.ID)
+	}
+	return IDs
 }
 
 func (curd *UserCURD) BaseGetOneQueryer(id int) (*ent.UserQuery, error) {
@@ -241,7 +285,9 @@ func (curd *UserCURD) GetList(c *gin.Context) (*GetUserListData, error) {
 		return nil, err
 	}
 
-	res, err := getListQueryer.All(context.Background())
+	res, err := getListQueryer.WithRoleBindings(func(query *ent.RoleBindingQuery) {
+		query.WithProject().WithService()
+	}).All(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -283,6 +329,97 @@ func (curd *UserCURD) updateMutation(m *ent.UserMutation, v *ent.User) {
 
 	m.SetRole(v.Role)
 
+}
+
+type IncludeTree struct {
+	Names map[string]IncludeTree
+}
+
+func UserWith(son string) func(query *ent.UserQuery) {
+	switch son {
+	case rolebinding.Label:
+		return func(query *ent.UserQuery) {
+			query.WithRoleBindings()
+		}
+	case alert.Label:
+		return func(query *ent.UserQuery) {
+			query.WithAlerts()
+		}
+	}
+	return nil
+}
+
+func RoleBindingWith(son string) func(query *ent.RoleBindingQuery) {
+	switch son {
+	case project.Label:
+		return func(query *ent.RoleBindingQuery) {
+			query.WithProject()
+		}
+	case service.Label:
+		return func(query *ent.RoleBindingQuery) {
+			query.WithService()
+		}
+	}
+	return nil
+}
+
+func Depth(includes []string) interface{} {
+	if len(includes) == 2 {
+		switch includes[0] {
+		case rolebinding.Label:
+			return RoleBindingWith(includes[1])
+		case user.Label:
+			return UserWith(includes[1])
+		}
+	}
+
+	tmp := includes[1:]
+	depth := Depth(tmp)
+	switch tmp[0] {
+	case rolebinding.Label:
+		fc := depth.(func(query *ent.RoleBindingQuery))
+		switch includes[0] {
+		case user.Label:
+			return func(query *ent.UserQuery) {
+				query.WithRoleBindings(fc)
+			}
+		case project.Label:
+			return func(query *ent.ProjectQuery) {
+				query.WithRoleBindings(fc)
+			}
+		case service.Label:
+			return func(query *ent.ServiceQuery) {
+				query.WithRoleBindings(fc)
+			}
+		}
+	case user.Label:
+		fc := depth.(func(query *ent.UserQuery))
+	}
+}
+
+func (curd *UserCURD) includes(m *ent.UserQuery, includes []string) {
+	m.WithRoleBindings(func(query *ent.RoleBindingQuery) {
+		query.WithService(func(query *ent.ServiceQuery) {
+			query.WithProject()
+		})
+	})
+	m.WithRoleBindings(func(query *ent.RoleBindingQuery) {
+	})
+	tree := IncludeTree{}
+	for _, include := range includes {
+		includeSplit := strings.Split(include, ",")
+		switch includeSplit[len(includeSplit)-1] {
+		case rolebinding.Label:
+			fc := curd.RoleBindingWith(includeSplit[len(includeSplit)])
+			f := func(query *ent.UserQuery) {
+				query.WithRoleBindings(fc)
+			}
+		case user.Label:
+			fc := curd.UserWith(includeSplit[len(includeSplit)])
+
+		}
+	}
+	m.wi
 }
 
 func (curd *UserCURD) optionalOrder(c *gin.Context, queryer *ent.UserQuery) error {
@@ -592,4 +729,102 @@ func (curd *UserCURD) DeleteListRoleBindingsByUserId(c *gin.Context) (int, error
 	}
 
 	return curd.Db.RoleBinding.Delete().Where(rolebinding.IDIn(ids...)).Exec(context.Background())
+}
+
+func (curd *UserCURD) GetListAlertsByUserIdRoutePath() string {
+	return "/user/:id/alerts"
+}
+
+func (curd *UserCURD) GetListAlertsByUserId(c *gin.Context) ([]*ent.Alert, error) {
+	queryer, err := curd.defaultGetOneQueryer(c)
+	if err != nil {
+		return nil, err
+	}
+
+	tmpQueryer := queryer.QueryAlerts()
+
+	query, err := curd.AlertObj.BindDefaultQuery(c)
+	if err != nil {
+		return nil, err
+	}
+	err = query.Exec(tmpQueryer)
+	if err != nil {
+		return nil, err
+	}
+	curd.AlertObj.selete(tmpQueryer)
+	curd.AlertObj.defaultOrder(tmpQueryer)
+
+	return tmpQueryer.All(context.Background())
+
+}
+
+func (curd *UserCURD) CreateListAlertsByUserIdRoutePath() string {
+	return "/user/:id/alerts"
+}
+
+func (curd *UserCURD) CreateListAlertsByUserId(c *gin.Context) ([]*ent.Alert, error) {
+	id, err := BindId(c)
+	if err != nil {
+		return nil, err
+	}
+	bulk, err := curd.AlertObj.defaultCreateListBulk(c)
+	if err != nil {
+		return nil, err
+	}
+	bg := context.Background()
+	tx, err := curd.Db.Tx(bg)
+	if err != nil {
+		return nil, err
+	}
+
+	alerts, err := func() ([]*ent.Alert, error) {
+		if err != nil {
+			return nil, err
+		}
+		alerts, err := tx.Alert.CreateBulk(bulk...).Save(bg)
+		if err != nil {
+			return nil, err
+		}
+		_, err = tx.User.UpdateOneID(id.ID).AddAlerts(alerts...).Save(bg)
+		if err != nil {
+			return nil, err
+		}
+
+		return alerts, nil
+	}()
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%v: %v", err, rerr)
+		}
+		return nil, err
+	}
+	return alerts, tx.Commit()
+}
+
+func (curd *UserCURD) DeleteListAlertsByUserIdRoutePath() string {
+	return "/user/:id/alerts"
+}
+
+func (curd *UserCURD) DeleteListAlertsByUserId(c *gin.Context) (int, error) {
+	queryer, err := curd.defaultGetOneQueryer(c)
+	if err != nil {
+		return 0, err
+	}
+
+	query, err := curd.AlertObj.BindDefaultQuery(c)
+
+	if err != nil {
+		return 0, err
+	}
+
+	ps, err := query.PredicatesExec()
+	if err != nil {
+		return 0, err
+	}
+	ids, err := queryer.QueryAlerts().Where(ps...).IDs(context.Background())
+	if err != nil {
+		return 0, err
+	}
+
+	return curd.Db.Alert.Delete().Where(alert.IDIn(ids...)).Exec(context.Background())
 }

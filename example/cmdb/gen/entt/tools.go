@@ -28,6 +28,10 @@ func BindId(c *gin.Context) (IdUri, error) {
 	return id, err
 }
 
+type Includes struct {
+	Includes []string `form:"includes"`
+}
+
 type Order struct {
 	Order []string `form:"order"`
 }
