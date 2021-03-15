@@ -277,6 +277,10 @@ func (curd *UserCURD) GetList(c *gin.Context) (*GetUserListData, error) {
 		return nil, err
 	}
 
+	includes := Includes{}
+	c.ShouldBindQuery(&includes)
+	QueryerIncludes(getListQueryer, includes.Includes)
+
 	count, err := countQueryer.Count(context.Background())
 	if err != nil {
 		return nil, err

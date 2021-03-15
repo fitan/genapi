@@ -58,7 +58,7 @@ func Include2Tree(ks []string) Tree {
 
 func Depth(tree Tree) []interface{} {
 	if len(tree.Names) == 0 {
-		return nil
+		return []interface{}{nil}
 	}
 
 	resDepthTs := make([]interface{}, 0, 0)
@@ -72,6 +72,8 @@ func Depth(tree Tree) []interface{} {
 				for _, depthT := range depthTs {
 					switch depthT.(type) {
 
+					default:
+						AlertSelete(query)
 					}
 				}
 			}
@@ -84,11 +86,13 @@ func Depth(tree Tree) []interface{} {
 					switch depthT.(type) {
 
 					case func(query *ent.RoleBindingQuery):
-						query.WithRoleBindings(depthT.(func(query *ent.RoleBindingQuery)))
+						ProjectSelete(query.WithRoleBindings(depthT.(func(query *ent.RoleBindingQuery))))
 
 					case func(query *ent.ServiceQuery):
-						query.WithServices(depthT.(func(query *ent.ServiceQuery)))
+						ProjectSelete(query.WithServices(depthT.(func(query *ent.ServiceQuery))))
 
+					default:
+						ProjectSelete(query)
 					}
 				}
 			}
@@ -101,14 +105,16 @@ func Depth(tree Tree) []interface{} {
 					switch depthT.(type) {
 
 					case func(query *ent.ProjectQuery):
-						query.WithProject(depthT.(func(query *ent.ProjectQuery)))
+						RoleBindingSelete(query.WithProject(depthT.(func(query *ent.ProjectQuery))))
 
 					case func(query *ent.ServiceQuery):
-						query.WithService(depthT.(func(query *ent.ServiceQuery)))
+						RoleBindingSelete(query.WithService(depthT.(func(query *ent.ServiceQuery))))
 
 					case func(query *ent.UserQuery):
-						query.WithUser(depthT.(func(query *ent.UserQuery)))
+						RoleBindingSelete(query.WithUser(depthT.(func(query *ent.UserQuery))))
 
+					default:
+						RoleBindingSelete(query)
 					}
 				}
 			}
@@ -121,8 +127,10 @@ func Depth(tree Tree) []interface{} {
 					switch depthT.(type) {
 
 					case func(query *ent.ServiceQuery):
-						query.WithServices(depthT.(func(query *ent.ServiceQuery)))
+						ServerSelete(query.WithServices(depthT.(func(query *ent.ServiceQuery))))
 
+					default:
+						ServerSelete(query)
 					}
 				}
 			}
@@ -135,14 +143,16 @@ func Depth(tree Tree) []interface{} {
 					switch depthT.(type) {
 
 					case func(query *ent.RoleBindingQuery):
-						query.WithRoleBindings(depthT.(func(query *ent.RoleBindingQuery)))
+						ServiceSelete(query.WithRoleBindings(depthT.(func(query *ent.RoleBindingQuery))))
 
 					case func(query *ent.ServerQuery):
-						query.WithServers(depthT.(func(query *ent.ServerQuery)))
+						ServiceSelete(query.WithServers(depthT.(func(query *ent.ServerQuery))))
 
 					case func(query *ent.ProjectQuery):
-						query.WithProject(depthT.(func(query *ent.ProjectQuery)))
+						ServiceSelete(query.WithProject(depthT.(func(query *ent.ProjectQuery))))
 
+					default:
+						ServiceSelete(query)
 					}
 				}
 			}
@@ -155,11 +165,13 @@ func Depth(tree Tree) []interface{} {
 					switch depthT.(type) {
 
 					case func(query *ent.RoleBindingQuery):
-						query.WithRoleBindings(depthT.(func(query *ent.RoleBindingQuery)))
+						UserSelete(query.WithRoleBindings(depthT.(func(query *ent.RoleBindingQuery))))
 
 					case func(query *ent.AlertQuery):
-						query.WithAlerts(depthT.(func(query *ent.AlertQuery)))
+						UserSelete(query.WithAlerts(depthT.(func(query *ent.AlertQuery))))
 
+					default:
+						UserSelete(query)
 					}
 				}
 			}
