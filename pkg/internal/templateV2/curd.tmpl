@@ -84,7 +84,7 @@ func (curd *{{$n.Name}}CURD) GetOne(c *gin.Context) (*ent.{{$n.Name}}, error) {
 	if err != nil {
 		return nil, err
 	}
-	curd.selete(queryer)
+	{{$n.Name}}Selete(queryer)
 	return queryer.Only(context.Background())
 }
 
@@ -103,7 +103,7 @@ func (curd *{{$n.Name}}CURD) BaseGetListQueryer(queryer *ent.{{$n.Name}}Query,qu
 		return err
 	}
 
-	curd.selete(queryer)
+	{{$n.Name}}Selete(queryer)
 	curd.defaultOrder(queryer)
 
 	return nil
@@ -157,33 +157,6 @@ func (curd *{{$n.Name}}CURD) GetList(c *gin.Context) (*Get{{$n.Name}}ListData, e
 	return &Get{{$n.Name}}ListData{count, res}, nil
 }
 
-
-
-func (curd *{{$n.Name}}CURD) createMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
-	{{range $f := $n.Fields}}
-	{{if eq (PaseRestFieldOperability $f.Annotations "Create") "true"}}
-	m.Set{{$f.StructField}}(v.{{$f.StructField}})
-	{{end}}
-	{{end}}
-	{{range $e := $n.Edges}}
-    {{if $e.Inverse}}
-	{{if $e.Unique}}
-	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
-	{{else}}
-	m.Add{{$e.Type.Name}}IDs(curd.{{$e.Type.Name}}Obj.GetIDs(v.Edges.{{plural $e.Type.Name}})...)
-    {{end}}
-	{{end}}
-	{{end}}
-}
-
-func (curd *{{$n.Name}}CURD) updateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
-	{{range $f := $n.Fields}}
-	{{if eq (PaseRestFieldOperability $f.Annotations "Update") "true"}}
-	m.Set{{$f.StructField}}(v.{{$f.StructField}})
-	{{end}}
-	{{end}}
-}
-
 func (curd *{{$n.Name}}CURD) optionalOrder(c *gin.Context,queryer *ent.UserQuery) error  {
 	var expect = map[string]int{
 		{{$order := PaseRestNodeOrderOp $n.Annotations}}
@@ -216,19 +189,9 @@ func (curd *{{$n.Name}}CURD) defaultOrder(queryer *ent.{{$n.Name}}Query)  {
 	}...)
 }
 
-func (curd *{{$n.Name}}CURD) selete(queryer *ent.{{$n.Name}}Query) {
-	queryer.Select(
-	{{range $f := $n.Fields}}
-	{{if eq (PaseRestFieldOperability $f.Annotations "Selete") "true"}}
-		{{lower $n.Name}}.Field{{$f.StructField}},
-	{{end}}
-	{{end}}
-	)
-}
-
 func (curd *{{$n.Name}}CURD) BaseCreateOneCreater(body *ent.{{$n.Name}}) (*ent.{{$n.Name}}Create) {
 	creater := curd.Db.{{$n.Name}}.Create()
-	curd.createMutation(creater.Mutation(), body)
+	{{$n.Name}}CreateMutation(creater.Mutation(), body)
 	return creater
 }
 
@@ -257,7 +220,7 @@ func (curd *{{$n.Name}}CURD) BaseCreateListBulk(body ent.{{plural $n.Name}}) ([]
 	bulk := make([]*ent.{{$n.Name}}Create, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.{{$n.Name}}.Create()
-		curd.createMutation(creater.Mutation(), v)
+	{{$n.Name}}CreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
 	return bulk
@@ -286,7 +249,7 @@ func (curd *{{$n.Name}}CURD) CreateList(c *gin.Context) ([]*ent.{{$n.Name}}, err
 
 func (curd *{{$n.Name}}CURD) BaseUpdateOneUpdater(id int, body *ent.{{$n.Name}}) (*ent.{{$n.Name}}UpdateOne, error) {
 	updater := curd.Db.{{$n.Name}}.UpdateOneID(id)
-	curd.updateMutation(updater.Mutation(), body)
+	{{$n.Name}}UpdateMutation(updater.Mutation(), body)
 	return updater, nil
 }
 
@@ -323,7 +286,7 @@ func (curd *{{$n.Name}}CURD) BaseUpdateListUpdater(body ent.{{plural $n.Name}}) 
 	}
 	for _, v := range body {
 		updater := tx.{{$n.Name}}.UpdateOneID(v.ID)
-		curd.updateMutation(updater.Mutation(), v)
+		{{$n.Name}}UpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(ctx)
 		if err != nil {
 			if rerr := tx.Rollback(); rerr != nil {
@@ -482,7 +445,7 @@ func (curd *{{$n.Name}}CURD) GetList{{plural $e.Type.Name}}By{{$n.Name}}Id(c *gi
 	if err != nil {
 		return nil, err
 	}
-	curd.{{$e.Type.Name}}Obj.selete(tmpQueryer)
+	{{$e.Type.Name}}Selete(tmpQueryer)
 	curd.{{$e.Type.Name}}Obj.defaultOrder(tmpQueryer)
 
 

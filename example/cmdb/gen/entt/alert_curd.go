@@ -151,7 +151,7 @@ func (curd *AlertCURD) GetOne(c *gin.Context) (*ent.Alert, error) {
 	if err != nil {
 		return nil, err
 	}
-	curd.selete(queryer)
+	AlertSelete(queryer)
 	return queryer.Only(context.Background())
 }
 
@@ -170,7 +170,7 @@ func (curd *AlertCURD) BaseGetListQueryer(queryer *ent.AlertQuery, query *AlertD
 		return err
 	}
 
-	curd.selete(queryer)
+	AlertSelete(queryer)
 	curd.defaultOrder(queryer)
 
 	return nil
@@ -224,18 +224,6 @@ func (curd *AlertCURD) GetList(c *gin.Context) (*GetAlertListData, error) {
 	return &GetAlertListData{count, res}, nil
 }
 
-func (curd *AlertCURD) createMutation(m *ent.AlertMutation, v *ent.Alert) {
-
-	m.SetName(v.Name)
-
-}
-
-func (curd *AlertCURD) updateMutation(m *ent.AlertMutation, v *ent.Alert) {
-
-	m.SetName(v.Name)
-
-}
-
 func (curd *AlertCURD) optionalOrder(c *gin.Context, queryer *ent.UserQuery) error {
 	var expect = map[string]int{}
 	orderFunc, err := BindOrder(c, expect)
@@ -253,16 +241,9 @@ func (curd *AlertCURD) defaultOrder(queryer *ent.AlertQuery) {
 	}...)
 }
 
-func (curd *AlertCURD) selete(queryer *ent.AlertQuery) {
-	queryer.Select(
-
-		alert.FieldName,
-	)
-}
-
 func (curd *AlertCURD) BaseCreateOneCreater(body *ent.Alert) *ent.AlertCreate {
 	creater := curd.Db.Alert.Create()
-	curd.createMutation(creater.Mutation(), body)
+	AlertCreateMutation(creater.Mutation(), body)
 	return creater
 }
 
@@ -290,7 +271,7 @@ func (curd *AlertCURD) BaseCreateListBulk(body ent.Alerts) []*ent.AlertCreate {
 	bulk := make([]*ent.AlertCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.Alert.Create()
-		curd.createMutation(creater.Mutation(), v)
+		AlertCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
 	return bulk
@@ -318,7 +299,7 @@ func (curd *AlertCURD) CreateList(c *gin.Context) ([]*ent.Alert, error) {
 
 func (curd *AlertCURD) BaseUpdateOneUpdater(id int, body *ent.Alert) (*ent.AlertUpdateOne, error) {
 	updater := curd.Db.Alert.UpdateOneID(id)
-	curd.updateMutation(updater.Mutation(), body)
+	AlertUpdateMutation(updater.Mutation(), body)
 	return updater, nil
 }
 
@@ -354,7 +335,7 @@ func (curd *AlertCURD) BaseUpdateListUpdater(body ent.Alerts) (*ent.Tx, error) {
 	}
 	for _, v := range body {
 		updater := tx.Alert.UpdateOneID(v.ID)
-		curd.updateMutation(updater.Mutation(), v)
+		AlertUpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(ctx)
 		if err != nil {
 			if rerr := tx.Rollback(); rerr != nil {

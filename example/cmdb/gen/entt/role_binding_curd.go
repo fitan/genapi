@@ -157,7 +157,7 @@ func (curd *RoleBindingCURD) GetOne(c *gin.Context) (*ent.RoleBinding, error) {
 	if err != nil {
 		return nil, err
 	}
-	curd.selete(queryer)
+	RoleBindingSelete(queryer)
 	return queryer.Only(context.Background())
 }
 
@@ -176,7 +176,7 @@ func (curd *RoleBindingCURD) BaseGetListQueryer(queryer *ent.RoleBindingQuery, q
 		return err
 	}
 
-	curd.selete(queryer)
+	RoleBindingSelete(queryer)
 	curd.defaultOrder(queryer)
 
 	return nil
@@ -230,32 +230,6 @@ func (curd *RoleBindingCURD) GetList(c *gin.Context) (*GetRoleBindingListData, e
 	return &GetRoleBindingListData{count, res}, nil
 }
 
-func (curd *RoleBindingCURD) createMutation(m *ent.RoleBindingMutation, v *ent.RoleBinding) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetRole(v.Role)
-
-	m.SetProjectID(v.Edges.Project.ID)
-
-	m.SetServiceID(v.Edges.Service.ID)
-
-	m.SetUserID(v.Edges.User.ID)
-
-}
-
-func (curd *RoleBindingCURD) updateMutation(m *ent.RoleBindingMutation, v *ent.RoleBinding) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetRole(v.Role)
-
-}
-
 func (curd *RoleBindingCURD) optionalOrder(c *gin.Context, queryer *ent.UserQuery) error {
 	var expect = map[string]int{}
 	orderFunc, err := BindOrder(c, expect)
@@ -273,20 +247,9 @@ func (curd *RoleBindingCURD) defaultOrder(queryer *ent.RoleBindingQuery) {
 	}...)
 }
 
-func (curd *RoleBindingCURD) selete(queryer *ent.RoleBindingQuery) {
-	queryer.Select(
-
-		rolebinding.FieldCreateTime,
-
-		rolebinding.FieldUpdateTime,
-
-		rolebinding.FieldRole,
-	)
-}
-
 func (curd *RoleBindingCURD) BaseCreateOneCreater(body *ent.RoleBinding) *ent.RoleBindingCreate {
 	creater := curd.Db.RoleBinding.Create()
-	curd.createMutation(creater.Mutation(), body)
+	RoleBindingCreateMutation(creater.Mutation(), body)
 	return creater
 }
 
@@ -314,7 +277,7 @@ func (curd *RoleBindingCURD) BaseCreateListBulk(body ent.RoleBindings) []*ent.Ro
 	bulk := make([]*ent.RoleBindingCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.RoleBinding.Create()
-		curd.createMutation(creater.Mutation(), v)
+		RoleBindingCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
 	return bulk
@@ -342,7 +305,7 @@ func (curd *RoleBindingCURD) CreateList(c *gin.Context) ([]*ent.RoleBinding, err
 
 func (curd *RoleBindingCURD) BaseUpdateOneUpdater(id int, body *ent.RoleBinding) (*ent.RoleBindingUpdateOne, error) {
 	updater := curd.Db.RoleBinding.UpdateOneID(id)
-	curd.updateMutation(updater.Mutation(), body)
+	RoleBindingUpdateMutation(updater.Mutation(), body)
 	return updater, nil
 }
 
@@ -378,7 +341,7 @@ func (curd *RoleBindingCURD) BaseUpdateListUpdater(body ent.RoleBindings) (*ent.
 	}
 	for _, v := range body {
 		updater := tx.RoleBinding.UpdateOneID(v.ID)
-		curd.updateMutation(updater.Mutation(), v)
+		RoleBindingUpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(ctx)
 		if err != nil {
 			if rerr := tx.Rollback(); rerr != nil {

@@ -3,13 +3,10 @@ package entt
 import (
 	"cmdb/ent"
 	"cmdb/ent/alert"
-	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
-	"cmdb/ent/service"
 	"cmdb/ent/user"
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -220,7 +217,7 @@ func (curd *UserCURD) GetOne(c *gin.Context) (*ent.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	curd.selete(queryer)
+	UserSelete(queryer)
 	return queryer.Only(context.Background())
 }
 
@@ -239,7 +236,7 @@ func (curd *UserCURD) BaseGetListQueryer(queryer *ent.UserQuery, query *UserDefa
 		return err
 	}
 
-	curd.selete(queryer)
+	UserSelete(queryer)
 	curd.defaultOrder(queryer)
 
 	return nil
@@ -285,141 +282,12 @@ func (curd *UserCURD) GetList(c *gin.Context) (*GetUserListData, error) {
 		return nil, err
 	}
 
-	res, err := getListQueryer.WithRoleBindings(func(query *ent.RoleBindingQuery) {
-		query.WithProject().WithService()
-	}).All(context.Background())
+	res, err := getListQueryer.All(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
 	return &GetUserListData{count, res}, nil
-}
-
-func (curd *UserCURD) createMutation(m *ent.UserMutation, v *ent.User) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetName(v.Name)
-
-	m.SetPassword(v.Password)
-
-	m.SetEmail(v.Email)
-
-	m.SetPhone(v.Phone)
-
-	m.SetRole(v.Role)
-
-}
-
-func (curd *UserCURD) updateMutation(m *ent.UserMutation, v *ent.User) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetName(v.Name)
-
-	m.SetPassword(v.Password)
-
-	m.SetEmail(v.Email)
-
-	m.SetPhone(v.Phone)
-
-	m.SetRole(v.Role)
-
-}
-
-type IncludeTree struct {
-	Names map[string]IncludeTree
-}
-
-func UserWith(son string) func(query *ent.UserQuery) {
-	switch son {
-	case rolebinding.Label:
-		return func(query *ent.UserQuery) {
-			query.WithRoleBindings()
-		}
-	case alert.Label:
-		return func(query *ent.UserQuery) {
-			query.WithAlerts()
-		}
-	}
-	return nil
-}
-
-func RoleBindingWith(son string) func(query *ent.RoleBindingQuery) {
-	switch son {
-	case project.Label:
-		return func(query *ent.RoleBindingQuery) {
-			query.WithProject()
-		}
-	case service.Label:
-		return func(query *ent.RoleBindingQuery) {
-			query.WithService()
-		}
-	}
-	return nil
-}
-
-func Depth(includes []string) interface{} {
-	if len(includes) == 2 {
-		switch includes[0] {
-		case rolebinding.Label:
-			return RoleBindingWith(includes[1])
-		case user.Label:
-			return UserWith(includes[1])
-		}
-	}
-
-	tmp := includes[1:]
-	depth := Depth(tmp)
-	switch tmp[0] {
-	case rolebinding.Label:
-		fc := depth.(func(query *ent.RoleBindingQuery))
-		switch includes[0] {
-		case user.Label:
-			return func(query *ent.UserQuery) {
-				query.WithRoleBindings(fc)
-			}
-		case project.Label:
-			return func(query *ent.ProjectQuery) {
-				query.WithRoleBindings(fc)
-			}
-		case service.Label:
-			return func(query *ent.ServiceQuery) {
-				query.WithRoleBindings(fc)
-			}
-		}
-	case user.Label:
-		fc := depth.(func(query *ent.UserQuery))
-	}
-}
-
-func (curd *UserCURD) includes(m *ent.UserQuery, includes []string) {
-	m.WithRoleBindings(func(query *ent.RoleBindingQuery) {
-		query.WithService(func(query *ent.ServiceQuery) {
-			query.WithProject()
-		})
-	})
-	m.WithRoleBindings(func(query *ent.RoleBindingQuery) {
-	})
-	tree := IncludeTree{}
-	for _, include := range includes {
-		includeSplit := strings.Split(include, ",")
-		switch includeSplit[len(includeSplit)-1] {
-		case rolebinding.Label:
-			fc := curd.RoleBindingWith(includeSplit[len(includeSplit)])
-			f := func(query *ent.UserQuery) {
-				query.WithRoleBindings(fc)
-			}
-		case user.Label:
-			fc := curd.UserWith(includeSplit[len(includeSplit)])
-
-		}
-	}
-	m.wi
 }
 
 func (curd *UserCURD) optionalOrder(c *gin.Context, queryer *ent.UserQuery) error {
@@ -439,28 +307,9 @@ func (curd *UserCURD) defaultOrder(queryer *ent.UserQuery) {
 	}...)
 }
 
-func (curd *UserCURD) selete(queryer *ent.UserQuery) {
-	queryer.Select(
-
-		user.FieldCreateTime,
-
-		user.FieldUpdateTime,
-
-		user.FieldName,
-
-		user.FieldPassword,
-
-		user.FieldEmail,
-
-		user.FieldPhone,
-
-		user.FieldRole,
-	)
-}
-
 func (curd *UserCURD) BaseCreateOneCreater(body *ent.User) *ent.UserCreate {
 	creater := curd.Db.User.Create()
-	curd.createMutation(creater.Mutation(), body)
+	UserCreateMutation(creater.Mutation(), body)
 	return creater
 }
 
@@ -488,7 +337,7 @@ func (curd *UserCURD) BaseCreateListBulk(body ent.Users) []*ent.UserCreate {
 	bulk := make([]*ent.UserCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.User.Create()
-		curd.createMutation(creater.Mutation(), v)
+		UserCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
 	return bulk
@@ -516,7 +365,7 @@ func (curd *UserCURD) CreateList(c *gin.Context) ([]*ent.User, error) {
 
 func (curd *UserCURD) BaseUpdateOneUpdater(id int, body *ent.User) (*ent.UserUpdateOne, error) {
 	updater := curd.Db.User.UpdateOneID(id)
-	curd.updateMutation(updater.Mutation(), body)
+	UserUpdateMutation(updater.Mutation(), body)
 	return updater, nil
 }
 
@@ -552,7 +401,7 @@ func (curd *UserCURD) BaseUpdateListUpdater(body ent.Users) (*ent.Tx, error) {
 	}
 	for _, v := range body {
 		updater := tx.User.UpdateOneID(v.ID)
-		curd.updateMutation(updater.Mutation(), v)
+		UserUpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(ctx)
 		if err != nil {
 			if rerr := tx.Rollback(); rerr != nil {
@@ -653,7 +502,7 @@ func (curd *UserCURD) GetListRoleBindingsByUserId(c *gin.Context) ([]*ent.RoleBi
 	if err != nil {
 		return nil, err
 	}
-	curd.RoleBindingObj.selete(tmpQueryer)
+	RoleBindingSelete(tmpQueryer)
 	curd.RoleBindingObj.defaultOrder(tmpQueryer)
 
 	return tmpQueryer.All(context.Background())
@@ -751,7 +600,7 @@ func (curd *UserCURD) GetListAlertsByUserId(c *gin.Context) ([]*ent.Alert, error
 	if err != nil {
 		return nil, err
 	}
-	curd.AlertObj.selete(tmpQueryer)
+	AlertSelete(tmpQueryer)
 	curd.AlertObj.defaultOrder(tmpQueryer)
 
 	return tmpQueryer.All(context.Background())

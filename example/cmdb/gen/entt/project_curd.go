@@ -217,7 +217,7 @@ func (curd *ProjectCURD) GetOne(c *gin.Context) (*ent.Project, error) {
 	if err != nil {
 		return nil, err
 	}
-	curd.selete(queryer)
+	ProjectSelete(queryer)
 	return queryer.Only(context.Background())
 }
 
@@ -236,7 +236,7 @@ func (curd *ProjectCURD) BaseGetListQueryer(queryer *ent.ProjectQuery, query *Pr
 		return err
 	}
 
-	curd.selete(queryer)
+	ProjectSelete(queryer)
 	curd.defaultOrder(queryer)
 
 	return nil
@@ -290,26 +290,6 @@ func (curd *ProjectCURD) GetList(c *gin.Context) (*GetProjectListData, error) {
 	return &GetProjectListData{count, res}, nil
 }
 
-func (curd *ProjectCURD) createMutation(m *ent.ProjectMutation, v *ent.Project) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetName(v.Name)
-
-}
-
-func (curd *ProjectCURD) updateMutation(m *ent.ProjectMutation, v *ent.Project) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetName(v.Name)
-
-}
-
 func (curd *ProjectCURD) optionalOrder(c *gin.Context, queryer *ent.UserQuery) error {
 	var expect = map[string]int{}
 	orderFunc, err := BindOrder(c, expect)
@@ -327,20 +307,9 @@ func (curd *ProjectCURD) defaultOrder(queryer *ent.ProjectQuery) {
 	}...)
 }
 
-func (curd *ProjectCURD) selete(queryer *ent.ProjectQuery) {
-	queryer.Select(
-
-		project.FieldCreateTime,
-
-		project.FieldUpdateTime,
-
-		project.FieldName,
-	)
-}
-
 func (curd *ProjectCURD) BaseCreateOneCreater(body *ent.Project) *ent.ProjectCreate {
 	creater := curd.Db.Project.Create()
-	curd.createMutation(creater.Mutation(), body)
+	ProjectCreateMutation(creater.Mutation(), body)
 	return creater
 }
 
@@ -368,7 +337,7 @@ func (curd *ProjectCURD) BaseCreateListBulk(body ent.Projects) []*ent.ProjectCre
 	bulk := make([]*ent.ProjectCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.Project.Create()
-		curd.createMutation(creater.Mutation(), v)
+		ProjectCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
 	return bulk
@@ -396,7 +365,7 @@ func (curd *ProjectCURD) CreateList(c *gin.Context) ([]*ent.Project, error) {
 
 func (curd *ProjectCURD) BaseUpdateOneUpdater(id int, body *ent.Project) (*ent.ProjectUpdateOne, error) {
 	updater := curd.Db.Project.UpdateOneID(id)
-	curd.updateMutation(updater.Mutation(), body)
+	ProjectUpdateMutation(updater.Mutation(), body)
 	return updater, nil
 }
 
@@ -432,7 +401,7 @@ func (curd *ProjectCURD) BaseUpdateListUpdater(body ent.Projects) (*ent.Tx, erro
 	}
 	for _, v := range body {
 		updater := tx.Project.UpdateOneID(v.ID)
-		curd.updateMutation(updater.Mutation(), v)
+		ProjectUpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(ctx)
 		if err != nil {
 			if rerr := tx.Rollback(); rerr != nil {
@@ -533,7 +502,7 @@ func (curd *ProjectCURD) GetListRoleBindingsByProjectId(c *gin.Context) ([]*ent.
 	if err != nil {
 		return nil, err
 	}
-	curd.RoleBindingObj.selete(tmpQueryer)
+	RoleBindingSelete(tmpQueryer)
 	curd.RoleBindingObj.defaultOrder(tmpQueryer)
 
 	return tmpQueryer.All(context.Background())
@@ -631,7 +600,7 @@ func (curd *ProjectCURD) GetListServicesByProjectId(c *gin.Context) ([]*ent.Serv
 	if err != nil {
 		return nil, err
 	}
-	curd.ServiceObj.selete(tmpQueryer)
+	ServiceSelete(tmpQueryer)
 	curd.ServiceObj.defaultOrder(tmpQueryer)
 
 	return tmpQueryer.All(context.Background())

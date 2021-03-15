@@ -219,7 +219,7 @@ func (curd *ServiceCURD) GetOne(c *gin.Context) (*ent.Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	curd.selete(queryer)
+	ServiceSelete(queryer)
 	return queryer.Only(context.Background())
 }
 
@@ -238,7 +238,7 @@ func (curd *ServiceCURD) BaseGetListQueryer(queryer *ent.ServiceQuery, query *Se
 		return err
 	}
 
-	curd.selete(queryer)
+	ServiceSelete(queryer)
 	curd.defaultOrder(queryer)
 
 	return nil
@@ -292,28 +292,6 @@ func (curd *ServiceCURD) GetList(c *gin.Context) (*GetServiceListData, error) {
 	return &GetServiceListData{count, res}, nil
 }
 
-func (curd *ServiceCURD) createMutation(m *ent.ServiceMutation, v *ent.Service) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetName(v.Name)
-
-	m.SetProjectID(v.Edges.Project.ID)
-
-}
-
-func (curd *ServiceCURD) updateMutation(m *ent.ServiceMutation, v *ent.Service) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetName(v.Name)
-
-}
-
 func (curd *ServiceCURD) optionalOrder(c *gin.Context, queryer *ent.UserQuery) error {
 	var expect = map[string]int{}
 	orderFunc, err := BindOrder(c, expect)
@@ -331,22 +309,9 @@ func (curd *ServiceCURD) defaultOrder(queryer *ent.ServiceQuery) {
 	}...)
 }
 
-func (curd *ServiceCURD) selete(queryer *ent.ServiceQuery) {
-	queryer.Select(
-
-		service.FieldCreateTime,
-
-		service.FieldUpdateTime,
-
-		service.FieldName,
-
-		server.EdgeServices,
-	)
-}
-
 func (curd *ServiceCURD) BaseCreateOneCreater(body *ent.Service) *ent.ServiceCreate {
 	creater := curd.Db.Service.Create()
-	curd.createMutation(creater.Mutation(), body)
+	ServiceCreateMutation(creater.Mutation(), body)
 	return creater
 }
 
@@ -374,7 +339,7 @@ func (curd *ServiceCURD) BaseCreateListBulk(body ent.Services) []*ent.ServiceCre
 	bulk := make([]*ent.ServiceCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.Service.Create()
-		curd.createMutation(creater.Mutation(), v)
+		ServiceCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
 	return bulk
@@ -402,7 +367,7 @@ func (curd *ServiceCURD) CreateList(c *gin.Context) ([]*ent.Service, error) {
 
 func (curd *ServiceCURD) BaseUpdateOneUpdater(id int, body *ent.Service) (*ent.ServiceUpdateOne, error) {
 	updater := curd.Db.Service.UpdateOneID(id)
-	curd.updateMutation(updater.Mutation(), body)
+	ServiceUpdateMutation(updater.Mutation(), body)
 	return updater, nil
 }
 
@@ -438,7 +403,7 @@ func (curd *ServiceCURD) BaseUpdateListUpdater(body ent.Services) (*ent.Tx, erro
 	}
 	for _, v := range body {
 		updater := tx.Service.UpdateOneID(v.ID)
-		curd.updateMutation(updater.Mutation(), v)
+		ServiceUpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(ctx)
 		if err != nil {
 			if rerr := tx.Rollback(); rerr != nil {
@@ -539,7 +504,7 @@ func (curd *ServiceCURD) GetListRoleBindingsByServiceId(c *gin.Context) ([]*ent.
 	if err != nil {
 		return nil, err
 	}
-	curd.RoleBindingObj.selete(tmpQueryer)
+	RoleBindingSelete(tmpQueryer)
 	curd.RoleBindingObj.defaultOrder(tmpQueryer)
 
 	return tmpQueryer.All(context.Background())
@@ -637,7 +602,7 @@ func (curd *ServiceCURD) GetListServersByServiceId(c *gin.Context) ([]*ent.Serve
 	if err != nil {
 		return nil, err
 	}
-	curd.ServerObj.selete(tmpQueryer)
+	ServerSelete(tmpQueryer)
 	curd.ServerObj.defaultOrder(tmpQueryer)
 
 	return tmpQueryer.All(context.Background())

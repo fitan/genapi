@@ -36,6 +36,12 @@ var default_predicate_tmpl string
 //go:embed internal/templateV2/tools.tmpl
 var tools_tmpl string
 
+//go:embed internal/templateV2/includes.tmpl
+var includes_tmpl string
+
+//go:embed internal/templateV2/gen_conf.tmpl
+var gen_conf_tmpl string
+
 //var Templates []*gen.Template
 //
 //func InitStart() {
@@ -84,6 +90,10 @@ func Load(schemaPath string, dest string) {
 			"default_predicate",
 			default_predicate_tmpl,
 		},
+		{
+			Name: "gen_conf",
+			Text: gen_conf_tmpl,
+		},
 	}
 	gTmps := []tmplMsg{
 		{
@@ -93,6 +103,10 @@ func Load(schemaPath string, dest string) {
 		{
 			Name: "tools",
 			Text: tools_tmpl,
+		},
+		{
+			Name: "includes",
+			Text: includes_tmpl,
 		},
 	}
 

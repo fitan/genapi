@@ -1,0 +1,106 @@
+{{template "pkg_name" $.PkgName}}
+
+import (
+	"{{$.Config.Package}}"
+	"strings"
+{{- range $n := $.Nodes }}
+	"{{$.Config.Package}}/{{lower $n.Name}}"
+{{- end }}
+)
+
+type Tree struct {
+	Names map[string]Tree `json:"names"`
+}
+
+func Includes2Tree(includes []string) Tree {
+	tree := NewTree()
+	for _,include := range includes {
+		includeSplit := strings.Split(include,".")
+		t := Include2Tree(includeSplit)
+		MergeTree(tree, t)
+	}
+	return tree
+}
+
+
+func MergeTree(tree Tree, t Tree)  {
+	if len(t.Names) == 0 {
+		return
+	}
+	for name, tmpT := range t.Names {
+		if _,ok := tree.Names[name]; !ok {
+			tree.Names[name] = tmpT
+		} else {
+			MergeTree(tree.Names[name], t.Names[name])
+		}
+	}
+}
+
+func NewTree() Tree {
+	return Tree{Names: make(map[string]Tree)}
+}
+
+func Include2Tree(ks []string) Tree {
+	if len(ks) == 1 {
+		tree := NewTree()
+		tree.Names[ks[0]] = NewTree()
+		return tree
+	}
+	t := Include2Tree(ks[1:])
+	return Tree{
+		Names: map[string]Tree{
+			ks[0]: t,
+		},
+	}
+}
+
+func Depth(tree Tree) []interface{} {
+	if len(tree.Names) == 0 {
+		return nil
+	}
+
+	resDepthTs := make([]interface{},0,0)
+	for name, t := range tree.Names {
+
+		switch name {
+		{{range $n := $.Nodes}}
+		case {{lower $n.Name}}.Label:
+			depthTs := Depth(t)
+			f := func(query *ent.{{$n.Name}}Query) {
+				for _, depthT := range depthTs {
+					switch depthT.(type) {
+					{{range $e := $n.Edges}}
+					case func(query *ent.{{$e.Type.Name}}Query):
+						query.With{{if $e.Unique}}{{$e.Type.Name}}{{else}}{{plural $e.Type.Name}}{{end}}(depthT.(func(query *ent.{{$e.Type.Name}}Query)))
+					{{end}}
+					}
+				}
+			}
+			resDepthTs = append(resDepthTs, f)
+		{{end}}
+		}
+	}
+	return resDepthTs
+}
+
+type Includes struct {
+	Includes []string `form:"includes"`
+}
+
+func QueryerIncludes(queryer interface{}, includes []string)  {
+	tree := Includes2Tree(includes)
+	depthTs := Depth(tree)
+	switch queryer.(type) {
+	{{range $n := $.Nodes}}
+	case *ent.{{$n.Name}}Query:
+		for _,depthT := range depthTs {
+			switch depthT.(type) {
+			{{range $e := $n.Edges}}
+			case func(query *ent.{{$e.Type.Name}}Query):
+				queryer.(*ent.{{$n.Name}}Query).With{{if $e.Unique}}{{$e.Type.Name}}{{else}}{{plural $e.Type.Name}}{{end}}(depthT.(func(query *ent.{{$e.Type.Name}}Query)))
+			{{end}}
+			}
+		}
+	{{end}}
+	}
+}

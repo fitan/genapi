@@ -153,7 +153,7 @@ func (curd *ServerCURD) GetOne(c *gin.Context) (*ent.Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	curd.selete(queryer)
+	ServerSelete(queryer)
 	return queryer.Only(context.Background())
 }
 
@@ -172,7 +172,7 @@ func (curd *ServerCURD) BaseGetListQueryer(queryer *ent.ServerQuery, query *Serv
 		return err
 	}
 
-	curd.selete(queryer)
+	ServerSelete(queryer)
 	curd.defaultOrder(queryer)
 
 	return nil
@@ -218,47 +218,12 @@ func (curd *ServerCURD) GetList(c *gin.Context) (*GetServerListData, error) {
 		return nil, err
 	}
 
-	getListQueryer.WithServices()
 	res, err := getListQueryer.All(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
 	return &GetServerListData{count, res}, nil
-}
-
-func (curd *ServerCURD) createMutation(m *ent.ServerMutation, v *ent.Server) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetIP(v.IP)
-
-	m.SetMachineType(v.MachineType)
-
-	m.SetPlatformType(v.PlatformType)
-
-	m.SetSystemType(v.SystemType)
-
-	m.AddServiceIDs(curd.ServiceObj.GetIDs(v.Edges.Services)...)
-
-}
-
-func (curd *ServerCURD) updateMutation(m *ent.ServerMutation, v *ent.Server) {
-
-	m.SetCreateTime(v.CreateTime)
-
-	m.SetUpdateTime(v.UpdateTime)
-
-	m.SetIP(v.IP)
-
-	m.SetMachineType(v.MachineType)
-
-	m.SetPlatformType(v.PlatformType)
-
-	m.SetSystemType(v.SystemType)
-
 }
 
 func (curd *ServerCURD) optionalOrder(c *gin.Context, queryer *ent.UserQuery) error {
@@ -278,26 +243,9 @@ func (curd *ServerCURD) defaultOrder(queryer *ent.ServerQuery) {
 	}...)
 }
 
-func (curd *ServerCURD) selete(queryer *ent.ServerQuery) {
-	queryer.Select(
-
-		server.FieldCreateTime,
-
-		server.FieldUpdateTime,
-
-		server.FieldIP,
-
-		server.FieldMachineType,
-
-		server.FieldPlatformType,
-
-		server.FieldSystemType,
-	)
-}
-
 func (curd *ServerCURD) BaseCreateOneCreater(body *ent.Server) *ent.ServerCreate {
 	creater := curd.Db.Server.Create()
-	curd.createMutation(creater.Mutation(), body)
+	ServerCreateMutation(creater.Mutation(), body)
 	return creater
 }
 
@@ -325,7 +273,7 @@ func (curd *ServerCURD) BaseCreateListBulk(body ent.Servers) []*ent.ServerCreate
 	bulk := make([]*ent.ServerCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.Server.Create()
-		curd.createMutation(creater.Mutation(), v)
+		ServerCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
 	return bulk
@@ -353,7 +301,7 @@ func (curd *ServerCURD) CreateList(c *gin.Context) ([]*ent.Server, error) {
 
 func (curd *ServerCURD) BaseUpdateOneUpdater(id int, body *ent.Server) (*ent.ServerUpdateOne, error) {
 	updater := curd.Db.Server.UpdateOneID(id)
-	curd.updateMutation(updater.Mutation(), body)
+	ServerUpdateMutation(updater.Mutation(), body)
 	return updater, nil
 }
 
@@ -389,7 +337,7 @@ func (curd *ServerCURD) BaseUpdateListUpdater(body ent.Servers) (*ent.Tx, error)
 	}
 	for _, v := range body {
 		updater := tx.Server.UpdateOneID(v.ID)
-		curd.updateMutation(updater.Mutation(), v)
+		ServerUpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(ctx)
 		if err != nil {
 			if rerr := tx.Rollback(); rerr != nil {
