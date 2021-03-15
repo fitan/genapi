@@ -1,8 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "RESTful API 文档.",
+        "title": "cmdbapi",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/",
     "paths": {
         "/alert": {
             "post": {
@@ -328,6 +333,7 @@
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -964,6 +970,7 @@
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -1716,6 +1723,7 @@
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -2209,6 +2217,7 @@
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -2979,6 +2988,7 @@
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -3615,6 +3625,7 @@
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }

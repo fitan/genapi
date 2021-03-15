@@ -56,7 +56,7 @@ func Include2Tree(ks []string) Tree {
 
 func Depth(tree Tree) []interface{} {
 	if len(tree.Names) == 0 {
-		return nil
+		return []interface{}{nil}
 	}
 
 	resDepthTs := make([]interface{},0,0)
@@ -71,8 +71,10 @@ func Depth(tree Tree) []interface{} {
 					switch depthT.(type) {
 					{{range $e := $n.Edges}}
 					case func(query *ent.{{$e.Type.Name}}Query):
-						query.With{{if $e.Unique}}{{$e.Type.Name}}{{else}}{{plural $e.Type.Name}}{{end}}(depthT.(func(query *ent.{{$e.Type.Name}}Query)))
+						{{$n.Name}}Selete(query.With{{if $e.Unique}}{{$e.Type.Name}}{{else}}{{plural $e.Type.Name}}{{end}}(depthT.(func(query *ent.{{$e.Type.Name}}Query))))
 					{{end}}
+					default:
+						{{$n.Name}}Selete(query)
 					}
 				}
 			}

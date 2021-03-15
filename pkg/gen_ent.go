@@ -30,9 +30,6 @@ var swagger_obj_tmpl string
 //go:embed internal/templateV2/swagger.tmpl
 var swagger_tmpl string
 
-//go:embed internal/templateV2/default_predicate.tmpl
-var default_predicate_tmpl string
-
 //go:embed internal/templateV2/tools.tmpl
 var tools_tmpl string
 
@@ -85,10 +82,6 @@ func Load(schemaPath string, dest string) {
 		{
 			Name: "swagger",
 			Text: swagger_tmpl,
-		},
-		{
-			"default_predicate",
-			default_predicate_tmpl,
 		},
 		{
 			Name: "gen_conf",

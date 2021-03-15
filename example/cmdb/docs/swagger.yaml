@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   ent.Alert:
     properties:
@@ -552,8 +553,12 @@ definitions:
         format: date-time
         type: string
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: RESTful API 文档.
+  title: cmdbapi
+  version: "1.0"
 paths:
   /alert:
     post:
@@ -665,7 +670,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - in: query
+      - collectionFormat: multi
+        in: query
         items:
           type: integer
         name: ids
@@ -1039,7 +1045,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - in: query
+      - collectionFormat: multi
+        in: query
         items:
           type: integer
         name: ids
@@ -1480,7 +1487,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - in: query
+      - collectionFormat: multi
+        in: query
         items:
           type: integer
         name: ids
@@ -1769,7 +1777,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - in: query
+      - collectionFormat: multi
+        in: query
         items:
           type: integer
         name: ids
@@ -2222,7 +2231,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - in: query
+      - collectionFormat: multi
+        in: query
         items:
           type: integer
         name: ids
@@ -2596,7 +2606,8 @@ paths:
       consumes:
       - application/json
       parameters:
-      - in: query
+      - collectionFormat: multi
+        in: query
         items:
           type: integer
         name: ids

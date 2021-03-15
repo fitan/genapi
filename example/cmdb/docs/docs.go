@@ -348,6 +348,7 @@ var doc = `{
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -984,6 +985,7 @@ var doc = `{
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -1736,6 +1738,7 @@ var doc = `{
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -2229,6 +2232,7 @@ var doc = `{
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -2999,6 +3003,7 @@ var doc = `{
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -3635,6 +3640,7 @@ var doc = `{
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "multi",
                         "name": "ids",
                         "in": "query"
                     }
@@ -4473,12 +4479,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "",
-	Host:        "",
-	BasePath:    "",
+	Version:     "1.0",
+	Host:        "localhost:8080",
+	BasePath:    "/",
 	Schemes:     []string{},
-	Title:       "",
-	Description: "",
+	Title:       "cmdbapi",
+	Description: "RESTful API 文档.",
 }
 
 type s struct{}

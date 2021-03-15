@@ -5,6 +5,8 @@ import (
 {{- range $n := $.Nodes }}
 	"{{$.Config.Package}}/{{lower $n.Name}}"
 {{- end }}
+    "{{$.Config.Package}}/predicate"
+    "github.com/gin-gonic/gin"
 )
 
 {{ range $n := $.Nodes }}
@@ -29,7 +31,7 @@ func {{$n.Name}}CreateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{if $e.Unique}}
 	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
 	{{else}}
-	m.Add{{$e.Type.Name}}IDs(curd.{{$e.Type.Name}}Obj.GetIDs(v.Edges.{{plural $e.Type.Name}})...)
+	m.Add{{$e.Type.Name}}IDs({{$e.Type.Name}}GetIDs(v.Edges.{{plural $e.Type.Name}})...)
     {{end}}
 	{{end}}
 	{{end}}
@@ -46,9 +48,80 @@ func {{$n.Name}}UpdateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{if $e.Unique}}
 	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
 	{{else}}
-	m.Add{{$e.Type.Name}}IDs(curd.{{$e.Type.Name}}Obj.GetIDs(v.Edges.{{plural $e.Type.Name}})...)
+	m.Add{{$e.Type.Name}}IDs({{$e.Type.Name}}GetIDs(v.Edges.{{plural $e.Type.Name}})...)
     {{end}}
 	{{end}}
 	{{end}}
+}
+
+func {{$n.Name}}GetIDs({{snake (plural $n.Name)}} ent.{{plural $n.Name}}) []int {
+	IDs := make([]{{$.IDType}}, 0, len({{snake (plural $n.Name)}}))
+	for _, {{snake $n.Name}} := range {{snake (plural $n.Name)}} {
+		IDs = append(IDs, {{snake $n.Name}}.ID)
+	}
+	return IDs
+}
+
+
+type {{$n.Name}}DefaultQuery struct {
+    {{range $f := $n.Fields}}
+    {{$a := (PaseRestFieldQueryOp $f.Annotations)}}
+    {{range $method := $a}}
+    {{$n.Name}}{{$f.StructField}}{{$method}}
+    {{end}}
+    {{end}}
+    {{$order := (PaseRestNodeOrderOp $n.Annotations)}}
+    {{if eq (toString $order.OpenOptionalOrder) "true"}}
+    Order
+    {{end}}
+    {{$page := (PaseRestNodePaging $n.Annotations)}}
+    {{if eq (toString $page.Open) "true"}}
+    {{$n.Name}}Paging
+    {{end}}
+}
+
+{{$receiver := (receiver $n.Name)}}
+{{if eq (toString $order.OpenOptionalOrder) "true"}}
+func ({{$receiver}} *{{$n.Name}}DefaultQuery) GetExpectOrder() map[string]int {
+    return map[string]int {
+        {{range $k := $order.OptionalOrder}}
+        "{{$k}}": 0,
+        {{end}}
+    }
+}
+{{end}}
+
+func ({{$receiver}} *{{$n.Name}}DefaultQuery) PredicatesExec() ([]predicate.{{$n.Name}}, error) {
+    return {{$n.Name}}PredicatesExec(
+    {{range $f := $n.Fields}}
+    {{$a := (PaseRestFieldQueryOp $f.Annotations)}}
+    {{range $method := $a}}
+        {{$receiver}}.Bind{{$n.Name}}{{$f.StructField}}{{$method}},
+    {{end}}
+    {{end}}
+    )
+}
+
+func ({{$receiver}} *{{$n.Name}}DefaultQuery) Exec(queryer *ent.{{$n.Name}}Query) error {
+    ps, err := {{$receiver}}.PredicatesExec()
+    if err != nil {
+        return err
+    }
+
+    queryer.Where({{lower $n.Name}}.And(ps...))
+
+{{if eq (toString $page.Open) "true"}}
+    {{$receiver}}.BindPaging{{$n.Name}}(queryer)
+{{end}}
+
+    {{if eq (toString $order.OpenOptionalOrder) "true"}}
+    orderfc, err := {{$receiver}}.BindOrder({{$receiver}}.GetExpectOrder())
+    if err != nil {
+        return err
+    }
+    queryer.Order(orderfc...)
+    {{end}}
+
+    return nil
 }
 {{end}}
