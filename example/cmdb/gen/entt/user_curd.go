@@ -2,13 +2,12 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/alert"
-	"cmdb/ent/rolebinding"
+	"cmdb/ent/predicate"
 	"cmdb/ent/user"
 	"context"
 	"fmt"
-
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 type UserCURD struct {
@@ -24,26 +23,6 @@ func (curd *UserCURD) RegisterRouter(router interface{}) {
 	case *gin.Engine:
 		r := router.(*gin.Engine)
 
-		r.POST(curd.CreateOneRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOne(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.POST(curd.CreateListRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateList(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOne(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteListRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteList(c)
-			RestReturnFunc(c, data, err)
-		})
-
 		r.GET(curd.GetOneRoutePath(), func(c *gin.Context) {
 			data, err := curd.GetOne(c)
 			RestReturnFunc(c, data, err)
@@ -52,16 +31,6 @@ func (curd *UserCURD) RegisterRouter(router interface{}) {
 		r.GET(curd.GetListRoutePath(), func(c *gin.Context) {
 			data, err := curd.GetList(c)
 			RestReturnFunc(c, data, err)
-		})
-
-		r.PUT(curd.UpdateOneRoutePath(), func(c *gin.Context) {
-			data, err := curd.UpdateOne(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.PUT(curd.UpdateListRoutePath(), func(c *gin.Context) {
-			err := curd.UpdateList(c)
-			RestReturnFunc(c, "", err)
 		})
 
 		r.POST(curd.CreateListRoleBindingsByUserIdRoutePath(), func(c *gin.Context) {
@@ -97,26 +66,6 @@ func (curd *UserCURD) RegisterRouter(router interface{}) {
 	case *gin.RouterGroup:
 		r := router.(*gin.RouterGroup)
 
-		r.POST(curd.CreateOneRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateOne(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.POST(curd.CreateListRoutePath(), func(c *gin.Context) {
-			data, err := curd.CreateList(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteOneRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteOne(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.DELETE(curd.DeleteListRoutePath(), func(c *gin.Context) {
-			data, err := curd.DeleteList(c)
-			RestReturnFunc(c, data, err)
-		})
-
 		r.GET(curd.GetOneRoutePath(), func(c *gin.Context) {
 			data, err := curd.GetOne(c)
 			RestReturnFunc(c, data, err)
@@ -125,16 +74,6 @@ func (curd *UserCURD) RegisterRouter(router interface{}) {
 		r.GET(curd.GetListRoutePath(), func(c *gin.Context) {
 			data, err := curd.GetList(c)
 			RestReturnFunc(c, data, err)
-		})
-
-		r.PUT(curd.UpdateOneRoutePath(), func(c *gin.Context) {
-			data, err := curd.UpdateOne(c)
-			RestReturnFunc(c, data, err)
-		})
-
-		r.PUT(curd.UpdateListRoutePath(), func(c *gin.Context) {
-			err := curd.UpdateList(c)
-			RestReturnFunc(c, "", err)
 		})
 
 		r.POST(curd.CreateListRoleBindingsByUserIdRoutePath(), func(c *gin.Context) {
@@ -276,10 +215,6 @@ func (curd *UserCURD) GetList(c *gin.Context) (*GetUserListData, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	includes := Includes{}
-	c.ShouldBindQuery(&includes)
-	QueryerIncludes(getListQueryer, includes.Includes)
 
 	count, err := countQueryer.Count(context.Background())
 	if err != nil {

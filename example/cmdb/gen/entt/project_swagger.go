@@ -1,10 +1,6 @@
 package entt
 
-import (
-	"time"
-
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 type ProjectID struct {
 	ID int `json:"id,omitempty"`
@@ -16,9 +12,6 @@ type ProjectNode struct {
 }
 
 type ProjectEdges struct {
-	RoleBindings []*RoleBindingID `json:"role_bindings,omitempty"`
-
-	Services []*ServiceID `json:"services,omitempty"`
 }
 
 type ProjectNodeNotID struct {

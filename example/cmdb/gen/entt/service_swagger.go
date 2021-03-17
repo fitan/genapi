@@ -1,10 +1,6 @@
 package entt
 
-import (
-	"time"
-
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 type ServiceID struct {
 	ID int `json:"id,omitempty"`
@@ -16,10 +12,6 @@ type ServiceNode struct {
 }
 
 type ServiceEdges struct {
-	RoleBindings []*RoleBindingID `json:"role_bindings,omitempty"`
-
-	Servers []*ServerID `json:"servers,omitempty"`
-
 	Project *ProjectID `json:"project,omitempty"`
 }
 
@@ -181,14 +173,6 @@ func DeleteListServersByService(c *gin.Context) {
 func GetListServersByService(c *gin.Context) {
 }
 
-// @Summary create one project
-// @Accept  json
-// @Produce  json
-// @Tags Project by Service
-// @Param id path int true " "
-// @Param body body  ProjectNodeNotID true " "
-// @Success 200 {object} RestReturn{data=ProjectNode}
-// @Router /service/{id}/project [post]
 func CreateOneProjectByService(c *gin.Context) {
 }
 

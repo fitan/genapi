@@ -1,11 +1,6 @@
 package entt
 
-import (
-	"cmdb/ent/server"
-	"time"
-
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 type ServerID struct {
 	ID int `json:"id,omitempty"`
@@ -115,14 +110,6 @@ func ServerUpdateOne(c *gin.Context) {
 func ServerUpdateList(c *gin.Context) {
 }
 
-// @Summary create list service
-// @Accept  json
-// @Produce  json
-// @Tags Service by Server
-// @Param id path int true " "
-// @Param body body  []ServiceNodeNotID true " "
-// @Success 200 {object} RestReturn{data=[]ServiceNodeNotID}
-// @Router /server/{id}/services [post]
 func CreateListServicesByServer(c *gin.Context) {
 }
 

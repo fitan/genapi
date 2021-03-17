@@ -1233,56 +1233,6 @@ var doc = `{
                     }
                 }
             },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Project by RoleBinding"
-                ],
-                "summary": "create one project",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entt.ProjectNodeNotID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.ProjectNode"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -1367,56 +1317,6 @@ var doc = `{
                     }
                 }
             },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Service by RoleBinding"
-                ],
-                "summary": "create one service",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entt.ServiceNodeNotID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.ServiceNode"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -1478,56 +1378,6 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.UserNode"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User by RoleBinding"
-                ],
-                "summary": "create one user",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entt.UserNodeNotID"
-                        }
                     }
                 ],
                 "responses": {
@@ -1989,62 +1839,6 @@ var doc = `{
                     }
                 }
             },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Service by Server"
-                ],
-                "summary": "create list service",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entt.ServiceNodeNotID"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/entt.ServiceNodeNotID"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -2457,56 +2251,6 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.ProjectNode"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Project by Service"
-                ],
-                "summary": "create one project",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entt.ProjectNodeNotID"
-                        }
                     }
                 ],
                 "responses": {
@@ -3030,51 +2774,6 @@ var doc = `{
                 }
             }
         },
-        "/user": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "create one user",
-                "parameters": [
-                    {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entt.UserNodeNotID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.UserNode"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/user/{id}": {
             "get": {
                 "consumes": [
@@ -3087,97 +2786,6 @@ var doc = `{
                     "User"
                 ],
                 "summary": "get one user",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.UserNode"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "update one user",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": " ",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entt.UserNodeNotID"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.UserNode"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "delete one user",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3507,141 +3115,38 @@ var doc = `{
                     "User"
                 ],
                 "summary": "get list user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.GetUserListData"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "put": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "update list user",
                 "parameters": [
                     {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entt.UserNode"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entt.UserNode"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "create list user",
-                "parameters": [
-                    {
-                        "description": " ",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entt.UserNode"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/entt.RestReturn"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/entt.UserNodeNotID"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "delete list user",
-                "parameters": [
+                        "type": "string",
+                        "name": "eq_name",
+                        "in": "query"
+                    },
                     {
                         "type": "array",
                         "items": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "collectionFormat": "multi",
-                        "name": "ids",
+                        "name": "in_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "not_in_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
                         "in": "query"
                     }
                 ],
@@ -3657,7 +3162,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entt.UserNode"
+                                            "$ref": "#/definitions/entt.GetUserListData"
                                         }
                                     }
                                 }
@@ -3924,14 +3429,6 @@ var doc = `{
         "entt.AlertEdges": {
             "type": "object"
         },
-        "entt.AlertID": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
         "entt.AlertNode": {
             "type": "object",
             "properties": {
@@ -4042,21 +3539,7 @@ var doc = `{
             }
         },
         "entt.ProjectEdges": {
-            "type": "object",
-            "properties": {
-                "role_bindings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entt.RoleBindingID"
-                    }
-                },
-                "services": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entt.ServiceID"
-                    }
-                }
-            }
+            "type": "object"
         },
         "entt.ProjectID": {
             "type": "object",
@@ -4135,14 +3618,6 @@ var doc = `{
                 }
             }
         },
-        "entt.RoleBindingID": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                }
-            }
-        },
         "entt.RoleBindingNode": {
             "type": "object",
             "properties": {
@@ -4200,14 +3675,6 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/entt.ServiceID"
                     }
-                }
-            }
-        },
-        "entt.ServerID": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
                 }
             }
         },
@@ -4301,18 +3768,6 @@ var doc = `{
             "properties": {
                 "project": {
                     "$ref": "#/definitions/entt.ProjectID"
-                },
-                "role_bindings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entt.RoleBindingID"
-                    }
-                },
-                "servers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entt.ServerID"
-                    }
                 }
             }
         },
@@ -4366,21 +3821,7 @@ var doc = `{
             }
         },
         "entt.UserEdges": {
-            "type": "object",
-            "properties": {
-                "alerts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entt.AlertID"
-                    }
-                },
-                "role_bindings": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entt.RoleBindingID"
-                    }
-                }
-            }
+            "type": "object"
         },
         "entt.UserID": {
             "type": "object",
@@ -4405,42 +3846,6 @@ var doc = `{
                 },
                 "id": {
                     "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string",
-                    "enum": [
-                        "user",
-                        "admin",
-                        "tourist"
-                    ]
-                },
-                "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                }
-            }
-        },
-        "entt.UserNodeNotID": {
-            "type": "object",
-            "properties": {
-                "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                },
-                "edges": {
-                    "$ref": "#/definitions/entt.UserEdges"
-                },
-                "email": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string"

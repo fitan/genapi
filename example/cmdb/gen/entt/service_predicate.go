@@ -1,9 +1,9 @@
 package entt
 
 import (
-	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/service"
+	"github.com/gin-gonic/gin"
 
 	"time"
 )
@@ -23,9 +23,9 @@ func ServicePredicatesExec(fs ...func() (predicate.Service, error)) ([]predicate
 }
 
 type ServicePaging struct {
-	Limit int `form:"limit"`
+	Limit int `form:"limit" json:"limit"`
 
-	Page int `form:"page"`
+	Page int `form:"page" json:"page"`
 }
 
 func (m *ServicePaging) BindPagingService(queryer *ent.ServiceQuery) error {
@@ -48,7 +48,7 @@ func (m *ServiceCreateTimeEQ) BindServiceCreateTimeEQ() (predicate.Service, erro
 }
 
 type ServiceCreateTimeOr struct {
-	CreateTimeOr []time.Time `form:"or_create_time"`
+	CreateTimeOr []time.Time `json:"or_create_time" form:"or_create_time"`
 }
 
 func (m *ServiceCreateTimeOr) BindServiceCreateTimeOr() (predicate.Service, error) {
@@ -63,7 +63,7 @@ func (m *ServiceCreateTimeOr) BindServiceCreateTimeOr() (predicate.Service, erro
 }
 
 type ServiceCreateTimeNEQ struct {
-	CreateTimeNEQ *time.Time `form:"neq_create_time"`
+	CreateTimeNEQ *time.Time `json:"neq_create_time" form:"neq_create_time"`
 }
 
 func (m *ServiceCreateTimeNEQ) BindServiceCreateTimeNEQ() (predicate.Service, error) {
@@ -74,7 +74,7 @@ func (m *ServiceCreateTimeNEQ) BindServiceCreateTimeNEQ() (predicate.Service, er
 }
 
 type ServiceCreateTimeIn struct {
-	CreateTimeIn []time.Time `form:"in_create_time"`
+	CreateTimeIn []time.Time `json:"in_create_time" form:"in_create_time"`
 }
 
 func (m *ServiceCreateTimeIn) BindServiceCreateTimeIn() (predicate.Service, error) {
@@ -85,7 +85,7 @@ func (m *ServiceCreateTimeIn) BindServiceCreateTimeIn() (predicate.Service, erro
 }
 
 type ServiceCreateTimeNotIn struct {
-	CreateTimeNotIn []time.Time `form:"not_in_create_time"`
+	CreateTimeNotIn []time.Time `json:"not_in_create_time" form:"not_in_create_time"`
 }
 
 func (m *ServiceCreateTimeNotIn) BindServiceCreateTimeNotIn() (predicate.Service, error) {
@@ -96,7 +96,7 @@ func (m *ServiceCreateTimeNotIn) BindServiceCreateTimeNotIn() (predicate.Service
 }
 
 type ServiceCreateTimeGT struct {
-	CreateTimeGT *time.Time `form:"gt_create_time"`
+	CreateTimeGT *time.Time `json:"gt_create_time" form:"gt_create_time"`
 }
 
 func (m *ServiceCreateTimeGT) BindServiceCreateTimeGT() (predicate.Service, error) {
@@ -107,7 +107,7 @@ func (m *ServiceCreateTimeGT) BindServiceCreateTimeGT() (predicate.Service, erro
 }
 
 type ServiceCreateTimeGTE struct {
-	CreateTimeGTE *time.Time `form:"gte_create_time"`
+	CreateTimeGTE *time.Time `json:"gte_create_time" form:"gte_create_time"`
 }
 
 func (m *ServiceCreateTimeGTE) BindServiceCreateTimeGTE() (predicate.Service, error) {
@@ -118,7 +118,7 @@ func (m *ServiceCreateTimeGTE) BindServiceCreateTimeGTE() (predicate.Service, er
 }
 
 type ServiceCreateTimeLT struct {
-	CreateTimeLT *time.Time `form:"lt_create_time"`
+	CreateTimeLT *time.Time `json:"lt_create_time" form:"lt_create_time"`
 }
 
 func (m *ServiceCreateTimeLT) BindServiceCreateTimeLT() (predicate.Service, error) {
@@ -129,7 +129,7 @@ func (m *ServiceCreateTimeLT) BindServiceCreateTimeLT() (predicate.Service, erro
 }
 
 type ServiceCreateTimeLTE struct {
-	CreateTimeLTE *time.Time `form:"lte_create_time"`
+	CreateTimeLTE *time.Time `json:"lte_create_time" form:"lte_create_time"`
 }
 
 func (m *ServiceCreateTimeLTE) BindServiceCreateTimeLTE() (predicate.Service, error) {
@@ -151,7 +151,7 @@ func (m *ServiceUpdateTimeEQ) BindServiceUpdateTimeEQ() (predicate.Service, erro
 }
 
 type ServiceUpdateTimeOr struct {
-	UpdateTimeOr []time.Time `form:"or_update_time"`
+	UpdateTimeOr []time.Time `json:"or_update_time" form:"or_update_time"`
 }
 
 func (m *ServiceUpdateTimeOr) BindServiceUpdateTimeOr() (predicate.Service, error) {
@@ -166,7 +166,7 @@ func (m *ServiceUpdateTimeOr) BindServiceUpdateTimeOr() (predicate.Service, erro
 }
 
 type ServiceUpdateTimeNEQ struct {
-	UpdateTimeNEQ *time.Time `form:"neq_update_time"`
+	UpdateTimeNEQ *time.Time `json:"neq_update_time" form:"neq_update_time"`
 }
 
 func (m *ServiceUpdateTimeNEQ) BindServiceUpdateTimeNEQ() (predicate.Service, error) {
@@ -177,7 +177,7 @@ func (m *ServiceUpdateTimeNEQ) BindServiceUpdateTimeNEQ() (predicate.Service, er
 }
 
 type ServiceUpdateTimeIn struct {
-	UpdateTimeIn []time.Time `form:"in_update_time"`
+	UpdateTimeIn []time.Time `json:"in_update_time" form:"in_update_time"`
 }
 
 func (m *ServiceUpdateTimeIn) BindServiceUpdateTimeIn() (predicate.Service, error) {
@@ -188,7 +188,7 @@ func (m *ServiceUpdateTimeIn) BindServiceUpdateTimeIn() (predicate.Service, erro
 }
 
 type ServiceUpdateTimeNotIn struct {
-	UpdateTimeNotIn []time.Time `form:"not_in_update_time"`
+	UpdateTimeNotIn []time.Time `json:"not_in_update_time" form:"not_in_update_time"`
 }
 
 func (m *ServiceUpdateTimeNotIn) BindServiceUpdateTimeNotIn() (predicate.Service, error) {
@@ -199,7 +199,7 @@ func (m *ServiceUpdateTimeNotIn) BindServiceUpdateTimeNotIn() (predicate.Service
 }
 
 type ServiceUpdateTimeGT struct {
-	UpdateTimeGT *time.Time `form:"gt_update_time"`
+	UpdateTimeGT *time.Time `json:"gt_update_time" form:"gt_update_time"`
 }
 
 func (m *ServiceUpdateTimeGT) BindServiceUpdateTimeGT() (predicate.Service, error) {
@@ -210,7 +210,7 @@ func (m *ServiceUpdateTimeGT) BindServiceUpdateTimeGT() (predicate.Service, erro
 }
 
 type ServiceUpdateTimeGTE struct {
-	UpdateTimeGTE *time.Time `form:"gte_update_time"`
+	UpdateTimeGTE *time.Time `json:"gte_update_time" form:"gte_update_time"`
 }
 
 func (m *ServiceUpdateTimeGTE) BindServiceUpdateTimeGTE() (predicate.Service, error) {
@@ -221,7 +221,7 @@ func (m *ServiceUpdateTimeGTE) BindServiceUpdateTimeGTE() (predicate.Service, er
 }
 
 type ServiceUpdateTimeLT struct {
-	UpdateTimeLT *time.Time `form:"lt_update_time"`
+	UpdateTimeLT *time.Time `json:"lt_update_time" form:"lt_update_time"`
 }
 
 func (m *ServiceUpdateTimeLT) BindServiceUpdateTimeLT() (predicate.Service, error) {
@@ -232,7 +232,7 @@ func (m *ServiceUpdateTimeLT) BindServiceUpdateTimeLT() (predicate.Service, erro
 }
 
 type ServiceUpdateTimeLTE struct {
-	UpdateTimeLTE *time.Time `form:"lte_update_time"`
+	UpdateTimeLTE *time.Time `json:"lte_update_time" form:"lte_update_time"`
 }
 
 func (m *ServiceUpdateTimeLTE) BindServiceUpdateTimeLTE() (predicate.Service, error) {
@@ -254,7 +254,7 @@ func (m *ServiceNameEQ) BindServiceNameEQ() (predicate.Service, error) {
 }
 
 type ServiceNameOr struct {
-	NameOr []string `form:"or_name"`
+	NameOr []string `json:"or_name" form:"or_name"`
 }
 
 func (m *ServiceNameOr) BindServiceNameOr() (predicate.Service, error) {
@@ -269,7 +269,7 @@ func (m *ServiceNameOr) BindServiceNameOr() (predicate.Service, error) {
 }
 
 type ServiceNameNEQ struct {
-	NameNEQ *string `form:"neq_name"`
+	NameNEQ *string `json:"neq_name" form:"neq_name"`
 }
 
 func (m *ServiceNameNEQ) BindServiceNameNEQ() (predicate.Service, error) {
@@ -280,7 +280,7 @@ func (m *ServiceNameNEQ) BindServiceNameNEQ() (predicate.Service, error) {
 }
 
 type ServiceNameIn struct {
-	NameIn []string `form:"in_name"`
+	NameIn []string `json:"in_name" form:"in_name"`
 }
 
 func (m *ServiceNameIn) BindServiceNameIn() (predicate.Service, error) {
@@ -291,7 +291,7 @@ func (m *ServiceNameIn) BindServiceNameIn() (predicate.Service, error) {
 }
 
 type ServiceNameNotIn struct {
-	NameNotIn []string `form:"not_in_name"`
+	NameNotIn []string `json:"not_in_name" form:"not_in_name"`
 }
 
 func (m *ServiceNameNotIn) BindServiceNameNotIn() (predicate.Service, error) {
@@ -302,7 +302,7 @@ func (m *ServiceNameNotIn) BindServiceNameNotIn() (predicate.Service, error) {
 }
 
 type ServiceNameGT struct {
-	NameGT *string `form:"gt_name"`
+	NameGT *string `json:"gt_name" form:"gt_name"`
 }
 
 func (m *ServiceNameGT) BindServiceNameGT() (predicate.Service, error) {
@@ -313,7 +313,7 @@ func (m *ServiceNameGT) BindServiceNameGT() (predicate.Service, error) {
 }
 
 type ServiceNameGTE struct {
-	NameGTE *string `form:"gte_name"`
+	NameGTE *string `json:"gte_name" form:"gte_name"`
 }
 
 func (m *ServiceNameGTE) BindServiceNameGTE() (predicate.Service, error) {
@@ -324,7 +324,7 @@ func (m *ServiceNameGTE) BindServiceNameGTE() (predicate.Service, error) {
 }
 
 type ServiceNameLT struct {
-	NameLT *string `form:"lt_name"`
+	NameLT *string `json:"lt_name" form:"lt_name"`
 }
 
 func (m *ServiceNameLT) BindServiceNameLT() (predicate.Service, error) {
@@ -335,7 +335,7 @@ func (m *ServiceNameLT) BindServiceNameLT() (predicate.Service, error) {
 }
 
 type ServiceNameLTE struct {
-	NameLTE *string `form:"lte_name"`
+	NameLTE *string `json:"lte_name" form:"lte_name"`
 }
 
 func (m *ServiceNameLTE) BindServiceNameLTE() (predicate.Service, error) {
@@ -346,7 +346,7 @@ func (m *ServiceNameLTE) BindServiceNameLTE() (predicate.Service, error) {
 }
 
 type ServiceNameContains struct {
-	NameContains *string `form:"contains_name"`
+	NameContains *string `json:"contains_name" form:"contains_name"`
 }
 
 func (m *ServiceNameContains) BindServiceNameContains() (predicate.Service, error) {
@@ -357,7 +357,7 @@ func (m *ServiceNameContains) BindServiceNameContains() (predicate.Service, erro
 }
 
 type ServiceNameHasPrefix struct {
-	NameHasPrefix *string `form:"has_prefix_name"`
+	NameHasPrefix *string `json:"has_prefix_name" form:"has_prefix_name"`
 }
 
 func (m *ServiceNameHasPrefix) BindServiceNameHasPrefix() (predicate.Service, error) {
@@ -369,7 +369,7 @@ func (m *ServiceNameHasPrefix) BindServiceNameHasPrefix() (predicate.Service, er
 }
 
 type ServiceNameHasSuffix struct {
-	NameHasSuffix *string `form:"has_suffix_name"`
+	NameHasSuffix *string `json:"has_suffix_name" form:"has_suffix_name"`
 }
 
 func (m *ServiceNameHasSuffix) BindServiceNameHasSuffix() (predicate.Service, error) {

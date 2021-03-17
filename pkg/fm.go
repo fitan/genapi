@@ -3,6 +3,8 @@ package pkg
 import (
 	"encoding/json"
 	"entgo.io/ent/entc/gen"
+	"fmt"
+	"log"
 	"strings"
 	"text/template"
 )
@@ -16,6 +18,8 @@ var FM = template.FuncMap{
 	"PaseRestNodeMethod":       PaseRestNodeMethod,
 	"PaseRestEdgeMethod":       PaseRestEdgeMethod,
 	"PaseFieldIsEnum":          PaseFieldIsEnum,
+	"PaseRestEdgeInclude":      PaseRestEdgeInclude,
+	"PaseGraphInclude":         PaseGraphInclude,
 }
 
 func OpsString(ops []gen.Op) []string {
@@ -49,11 +53,14 @@ var RestNodeType = "RestNodeOp"
 var RestEdgeType = "RestEdgeOp"
 
 type RestEdgeOp struct {
-	Method struct {
-		Get    GenRestSwitch
-		Create GenRestSwitch
-		Delete GenRestSwitch
-	}
+	Method  EdgeMethod
+	Include GenRestSwitch
+}
+
+type EdgeMethod struct {
+	Get    GenRestSwitch `json:"get"`
+	Create GenRestSwitch `json:"create"`
+	Delete GenRestSwitch `json:"delete"`
 }
 
 type GenRestSwitch int
@@ -66,13 +73,6 @@ type RestNodeOp struct {
 	Paging Paging     `json:"paging"`
 	Order  Order      `json:"order"`
 	Method NodeMethod `json:"method"`
-}
-
-type EdgeMethod struct {
-	Get    GenRestSwitch `json:"get"`
-	Create GenRestSwitch `json:"create"`
-	Update GenRestSwitch `json:"update"`
-	Delete GenRestSwitch `json:"delete"`
 }
 
 type NodeMethod struct {
@@ -310,6 +310,94 @@ func PaseRestNodeMethod(m map[string]interface{}) map[string]string {
 		"Update": "PUT",
 		"Delete": "DELETE",
 	}
+}
+
+func SliceContains(l []string, s string) bool {
+	for _, t := range l {
+		if t == s {
+			return true
+		}
+	}
+	return false
+}
+
+func GetInclude(m map[string]map[string]interface{}, node string, l []string, res *[][]string) {
+	edges, ok := m[node]
+	if ok {
+		for edge, _ := range edges {
+			if SliceContains(l, edge) {
+				if len(l) != 0 {
+					*res = append(*res, l)
+				}
+				continue
+			}
+			tmpL := append(l, edge)
+			GetInclude(m, edge, tmpL[:], res)
+		}
+	} else {
+		if len(l) != 0 {
+			*res = append(*res, l)
+		}
+	}
+}
+
+func PaseGraphInclude(g gen.Graph) map[string][]string {
+	includeMap := make(map[string]map[string]interface{})
+	for _, node := range g.Nodes {
+		for _, edge := range node.Edges {
+			has := PaseRestEdgeInclude(edge.Annotations)
+			if has {
+				if _, ok := includeMap[node.Name]; ok {
+					includeMap[node.Name][edge.Type.Name] = struct{}{}
+				} else {
+					includeMap[node.Name] = map[string]interface{}{edge.Type.Name: struct{}{}}
+				}
+			}
+		}
+	}
+
+	includes := make(map[string][][]string, 0)
+	for node, _ := range includeMap {
+		res := make([][]string, 0, 0)
+		GetInclude(includeMap, node, []string{node}, &res)
+		includes[node] = res
+	}
+
+	includeK := make(map[string][]string, 0)
+	for node, include := range includes {
+		tmpM := make(map[string]interface{}, 0)
+		for _, i := range include {
+			s := strings.Join(i, ".")
+			tmpM[s] = struct{}{}
+		}
+		tmpK := make([]string, 0, 0)
+		for k, _ := range tmpM {
+			tmpK = append(tmpK, k)
+		}
+
+		fmt.Println(tmpK)
+		includeK[node] = tmpK
+	}
+	return includeK
+}
+
+func PaseRestEdgeInclude(m map[string]interface{}) bool {
+	if _, ok := m[RestEdgeType]; ok {
+		b, err := json.Marshal(m[RestEdgeType])
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		op := RestEdgeOp{}
+
+		err = json.Unmarshal(b, &op)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		if op.Include == GenRestFalse {
+			return false
+		}
+	}
+	return true
 }
 
 func PaseRestEdgeMethod(m map[string]interface{}) map[string]string {

@@ -191,11 +191,6 @@ definitions:
     type: object
   entt.AlertEdges:
     type: object
-  entt.AlertID:
-    properties:
-      id:
-        type: integer
-    type: object
   entt.AlertNode:
     properties:
       edges:
@@ -267,15 +262,6 @@ definitions:
         type: array
     type: object
   entt.ProjectEdges:
-    properties:
-      role_bindings:
-        items:
-          $ref: '#/definitions/entt.RoleBindingID'
-        type: array
-      services:
-        items:
-          $ref: '#/definitions/entt.ServiceID'
-        type: array
     type: object
   entt.ProjectID:
     properties:
@@ -328,11 +314,6 @@ definitions:
       user:
         $ref: '#/definitions/entt.UserID'
     type: object
-  entt.RoleBindingID:
-    properties:
-      id:
-        type: integer
-    type: object
   entt.RoleBindingNode:
     properties:
       create_time:
@@ -373,11 +354,6 @@ definitions:
         items:
           $ref: '#/definitions/entt.ServiceID'
         type: array
-    type: object
-  entt.ServerID:
-    properties:
-      id:
-        type: integer
     type: object
   entt.ServerNode:
     properties:
@@ -443,14 +419,6 @@ definitions:
     properties:
       project:
         $ref: '#/definitions/entt.ProjectID'
-      role_bindings:
-        items:
-          $ref: '#/definitions/entt.RoleBindingID'
-        type: array
-      servers:
-        items:
-          $ref: '#/definitions/entt.ServerID'
-        type: array
     type: object
   entt.ServiceID:
     properties:
@@ -486,15 +454,6 @@ definitions:
         type: string
     type: object
   entt.UserEdges:
-    properties:
-      alerts:
-        items:
-          $ref: '#/definitions/entt.AlertID'
-        type: array
-      role_bindings:
-        items:
-          $ref: '#/definitions/entt.RoleBindingID'
-        type: array
     type: object
   entt.UserID:
     properties:
@@ -512,31 +471,6 @@ definitions:
         type: string
       id:
         type: integer
-      name:
-        type: string
-      password:
-        type: string
-      phone:
-        type: string
-      role:
-        enum:
-        - user
-        - admin
-        - tourist
-        type: string
-      update_time:
-        format: date-time
-        type: string
-    type: object
-  entt.UserNodeNotID:
-    properties:
-      create_time:
-        format: date-time
-        type: string
-      edges:
-        $ref: '#/definitions/entt.UserEdges'
-      email:
-        type: string
       name:
         type: string
       password:
@@ -1294,36 +1228,6 @@ paths:
       summary: get one project
       tags:
       - Project by RoleBinding
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entt.ProjectNodeNotID'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.ProjectNode'
-              type: object
-      summary: create one project
-      tags:
-      - Project by RoleBinding
   /role_binding/{id}/service:
     delete:
       consumes:
@@ -1373,36 +1277,6 @@ paths:
       summary: get one service
       tags:
       - Service by RoleBinding
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entt.ServiceNodeNotID'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.ServiceNode'
-              type: object
-      summary: create one service
-      tags:
-      - Service by RoleBinding
   /role_binding/{id}/user:
     delete:
       consumes:
@@ -1450,36 +1324,6 @@ paths:
                   $ref: '#/definitions/entt.UserNode'
               type: object
       summary: get one user
-      tags:
-      - User by RoleBinding
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entt.UserNodeNotID'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.UserNode'
-              type: object
-      summary: create one user
       tags:
       - User by RoleBinding
   /role_bindings:
@@ -1738,40 +1582,6 @@ paths:
       summary: get list service
       tags:
       - Service by Server
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          items:
-            $ref: '#/definitions/entt.ServiceNodeNotID'
-          type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/entt.ServiceNodeNotID'
-                  type: array
-              type: object
-      summary: create list service
-      tags:
-      - Service by Server
   /servers:
     delete:
       consumes:
@@ -2024,36 +1834,6 @@ paths:
                   $ref: '#/definitions/entt.ProjectNode'
               type: object
       summary: get one project
-      tags:
-      - Project by Service
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entt.ProjectNodeNotID'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.ProjectNode'
-              type: object
-      summary: create one project
       tags:
       - Project by Service
   /service/{id}/role_bindings:
@@ -2326,57 +2106,7 @@ paths:
       summary: update list service
       tags:
       - Service
-  /user:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entt.UserNodeNotID'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.UserNode'
-              type: object
-      summary: create one user
-      tags:
-      - User
   /user/{id}:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.UserNode'
-              type: object
-      summary: delete one user
-      tags:
-      - User
     get:
       consumes:
       - application/json
@@ -2399,36 +2129,6 @@ paths:
                   $ref: '#/definitions/entt.UserNode'
               type: object
       summary: get one user
-      tags:
-      - User
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entt.UserNodeNotID'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.UserNode'
-              type: object
-      summary: update one user
       tags:
       - User
   /user/{id}/alerts:
@@ -2602,34 +2302,31 @@ paths:
       tags:
       - RoleBinding by User
   /users:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - collectionFormat: multi
-        in: query
-        items:
-          type: integer
-        name: ids
-        type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.UserNode'
-              type: object
-      summary: delete list user
-      tags:
-      - User
     get:
       consumes:
       - application/json
+      parameters:
+      - in: query
+        name: eq_name
+        type: string
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: in_name
+        type: array
+      - in: query
+        name: limit
+        type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: not_in_name
+        type: array
+      - in: query
+        name: page
+        type: integer
       produces:
       - application/json
       responses:
@@ -2643,62 +2340,6 @@ paths:
                   $ref: '#/definitions/entt.GetUserListData'
               type: object
       summary: get list user
-      tags:
-      - User
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          items:
-            $ref: '#/definitions/entt.UserNode'
-          type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/entt.UserNodeNotID'
-                  type: array
-              type: object
-      summary: create list user
-      tags:
-      - User
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: ' '
-        in: body
-        name: body
-        required: true
-        schema:
-          items:
-            $ref: '#/definitions/entt.UserNode'
-          type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/entt.RestReturn'
-            - properties:
-                data:
-                  $ref: '#/definitions/entt.UserNode'
-              type: object
-      summary: update list user
       tags:
       - User
 swagger: "2.0"

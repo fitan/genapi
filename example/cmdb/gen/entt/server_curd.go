@@ -2,11 +2,12 @@ package entt
 
 import (
 	"cmdb/ent"
+	"cmdb/ent/predicate"
 	"cmdb/ent/server"
 	"context"
 	"fmt"
-
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 type ServerCURD struct {
@@ -60,6 +61,16 @@ func (curd *ServerCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, "", err)
 		})
 
+		r.DELETE(curd.DeleteListServicesByServerIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.DeleteListServicesByServerId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.GET(curd.GetListServicesByServerIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.GetListServicesByServerId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 	case *gin.RouterGroup:
 		r := router.(*gin.RouterGroup)
 
@@ -101,6 +112,16 @@ func (curd *ServerCURD) RegisterRouter(router interface{}) {
 		r.PUT(curd.UpdateListRoutePath(), func(c *gin.Context) {
 			err := curd.UpdateList(c)
 			RestReturnFunc(c, "", err)
+		})
+
+		r.DELETE(curd.DeleteListServicesByServerIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.DeleteListServicesByServerId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.GET(curd.GetListServicesByServerIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.GetListServicesByServerId(c)
+			RestReturnFunc(c, data, err)
 		})
 
 	}
@@ -416,4 +437,59 @@ func (curd *ServerCURD) DeleteList(c *gin.Context) (int, error) {
 		return 0, nil
 	}
 	return deleter.Exec(context.Background())
+}
+
+func (curd *ServerCURD) GetListServicesByServerIdRoutePath() string {
+	return "/server/:id/services"
+}
+
+func (curd *ServerCURD) GetListServicesByServerId(c *gin.Context) ([]*ent.Service, error) {
+	queryer, err := curd.defaultGetOneQueryer(c)
+	if err != nil {
+		return nil, err
+	}
+
+	tmpQueryer := queryer.QueryServices()
+
+	query, err := curd.ServiceObj.BindDefaultQuery(c)
+	if err != nil {
+		return nil, err
+	}
+	err = query.Exec(tmpQueryer)
+	if err != nil {
+		return nil, err
+	}
+	ServiceSelete(tmpQueryer)
+	curd.ServiceObj.defaultOrder(tmpQueryer)
+
+	return tmpQueryer.All(context.Background())
+
+}
+
+func (curd *ServerCURD) DeleteListServicesByServerIdRoutePath() string {
+	return "/server/:id/services"
+}
+
+func (curd *ServerCURD) DeleteListServicesByServerId(c *gin.Context) (int, error) {
+	queryer, err := curd.defaultGetOneQueryer(c)
+	if err != nil {
+		return 0, err
+	}
+
+	query, err := curd.ServiceObj.BindDefaultQuery(c)
+
+	if err != nil {
+		return 0, err
+	}
+
+	ps, err := query.PredicatesExec()
+	if err != nil {
+		return 0, err
+	}
+	ids, err := queryer.QueryServices().Where(ps...).IDs(context.Background())
+	if err != nil {
+		return 0, err
+	}
+
+	return curd.Db.Service.Delete().Where(service.IDIn(ids...)).Exec(context.Background())
 }

@@ -1,9 +1,9 @@
 package entt
 
 import (
-	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/server"
+	"github.com/gin-gonic/gin"
 
 	"time"
 )
@@ -23,9 +23,9 @@ func ServerPredicatesExec(fs ...func() (predicate.Server, error)) ([]predicate.S
 }
 
 type ServerPaging struct {
-	Limit int `form:"limit"`
+	Limit int `form:"limit" json:"limit"`
 
-	Page int `form:"page"`
+	Page int `form:"page" json:"page"`
 }
 
 func (m *ServerPaging) BindPagingServer(queryer *ent.ServerQuery) error {
@@ -48,7 +48,7 @@ func (m *ServerCreateTimeEQ) BindServerCreateTimeEQ() (predicate.Server, error) 
 }
 
 type ServerCreateTimeOr struct {
-	CreateTimeOr []time.Time `form:"or_create_time"`
+	CreateTimeOr []time.Time `json:"or_create_time" form:"or_create_time"`
 }
 
 func (m *ServerCreateTimeOr) BindServerCreateTimeOr() (predicate.Server, error) {
@@ -63,7 +63,7 @@ func (m *ServerCreateTimeOr) BindServerCreateTimeOr() (predicate.Server, error) 
 }
 
 type ServerCreateTimeNEQ struct {
-	CreateTimeNEQ *time.Time `form:"neq_create_time"`
+	CreateTimeNEQ *time.Time `json:"neq_create_time" form:"neq_create_time"`
 }
 
 func (m *ServerCreateTimeNEQ) BindServerCreateTimeNEQ() (predicate.Server, error) {
@@ -74,7 +74,7 @@ func (m *ServerCreateTimeNEQ) BindServerCreateTimeNEQ() (predicate.Server, error
 }
 
 type ServerCreateTimeIn struct {
-	CreateTimeIn []time.Time `form:"in_create_time"`
+	CreateTimeIn []time.Time `json:"in_create_time" form:"in_create_time"`
 }
 
 func (m *ServerCreateTimeIn) BindServerCreateTimeIn() (predicate.Server, error) {
@@ -85,7 +85,7 @@ func (m *ServerCreateTimeIn) BindServerCreateTimeIn() (predicate.Server, error) 
 }
 
 type ServerCreateTimeNotIn struct {
-	CreateTimeNotIn []time.Time `form:"not_in_create_time"`
+	CreateTimeNotIn []time.Time `json:"not_in_create_time" form:"not_in_create_time"`
 }
 
 func (m *ServerCreateTimeNotIn) BindServerCreateTimeNotIn() (predicate.Server, error) {
@@ -96,7 +96,7 @@ func (m *ServerCreateTimeNotIn) BindServerCreateTimeNotIn() (predicate.Server, e
 }
 
 type ServerCreateTimeGT struct {
-	CreateTimeGT *time.Time `form:"gt_create_time"`
+	CreateTimeGT *time.Time `json:"gt_create_time" form:"gt_create_time"`
 }
 
 func (m *ServerCreateTimeGT) BindServerCreateTimeGT() (predicate.Server, error) {
@@ -107,7 +107,7 @@ func (m *ServerCreateTimeGT) BindServerCreateTimeGT() (predicate.Server, error) 
 }
 
 type ServerCreateTimeGTE struct {
-	CreateTimeGTE *time.Time `form:"gte_create_time"`
+	CreateTimeGTE *time.Time `json:"gte_create_time" form:"gte_create_time"`
 }
 
 func (m *ServerCreateTimeGTE) BindServerCreateTimeGTE() (predicate.Server, error) {
@@ -118,7 +118,7 @@ func (m *ServerCreateTimeGTE) BindServerCreateTimeGTE() (predicate.Server, error
 }
 
 type ServerCreateTimeLT struct {
-	CreateTimeLT *time.Time `form:"lt_create_time"`
+	CreateTimeLT *time.Time `json:"lt_create_time" form:"lt_create_time"`
 }
 
 func (m *ServerCreateTimeLT) BindServerCreateTimeLT() (predicate.Server, error) {
@@ -129,7 +129,7 @@ func (m *ServerCreateTimeLT) BindServerCreateTimeLT() (predicate.Server, error) 
 }
 
 type ServerCreateTimeLTE struct {
-	CreateTimeLTE *time.Time `form:"lte_create_time"`
+	CreateTimeLTE *time.Time `json:"lte_create_time" form:"lte_create_time"`
 }
 
 func (m *ServerCreateTimeLTE) BindServerCreateTimeLTE() (predicate.Server, error) {
@@ -151,7 +151,7 @@ func (m *ServerUpdateTimeEQ) BindServerUpdateTimeEQ() (predicate.Server, error) 
 }
 
 type ServerUpdateTimeOr struct {
-	UpdateTimeOr []time.Time `form:"or_update_time"`
+	UpdateTimeOr []time.Time `json:"or_update_time" form:"or_update_time"`
 }
 
 func (m *ServerUpdateTimeOr) BindServerUpdateTimeOr() (predicate.Server, error) {
@@ -166,7 +166,7 @@ func (m *ServerUpdateTimeOr) BindServerUpdateTimeOr() (predicate.Server, error) 
 }
 
 type ServerUpdateTimeNEQ struct {
-	UpdateTimeNEQ *time.Time `form:"neq_update_time"`
+	UpdateTimeNEQ *time.Time `json:"neq_update_time" form:"neq_update_time"`
 }
 
 func (m *ServerUpdateTimeNEQ) BindServerUpdateTimeNEQ() (predicate.Server, error) {
@@ -177,7 +177,7 @@ func (m *ServerUpdateTimeNEQ) BindServerUpdateTimeNEQ() (predicate.Server, error
 }
 
 type ServerUpdateTimeIn struct {
-	UpdateTimeIn []time.Time `form:"in_update_time"`
+	UpdateTimeIn []time.Time `json:"in_update_time" form:"in_update_time"`
 }
 
 func (m *ServerUpdateTimeIn) BindServerUpdateTimeIn() (predicate.Server, error) {
@@ -188,7 +188,7 @@ func (m *ServerUpdateTimeIn) BindServerUpdateTimeIn() (predicate.Server, error) 
 }
 
 type ServerUpdateTimeNotIn struct {
-	UpdateTimeNotIn []time.Time `form:"not_in_update_time"`
+	UpdateTimeNotIn []time.Time `json:"not_in_update_time" form:"not_in_update_time"`
 }
 
 func (m *ServerUpdateTimeNotIn) BindServerUpdateTimeNotIn() (predicate.Server, error) {
@@ -199,7 +199,7 @@ func (m *ServerUpdateTimeNotIn) BindServerUpdateTimeNotIn() (predicate.Server, e
 }
 
 type ServerUpdateTimeGT struct {
-	UpdateTimeGT *time.Time `form:"gt_update_time"`
+	UpdateTimeGT *time.Time `json:"gt_update_time" form:"gt_update_time"`
 }
 
 func (m *ServerUpdateTimeGT) BindServerUpdateTimeGT() (predicate.Server, error) {
@@ -210,7 +210,7 @@ func (m *ServerUpdateTimeGT) BindServerUpdateTimeGT() (predicate.Server, error) 
 }
 
 type ServerUpdateTimeGTE struct {
-	UpdateTimeGTE *time.Time `form:"gte_update_time"`
+	UpdateTimeGTE *time.Time `json:"gte_update_time" form:"gte_update_time"`
 }
 
 func (m *ServerUpdateTimeGTE) BindServerUpdateTimeGTE() (predicate.Server, error) {
@@ -221,7 +221,7 @@ func (m *ServerUpdateTimeGTE) BindServerUpdateTimeGTE() (predicate.Server, error
 }
 
 type ServerUpdateTimeLT struct {
-	UpdateTimeLT *time.Time `form:"lt_update_time"`
+	UpdateTimeLT *time.Time `json:"lt_update_time" form:"lt_update_time"`
 }
 
 func (m *ServerUpdateTimeLT) BindServerUpdateTimeLT() (predicate.Server, error) {
@@ -232,7 +232,7 @@ func (m *ServerUpdateTimeLT) BindServerUpdateTimeLT() (predicate.Server, error) 
 }
 
 type ServerUpdateTimeLTE struct {
-	UpdateTimeLTE *time.Time `form:"lte_update_time"`
+	UpdateTimeLTE *time.Time `json:"lte_update_time" form:"lte_update_time"`
 }
 
 func (m *ServerUpdateTimeLTE) BindServerUpdateTimeLTE() (predicate.Server, error) {
@@ -254,7 +254,7 @@ func (m *ServerIPEQ) BindServerIPEQ() (predicate.Server, error) {
 }
 
 type ServerIPOr struct {
-	IPOr []string `form:"or_ip"`
+	IPOr []string `json:"or_ip" form:"or_ip"`
 }
 
 func (m *ServerIPOr) BindServerIPOr() (predicate.Server, error) {
@@ -269,7 +269,7 @@ func (m *ServerIPOr) BindServerIPOr() (predicate.Server, error) {
 }
 
 type ServerIPNEQ struct {
-	IPNEQ *string `form:"neq_ip"`
+	IPNEQ *string `json:"neq_ip" form:"neq_ip"`
 }
 
 func (m *ServerIPNEQ) BindServerIPNEQ() (predicate.Server, error) {
@@ -280,7 +280,7 @@ func (m *ServerIPNEQ) BindServerIPNEQ() (predicate.Server, error) {
 }
 
 type ServerIPIn struct {
-	IPIn []string `form:"in_ip"`
+	IPIn []string `json:"in_ip" form:"in_ip"`
 }
 
 func (m *ServerIPIn) BindServerIPIn() (predicate.Server, error) {
@@ -291,7 +291,7 @@ func (m *ServerIPIn) BindServerIPIn() (predicate.Server, error) {
 }
 
 type ServerIPNotIn struct {
-	IPNotIn []string `form:"not_in_ip"`
+	IPNotIn []string `json:"not_in_ip" form:"not_in_ip"`
 }
 
 func (m *ServerIPNotIn) BindServerIPNotIn() (predicate.Server, error) {
@@ -302,7 +302,7 @@ func (m *ServerIPNotIn) BindServerIPNotIn() (predicate.Server, error) {
 }
 
 type ServerIPGT struct {
-	IPGT *string `form:"gt_ip"`
+	IPGT *string `json:"gt_ip" form:"gt_ip"`
 }
 
 func (m *ServerIPGT) BindServerIPGT() (predicate.Server, error) {
@@ -313,7 +313,7 @@ func (m *ServerIPGT) BindServerIPGT() (predicate.Server, error) {
 }
 
 type ServerIPGTE struct {
-	IPGTE *string `form:"gte_ip"`
+	IPGTE *string `json:"gte_ip" form:"gte_ip"`
 }
 
 func (m *ServerIPGTE) BindServerIPGTE() (predicate.Server, error) {
@@ -324,7 +324,7 @@ func (m *ServerIPGTE) BindServerIPGTE() (predicate.Server, error) {
 }
 
 type ServerIPLT struct {
-	IPLT *string `form:"lt_ip"`
+	IPLT *string `json:"lt_ip" form:"lt_ip"`
 }
 
 func (m *ServerIPLT) BindServerIPLT() (predicate.Server, error) {
@@ -335,7 +335,7 @@ func (m *ServerIPLT) BindServerIPLT() (predicate.Server, error) {
 }
 
 type ServerIPLTE struct {
-	IPLTE *string `form:"lte_ip"`
+	IPLTE *string `json:"lte_ip" form:"lte_ip"`
 }
 
 func (m *ServerIPLTE) BindServerIPLTE() (predicate.Server, error) {
@@ -346,7 +346,7 @@ func (m *ServerIPLTE) BindServerIPLTE() (predicate.Server, error) {
 }
 
 type ServerIPContains struct {
-	IPContains *string `form:"contains_ip"`
+	IPContains *string `json:"contains_ip" form:"contains_ip"`
 }
 
 func (m *ServerIPContains) BindServerIPContains() (predicate.Server, error) {
@@ -357,7 +357,7 @@ func (m *ServerIPContains) BindServerIPContains() (predicate.Server, error) {
 }
 
 type ServerIPHasPrefix struct {
-	IPHasPrefix *string `form:"has_prefix_ip"`
+	IPHasPrefix *string `json:"has_prefix_ip" form:"has_prefix_ip"`
 }
 
 func (m *ServerIPHasPrefix) BindServerIPHasPrefix() (predicate.Server, error) {
@@ -369,7 +369,7 @@ func (m *ServerIPHasPrefix) BindServerIPHasPrefix() (predicate.Server, error) {
 }
 
 type ServerIPHasSuffix struct {
-	IPHasSuffix *string `form:"has_suffix_ip"`
+	IPHasSuffix *string `json:"has_suffix_ip" form:"has_suffix_ip"`
 }
 
 func (m *ServerIPHasSuffix) BindServerIPHasSuffix() (predicate.Server, error) {
@@ -391,7 +391,7 @@ func (m *ServerMachineTypeEQ) BindServerMachineTypeEQ() (predicate.Server, error
 }
 
 type ServerMachineTypeOr struct {
-	MachineTypeOr []server.MachineType `form:"or_machine_type"`
+	MachineTypeOr []server.MachineType `json:"or_machine_type" form:"or_machine_type"`
 }
 
 func (m *ServerMachineTypeOr) BindServerMachineTypeOr() (predicate.Server, error) {
@@ -406,7 +406,7 @@ func (m *ServerMachineTypeOr) BindServerMachineTypeOr() (predicate.Server, error
 }
 
 type ServerMachineTypeNEQ struct {
-	MachineTypeNEQ *server.MachineType `form:"neq_machine_type"`
+	MachineTypeNEQ *server.MachineType `json:"neq_machine_type" form:"neq_machine_type"`
 }
 
 func (m *ServerMachineTypeNEQ) BindServerMachineTypeNEQ() (predicate.Server, error) {
@@ -417,7 +417,7 @@ func (m *ServerMachineTypeNEQ) BindServerMachineTypeNEQ() (predicate.Server, err
 }
 
 type ServerMachineTypeIn struct {
-	MachineTypeIn []server.MachineType `form:"in_machine_type"`
+	MachineTypeIn []server.MachineType `json:"in_machine_type" form:"in_machine_type"`
 }
 
 func (m *ServerMachineTypeIn) BindServerMachineTypeIn() (predicate.Server, error) {
@@ -428,7 +428,7 @@ func (m *ServerMachineTypeIn) BindServerMachineTypeIn() (predicate.Server, error
 }
 
 type ServerMachineTypeNotIn struct {
-	MachineTypeNotIn []server.MachineType `form:"not_in_machine_type"`
+	MachineTypeNotIn []server.MachineType `json:"not_in_machine_type" form:"not_in_machine_type"`
 }
 
 func (m *ServerMachineTypeNotIn) BindServerMachineTypeNotIn() (predicate.Server, error) {
@@ -450,7 +450,7 @@ func (m *ServerPlatformTypeEQ) BindServerPlatformTypeEQ() (predicate.Server, err
 }
 
 type ServerPlatformTypeOr struct {
-	PlatformTypeOr []server.PlatformType `form:"or_platform_type"`
+	PlatformTypeOr []server.PlatformType `json:"or_platform_type" form:"or_platform_type"`
 }
 
 func (m *ServerPlatformTypeOr) BindServerPlatformTypeOr() (predicate.Server, error) {
@@ -465,7 +465,7 @@ func (m *ServerPlatformTypeOr) BindServerPlatformTypeOr() (predicate.Server, err
 }
 
 type ServerPlatformTypeNEQ struct {
-	PlatformTypeNEQ *server.PlatformType `form:"neq_platform_type"`
+	PlatformTypeNEQ *server.PlatformType `json:"neq_platform_type" form:"neq_platform_type"`
 }
 
 func (m *ServerPlatformTypeNEQ) BindServerPlatformTypeNEQ() (predicate.Server, error) {
@@ -476,7 +476,7 @@ func (m *ServerPlatformTypeNEQ) BindServerPlatformTypeNEQ() (predicate.Server, e
 }
 
 type ServerPlatformTypeIn struct {
-	PlatformTypeIn []server.PlatformType `form:"in_platform_type"`
+	PlatformTypeIn []server.PlatformType `json:"in_platform_type" form:"in_platform_type"`
 }
 
 func (m *ServerPlatformTypeIn) BindServerPlatformTypeIn() (predicate.Server, error) {
@@ -487,7 +487,7 @@ func (m *ServerPlatformTypeIn) BindServerPlatformTypeIn() (predicate.Server, err
 }
 
 type ServerPlatformTypeNotIn struct {
-	PlatformTypeNotIn []server.PlatformType `form:"not_in_platform_type"`
+	PlatformTypeNotIn []server.PlatformType `json:"not_in_platform_type" form:"not_in_platform_type"`
 }
 
 func (m *ServerPlatformTypeNotIn) BindServerPlatformTypeNotIn() (predicate.Server, error) {
@@ -509,7 +509,7 @@ func (m *ServerSystemTypeEQ) BindServerSystemTypeEQ() (predicate.Server, error) 
 }
 
 type ServerSystemTypeOr struct {
-	SystemTypeOr []server.SystemType `form:"or_system_type"`
+	SystemTypeOr []server.SystemType `json:"or_system_type" form:"or_system_type"`
 }
 
 func (m *ServerSystemTypeOr) BindServerSystemTypeOr() (predicate.Server, error) {
@@ -524,7 +524,7 @@ func (m *ServerSystemTypeOr) BindServerSystemTypeOr() (predicate.Server, error) 
 }
 
 type ServerSystemTypeNEQ struct {
-	SystemTypeNEQ *server.SystemType `form:"neq_system_type"`
+	SystemTypeNEQ *server.SystemType `json:"neq_system_type" form:"neq_system_type"`
 }
 
 func (m *ServerSystemTypeNEQ) BindServerSystemTypeNEQ() (predicate.Server, error) {
@@ -535,7 +535,7 @@ func (m *ServerSystemTypeNEQ) BindServerSystemTypeNEQ() (predicate.Server, error
 }
 
 type ServerSystemTypeIn struct {
-	SystemTypeIn []server.SystemType `form:"in_system_type"`
+	SystemTypeIn []server.SystemType `json:"in_system_type" form:"in_system_type"`
 }
 
 func (m *ServerSystemTypeIn) BindServerSystemTypeIn() (predicate.Server, error) {
@@ -546,7 +546,7 @@ func (m *ServerSystemTypeIn) BindServerSystemTypeIn() (predicate.Server, error) 
 }
 
 type ServerSystemTypeNotIn struct {
-	SystemTypeNotIn []server.SystemType `form:"not_in_system_type"`
+	SystemTypeNotIn []server.SystemType `json:"not_in_system_type" form:"not_in_system_type"`
 }
 
 func (m *ServerSystemTypeNotIn) BindServerSystemTypeNotIn() (predicate.Server, error) {

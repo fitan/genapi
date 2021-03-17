@@ -3,10 +3,11 @@ package entt
 import (
 	"cmdb/ent"
 	"cmdb/ent/alert"
+	"cmdb/ent/predicate"
 	"context"
 	"fmt"
-
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 type AlertCURD struct {

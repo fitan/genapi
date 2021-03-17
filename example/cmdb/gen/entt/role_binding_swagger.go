@@ -1,11 +1,6 @@
 package entt
 
-import (
-	"cmdb/ent/rolebinding"
-	"time"
-
-	"github.com/gin-gonic/gin"
-)
+import "github.com/gin-gonic/gin"
 
 type RoleBindingID struct {
 	ID int `json:"id,omitempty"`
@@ -116,14 +111,6 @@ func RoleBindingUpdateOne(c *gin.Context) {
 func RoleBindingUpdateList(c *gin.Context) {
 }
 
-// @Summary create one project
-// @Accept  json
-// @Produce  json
-// @Tags Project by RoleBinding
-// @Param id path int true " "
-// @Param body body  ProjectNodeNotID true " "
-// @Success 200 {object} RestReturn{data=ProjectNode}
-// @Router /role_binding/{id}/project [post]
 func CreateOneProjectByRoleBinding(c *gin.Context) {
 }
 
@@ -147,14 +134,6 @@ func DeleteOneProjectByRoleBinding(c *gin.Context) {
 func GetOneProjectByRoleBinding(c *gin.Context) {
 }
 
-// @Summary create one service
-// @Accept  json
-// @Produce  json
-// @Tags Service by RoleBinding
-// @Param id path int true " "
-// @Param body body  ServiceNodeNotID true " "
-// @Success 200 {object} RestReturn{data=ServiceNode}
-// @Router /role_binding/{id}/service [post]
 func CreateOneServiceByRoleBinding(c *gin.Context) {
 }
 
@@ -178,14 +157,6 @@ func DeleteOneServiceByRoleBinding(c *gin.Context) {
 func GetOneServiceByRoleBinding(c *gin.Context) {
 }
 
-// @Summary create one user
-// @Accept  json
-// @Produce  json
-// @Tags User by RoleBinding
-// @Param id path int true " "
-// @Param body body  UserNodeNotID true " "
-// @Success 200 {object} RestReturn{data=UserNode}
-// @Router /role_binding/{id}/user [post]
 func CreateOneUserByRoleBinding(c *gin.Context) {
 }
 

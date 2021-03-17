@@ -1,9 +1,9 @@
 package entt
 
 import (
-	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/project"
+	"github.com/gin-gonic/gin"
 
 	"time"
 )
@@ -23,9 +23,9 @@ func ProjectPredicatesExec(fs ...func() (predicate.Project, error)) ([]predicate
 }
 
 type ProjectPaging struct {
-	Limit int `form:"limit"`
+	Limit int `form:"limit" json:"limit"`
 
-	Page int `form:"page"`
+	Page int `form:"page" json:"page"`
 }
 
 func (m *ProjectPaging) BindPagingProject(queryer *ent.ProjectQuery) error {
@@ -48,7 +48,7 @@ func (m *ProjectCreateTimeEQ) BindProjectCreateTimeEQ() (predicate.Project, erro
 }
 
 type ProjectCreateTimeOr struct {
-	CreateTimeOr []time.Time `form:"or_create_time"`
+	CreateTimeOr []time.Time `json:"or_create_time" form:"or_create_time"`
 }
 
 func (m *ProjectCreateTimeOr) BindProjectCreateTimeOr() (predicate.Project, error) {
@@ -63,7 +63,7 @@ func (m *ProjectCreateTimeOr) BindProjectCreateTimeOr() (predicate.Project, erro
 }
 
 type ProjectCreateTimeNEQ struct {
-	CreateTimeNEQ *time.Time `form:"neq_create_time"`
+	CreateTimeNEQ *time.Time `json:"neq_create_time" form:"neq_create_time"`
 }
 
 func (m *ProjectCreateTimeNEQ) BindProjectCreateTimeNEQ() (predicate.Project, error) {
@@ -74,7 +74,7 @@ func (m *ProjectCreateTimeNEQ) BindProjectCreateTimeNEQ() (predicate.Project, er
 }
 
 type ProjectCreateTimeIn struct {
-	CreateTimeIn []time.Time `form:"in_create_time"`
+	CreateTimeIn []time.Time `json:"in_create_time" form:"in_create_time"`
 }
 
 func (m *ProjectCreateTimeIn) BindProjectCreateTimeIn() (predicate.Project, error) {
@@ -85,7 +85,7 @@ func (m *ProjectCreateTimeIn) BindProjectCreateTimeIn() (predicate.Project, erro
 }
 
 type ProjectCreateTimeNotIn struct {
-	CreateTimeNotIn []time.Time `form:"not_in_create_time"`
+	CreateTimeNotIn []time.Time `json:"not_in_create_time" form:"not_in_create_time"`
 }
 
 func (m *ProjectCreateTimeNotIn) BindProjectCreateTimeNotIn() (predicate.Project, error) {
@@ -96,7 +96,7 @@ func (m *ProjectCreateTimeNotIn) BindProjectCreateTimeNotIn() (predicate.Project
 }
 
 type ProjectCreateTimeGT struct {
-	CreateTimeGT *time.Time `form:"gt_create_time"`
+	CreateTimeGT *time.Time `json:"gt_create_time" form:"gt_create_time"`
 }
 
 func (m *ProjectCreateTimeGT) BindProjectCreateTimeGT() (predicate.Project, error) {
@@ -107,7 +107,7 @@ func (m *ProjectCreateTimeGT) BindProjectCreateTimeGT() (predicate.Project, erro
 }
 
 type ProjectCreateTimeGTE struct {
-	CreateTimeGTE *time.Time `form:"gte_create_time"`
+	CreateTimeGTE *time.Time `json:"gte_create_time" form:"gte_create_time"`
 }
 
 func (m *ProjectCreateTimeGTE) BindProjectCreateTimeGTE() (predicate.Project, error) {
@@ -118,7 +118,7 @@ func (m *ProjectCreateTimeGTE) BindProjectCreateTimeGTE() (predicate.Project, er
 }
 
 type ProjectCreateTimeLT struct {
-	CreateTimeLT *time.Time `form:"lt_create_time"`
+	CreateTimeLT *time.Time `json:"lt_create_time" form:"lt_create_time"`
 }
 
 func (m *ProjectCreateTimeLT) BindProjectCreateTimeLT() (predicate.Project, error) {
@@ -129,7 +129,7 @@ func (m *ProjectCreateTimeLT) BindProjectCreateTimeLT() (predicate.Project, erro
 }
 
 type ProjectCreateTimeLTE struct {
-	CreateTimeLTE *time.Time `form:"lte_create_time"`
+	CreateTimeLTE *time.Time `json:"lte_create_time" form:"lte_create_time"`
 }
 
 func (m *ProjectCreateTimeLTE) BindProjectCreateTimeLTE() (predicate.Project, error) {
@@ -151,7 +151,7 @@ func (m *ProjectUpdateTimeEQ) BindProjectUpdateTimeEQ() (predicate.Project, erro
 }
 
 type ProjectUpdateTimeOr struct {
-	UpdateTimeOr []time.Time `form:"or_update_time"`
+	UpdateTimeOr []time.Time `json:"or_update_time" form:"or_update_time"`
 }
 
 func (m *ProjectUpdateTimeOr) BindProjectUpdateTimeOr() (predicate.Project, error) {
@@ -166,7 +166,7 @@ func (m *ProjectUpdateTimeOr) BindProjectUpdateTimeOr() (predicate.Project, erro
 }
 
 type ProjectUpdateTimeNEQ struct {
-	UpdateTimeNEQ *time.Time `form:"neq_update_time"`
+	UpdateTimeNEQ *time.Time `json:"neq_update_time" form:"neq_update_time"`
 }
 
 func (m *ProjectUpdateTimeNEQ) BindProjectUpdateTimeNEQ() (predicate.Project, error) {
@@ -177,7 +177,7 @@ func (m *ProjectUpdateTimeNEQ) BindProjectUpdateTimeNEQ() (predicate.Project, er
 }
 
 type ProjectUpdateTimeIn struct {
-	UpdateTimeIn []time.Time `form:"in_update_time"`
+	UpdateTimeIn []time.Time `json:"in_update_time" form:"in_update_time"`
 }
 
 func (m *ProjectUpdateTimeIn) BindProjectUpdateTimeIn() (predicate.Project, error) {
@@ -188,7 +188,7 @@ func (m *ProjectUpdateTimeIn) BindProjectUpdateTimeIn() (predicate.Project, erro
 }
 
 type ProjectUpdateTimeNotIn struct {
-	UpdateTimeNotIn []time.Time `form:"not_in_update_time"`
+	UpdateTimeNotIn []time.Time `json:"not_in_update_time" form:"not_in_update_time"`
 }
 
 func (m *ProjectUpdateTimeNotIn) BindProjectUpdateTimeNotIn() (predicate.Project, error) {
@@ -199,7 +199,7 @@ func (m *ProjectUpdateTimeNotIn) BindProjectUpdateTimeNotIn() (predicate.Project
 }
 
 type ProjectUpdateTimeGT struct {
-	UpdateTimeGT *time.Time `form:"gt_update_time"`
+	UpdateTimeGT *time.Time `json:"gt_update_time" form:"gt_update_time"`
 }
 
 func (m *ProjectUpdateTimeGT) BindProjectUpdateTimeGT() (predicate.Project, error) {
@@ -210,7 +210,7 @@ func (m *ProjectUpdateTimeGT) BindProjectUpdateTimeGT() (predicate.Project, erro
 }
 
 type ProjectUpdateTimeGTE struct {
-	UpdateTimeGTE *time.Time `form:"gte_update_time"`
+	UpdateTimeGTE *time.Time `json:"gte_update_time" form:"gte_update_time"`
 }
 
 func (m *ProjectUpdateTimeGTE) BindProjectUpdateTimeGTE() (predicate.Project, error) {
@@ -221,7 +221,7 @@ func (m *ProjectUpdateTimeGTE) BindProjectUpdateTimeGTE() (predicate.Project, er
 }
 
 type ProjectUpdateTimeLT struct {
-	UpdateTimeLT *time.Time `form:"lt_update_time"`
+	UpdateTimeLT *time.Time `json:"lt_update_time" form:"lt_update_time"`
 }
 
 func (m *ProjectUpdateTimeLT) BindProjectUpdateTimeLT() (predicate.Project, error) {
@@ -232,7 +232,7 @@ func (m *ProjectUpdateTimeLT) BindProjectUpdateTimeLT() (predicate.Project, erro
 }
 
 type ProjectUpdateTimeLTE struct {
-	UpdateTimeLTE *time.Time `form:"lte_update_time"`
+	UpdateTimeLTE *time.Time `json:"lte_update_time" form:"lte_update_time"`
 }
 
 func (m *ProjectUpdateTimeLTE) BindProjectUpdateTimeLTE() (predicate.Project, error) {
@@ -254,7 +254,7 @@ func (m *ProjectNameEQ) BindProjectNameEQ() (predicate.Project, error) {
 }
 
 type ProjectNameOr struct {
-	NameOr []string `form:"or_name"`
+	NameOr []string `json:"or_name" form:"or_name"`
 }
 
 func (m *ProjectNameOr) BindProjectNameOr() (predicate.Project, error) {
@@ -269,7 +269,7 @@ func (m *ProjectNameOr) BindProjectNameOr() (predicate.Project, error) {
 }
 
 type ProjectNameNEQ struct {
-	NameNEQ *string `form:"neq_name"`
+	NameNEQ *string `json:"neq_name" form:"neq_name"`
 }
 
 func (m *ProjectNameNEQ) BindProjectNameNEQ() (predicate.Project, error) {
@@ -280,7 +280,7 @@ func (m *ProjectNameNEQ) BindProjectNameNEQ() (predicate.Project, error) {
 }
 
 type ProjectNameIn struct {
-	NameIn []string `form:"in_name"`
+	NameIn []string `json:"in_name" form:"in_name"`
 }
 
 func (m *ProjectNameIn) BindProjectNameIn() (predicate.Project, error) {
@@ -291,7 +291,7 @@ func (m *ProjectNameIn) BindProjectNameIn() (predicate.Project, error) {
 }
 
 type ProjectNameNotIn struct {
-	NameNotIn []string `form:"not_in_name"`
+	NameNotIn []string `json:"not_in_name" form:"not_in_name"`
 }
 
 func (m *ProjectNameNotIn) BindProjectNameNotIn() (predicate.Project, error) {
@@ -302,7 +302,7 @@ func (m *ProjectNameNotIn) BindProjectNameNotIn() (predicate.Project, error) {
 }
 
 type ProjectNameGT struct {
-	NameGT *string `form:"gt_name"`
+	NameGT *string `json:"gt_name" form:"gt_name"`
 }
 
 func (m *ProjectNameGT) BindProjectNameGT() (predicate.Project, error) {
@@ -313,7 +313,7 @@ func (m *ProjectNameGT) BindProjectNameGT() (predicate.Project, error) {
 }
 
 type ProjectNameGTE struct {
-	NameGTE *string `form:"gte_name"`
+	NameGTE *string `json:"gte_name" form:"gte_name"`
 }
 
 func (m *ProjectNameGTE) BindProjectNameGTE() (predicate.Project, error) {
@@ -324,7 +324,7 @@ func (m *ProjectNameGTE) BindProjectNameGTE() (predicate.Project, error) {
 }
 
 type ProjectNameLT struct {
-	NameLT *string `form:"lt_name"`
+	NameLT *string `json:"lt_name" form:"lt_name"`
 }
 
 func (m *ProjectNameLT) BindProjectNameLT() (predicate.Project, error) {
@@ -335,7 +335,7 @@ func (m *ProjectNameLT) BindProjectNameLT() (predicate.Project, error) {
 }
 
 type ProjectNameLTE struct {
-	NameLTE *string `form:"lte_name"`
+	NameLTE *string `json:"lte_name" form:"lte_name"`
 }
 
 func (m *ProjectNameLTE) BindProjectNameLTE() (predicate.Project, error) {
@@ -346,7 +346,7 @@ func (m *ProjectNameLTE) BindProjectNameLTE() (predicate.Project, error) {
 }
 
 type ProjectNameContains struct {
-	NameContains *string `form:"contains_name"`
+	NameContains *string `json:"contains_name" form:"contains_name"`
 }
 
 func (m *ProjectNameContains) BindProjectNameContains() (predicate.Project, error) {
@@ -357,7 +357,7 @@ func (m *ProjectNameContains) BindProjectNameContains() (predicate.Project, erro
 }
 
 type ProjectNameHasPrefix struct {
-	NameHasPrefix *string `form:"has_prefix_name"`
+	NameHasPrefix *string `json:"has_prefix_name" form:"has_prefix_name"`
 }
 
 func (m *ProjectNameHasPrefix) BindProjectNameHasPrefix() (predicate.Project, error) {
@@ -369,7 +369,7 @@ func (m *ProjectNameHasPrefix) BindProjectNameHasPrefix() (predicate.Project, er
 }
 
 type ProjectNameHasSuffix struct {
-	NameHasSuffix *string `form:"has_suffix_name"`
+	NameHasSuffix *string `json:"has_suffix_name" form:"has_suffix_name"`
 }
 
 func (m *ProjectNameHasSuffix) BindProjectNameHasSuffix() (predicate.Project, error) {

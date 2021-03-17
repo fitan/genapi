@@ -59,29 +59,15 @@
 
 	{{end}}
 	{{ range $e := $n.Edges}}
-	{{if $e.Inverse}}
-	{{else}}
 	{{$a := (PaseRestEdgeMethod $e.Annotations)}}
 	{{range $method, $route := $a}}
-	{{if eq (toString $e.Unique) "true"}}
-	{{if eq $method "Get"}}
-
-	{{end}}
-	{{if eq $method "Create"}}
-	{{end}}
-	{{if eq $method "Delete"}}
-	{{end}}
+    {{if or (ne $method "Create") (and (eq $method "Create") (not $e.Inverse))}}
+	{{if $e.Unique}}
 	r.{{$route}}(curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}Id(c)
 		RestReturnFunc(c, data, err)
 	})
 	{{else}}
-	{{if eq $method "Get"}}
-	{{end}}
-	{{if eq $method "Create"}}
-	{{end}}
-	{{if eq $method "Delete"}}
-	{{end}}
 	r.{{$route}}(curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}Id(c)
 		RestReturnFunc(c, data, err)

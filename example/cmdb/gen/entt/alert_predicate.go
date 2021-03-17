@@ -1,9 +1,9 @@
 package entt
 
 import (
-	"cmdb/ent"
 	"cmdb/ent/alert"
 	"cmdb/ent/predicate"
+	"github.com/gin-gonic/gin"
 )
 
 func AlertPredicatesExec(fs ...func() (predicate.Alert, error)) ([]predicate.Alert, error) {
@@ -21,9 +21,9 @@ func AlertPredicatesExec(fs ...func() (predicate.Alert, error)) ([]predicate.Ale
 }
 
 type AlertPaging struct {
-	Limit int `form:"limit"`
+	Limit int `form:"limit" json:"limit"`
 
-	Page int `form:"page"`
+	Page int `form:"page" json:"page"`
 }
 
 func (m *AlertPaging) BindPagingAlert(queryer *ent.AlertQuery) error {
@@ -46,7 +46,7 @@ func (m *AlertNameEQ) BindAlertNameEQ() (predicate.Alert, error) {
 }
 
 type AlertNameOr struct {
-	NameOr []string `form:"or_name"`
+	NameOr []string `json:"or_name" form:"or_name"`
 }
 
 func (m *AlertNameOr) BindAlertNameOr() (predicate.Alert, error) {
@@ -61,7 +61,7 @@ func (m *AlertNameOr) BindAlertNameOr() (predicate.Alert, error) {
 }
 
 type AlertNameNEQ struct {
-	NameNEQ *string `form:"neq_name"`
+	NameNEQ *string `json:"neq_name" form:"neq_name"`
 }
 
 func (m *AlertNameNEQ) BindAlertNameNEQ() (predicate.Alert, error) {
@@ -72,7 +72,7 @@ func (m *AlertNameNEQ) BindAlertNameNEQ() (predicate.Alert, error) {
 }
 
 type AlertNameIn struct {
-	NameIn []string `form:"in_name"`
+	NameIn []string `json:"in_name" form:"in_name"`
 }
 
 func (m *AlertNameIn) BindAlertNameIn() (predicate.Alert, error) {
@@ -83,7 +83,7 @@ func (m *AlertNameIn) BindAlertNameIn() (predicate.Alert, error) {
 }
 
 type AlertNameNotIn struct {
-	NameNotIn []string `form:"not_in_name"`
+	NameNotIn []string `json:"not_in_name" form:"not_in_name"`
 }
 
 func (m *AlertNameNotIn) BindAlertNameNotIn() (predicate.Alert, error) {
@@ -94,7 +94,7 @@ func (m *AlertNameNotIn) BindAlertNameNotIn() (predicate.Alert, error) {
 }
 
 type AlertNameGT struct {
-	NameGT *string `form:"gt_name"`
+	NameGT *string `json:"gt_name" form:"gt_name"`
 }
 
 func (m *AlertNameGT) BindAlertNameGT() (predicate.Alert, error) {
@@ -105,7 +105,7 @@ func (m *AlertNameGT) BindAlertNameGT() (predicate.Alert, error) {
 }
 
 type AlertNameGTE struct {
-	NameGTE *string `form:"gte_name"`
+	NameGTE *string `json:"gte_name" form:"gte_name"`
 }
 
 func (m *AlertNameGTE) BindAlertNameGTE() (predicate.Alert, error) {
@@ -116,7 +116,7 @@ func (m *AlertNameGTE) BindAlertNameGTE() (predicate.Alert, error) {
 }
 
 type AlertNameLT struct {
-	NameLT *string `form:"lt_name"`
+	NameLT *string `json:"lt_name" form:"lt_name"`
 }
 
 func (m *AlertNameLT) BindAlertNameLT() (predicate.Alert, error) {
@@ -127,7 +127,7 @@ func (m *AlertNameLT) BindAlertNameLT() (predicate.Alert, error) {
 }
 
 type AlertNameLTE struct {
-	NameLTE *string `form:"lte_name"`
+	NameLTE *string `json:"lte_name" form:"lte_name"`
 }
 
 func (m *AlertNameLTE) BindAlertNameLTE() (predicate.Alert, error) {
@@ -138,7 +138,7 @@ func (m *AlertNameLTE) BindAlertNameLTE() (predicate.Alert, error) {
 }
 
 type AlertNameContains struct {
-	NameContains *string `form:"contains_name"`
+	NameContains *string `json:"contains_name" form:"contains_name"`
 }
 
 func (m *AlertNameContains) BindAlertNameContains() (predicate.Alert, error) {
@@ -149,7 +149,7 @@ func (m *AlertNameContains) BindAlertNameContains() (predicate.Alert, error) {
 }
 
 type AlertNameHasPrefix struct {
-	NameHasPrefix *string `form:"has_prefix_name"`
+	NameHasPrefix *string `json:"has_prefix_name" form:"has_prefix_name"`
 }
 
 func (m *AlertNameHasPrefix) BindAlertNameHasPrefix() (predicate.Alert, error) {
@@ -161,7 +161,7 @@ func (m *AlertNameHasPrefix) BindAlertNameHasPrefix() (predicate.Alert, error) {
 }
 
 type AlertNameHasSuffix struct {
-	NameHasSuffix *string `form:"has_suffix_name"`
+	NameHasSuffix *string `json:"has_suffix_name" form:"has_suffix_name"`
 }
 
 func (m *AlertNameHasSuffix) BindAlertNameHasSuffix() (predicate.Alert, error) {

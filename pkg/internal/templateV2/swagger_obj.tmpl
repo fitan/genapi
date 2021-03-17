@@ -11,10 +11,12 @@ type {{$n.Name}}Node struct {
 
 type {{$n.Name}}Edges struct {
     {{range $e := $n.Edges}}
+    {{if $e.Inverse}}
     {{if $e.Unique}}
     {{$e.Type.Name}} *{{$e.Type.Name}}ID `{{$e.StructTag}}`
     {{else}}
     {{plural $e.Type.Name}} []*{{$e.Type.Name}}ID `{{$e.StructTag}}`
+    {{end}}
     {{end}}
     {{end}}
 }

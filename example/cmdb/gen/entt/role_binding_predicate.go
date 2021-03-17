@@ -1,9 +1,9 @@
 package entt
 
 import (
-	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/rolebinding"
+	"github.com/gin-gonic/gin"
 
 	"time"
 )
@@ -23,9 +23,9 @@ func RoleBindingPredicatesExec(fs ...func() (predicate.RoleBinding, error)) ([]p
 }
 
 type RoleBindingPaging struct {
-	Limit int `form:"limit"`
+	Limit int `form:"limit" json:"limit"`
 
-	Page int `form:"page"`
+	Page int `form:"page" json:"page"`
 }
 
 func (m *RoleBindingPaging) BindPagingRoleBinding(queryer *ent.RoleBindingQuery) error {
@@ -48,7 +48,7 @@ func (m *RoleBindingCreateTimeEQ) BindRoleBindingCreateTimeEQ() (predicate.RoleB
 }
 
 type RoleBindingCreateTimeOr struct {
-	CreateTimeOr []time.Time `form:"or_create_time"`
+	CreateTimeOr []time.Time `json:"or_create_time" form:"or_create_time"`
 }
 
 func (m *RoleBindingCreateTimeOr) BindRoleBindingCreateTimeOr() (predicate.RoleBinding, error) {
@@ -63,7 +63,7 @@ func (m *RoleBindingCreateTimeOr) BindRoleBindingCreateTimeOr() (predicate.RoleB
 }
 
 type RoleBindingCreateTimeNEQ struct {
-	CreateTimeNEQ *time.Time `form:"neq_create_time"`
+	CreateTimeNEQ *time.Time `json:"neq_create_time" form:"neq_create_time"`
 }
 
 func (m *RoleBindingCreateTimeNEQ) BindRoleBindingCreateTimeNEQ() (predicate.RoleBinding, error) {
@@ -74,7 +74,7 @@ func (m *RoleBindingCreateTimeNEQ) BindRoleBindingCreateTimeNEQ() (predicate.Rol
 }
 
 type RoleBindingCreateTimeIn struct {
-	CreateTimeIn []time.Time `form:"in_create_time"`
+	CreateTimeIn []time.Time `json:"in_create_time" form:"in_create_time"`
 }
 
 func (m *RoleBindingCreateTimeIn) BindRoleBindingCreateTimeIn() (predicate.RoleBinding, error) {
@@ -85,7 +85,7 @@ func (m *RoleBindingCreateTimeIn) BindRoleBindingCreateTimeIn() (predicate.RoleB
 }
 
 type RoleBindingCreateTimeNotIn struct {
-	CreateTimeNotIn []time.Time `form:"not_in_create_time"`
+	CreateTimeNotIn []time.Time `json:"not_in_create_time" form:"not_in_create_time"`
 }
 
 func (m *RoleBindingCreateTimeNotIn) BindRoleBindingCreateTimeNotIn() (predicate.RoleBinding, error) {
@@ -96,7 +96,7 @@ func (m *RoleBindingCreateTimeNotIn) BindRoleBindingCreateTimeNotIn() (predicate
 }
 
 type RoleBindingCreateTimeGT struct {
-	CreateTimeGT *time.Time `form:"gt_create_time"`
+	CreateTimeGT *time.Time `json:"gt_create_time" form:"gt_create_time"`
 }
 
 func (m *RoleBindingCreateTimeGT) BindRoleBindingCreateTimeGT() (predicate.RoleBinding, error) {
@@ -107,7 +107,7 @@ func (m *RoleBindingCreateTimeGT) BindRoleBindingCreateTimeGT() (predicate.RoleB
 }
 
 type RoleBindingCreateTimeGTE struct {
-	CreateTimeGTE *time.Time `form:"gte_create_time"`
+	CreateTimeGTE *time.Time `json:"gte_create_time" form:"gte_create_time"`
 }
 
 func (m *RoleBindingCreateTimeGTE) BindRoleBindingCreateTimeGTE() (predicate.RoleBinding, error) {
@@ -118,7 +118,7 @@ func (m *RoleBindingCreateTimeGTE) BindRoleBindingCreateTimeGTE() (predicate.Rol
 }
 
 type RoleBindingCreateTimeLT struct {
-	CreateTimeLT *time.Time `form:"lt_create_time"`
+	CreateTimeLT *time.Time `json:"lt_create_time" form:"lt_create_time"`
 }
 
 func (m *RoleBindingCreateTimeLT) BindRoleBindingCreateTimeLT() (predicate.RoleBinding, error) {
@@ -129,7 +129,7 @@ func (m *RoleBindingCreateTimeLT) BindRoleBindingCreateTimeLT() (predicate.RoleB
 }
 
 type RoleBindingCreateTimeLTE struct {
-	CreateTimeLTE *time.Time `form:"lte_create_time"`
+	CreateTimeLTE *time.Time `json:"lte_create_time" form:"lte_create_time"`
 }
 
 func (m *RoleBindingCreateTimeLTE) BindRoleBindingCreateTimeLTE() (predicate.RoleBinding, error) {
@@ -151,7 +151,7 @@ func (m *RoleBindingUpdateTimeEQ) BindRoleBindingUpdateTimeEQ() (predicate.RoleB
 }
 
 type RoleBindingUpdateTimeOr struct {
-	UpdateTimeOr []time.Time `form:"or_update_time"`
+	UpdateTimeOr []time.Time `json:"or_update_time" form:"or_update_time"`
 }
 
 func (m *RoleBindingUpdateTimeOr) BindRoleBindingUpdateTimeOr() (predicate.RoleBinding, error) {
@@ -166,7 +166,7 @@ func (m *RoleBindingUpdateTimeOr) BindRoleBindingUpdateTimeOr() (predicate.RoleB
 }
 
 type RoleBindingUpdateTimeNEQ struct {
-	UpdateTimeNEQ *time.Time `form:"neq_update_time"`
+	UpdateTimeNEQ *time.Time `json:"neq_update_time" form:"neq_update_time"`
 }
 
 func (m *RoleBindingUpdateTimeNEQ) BindRoleBindingUpdateTimeNEQ() (predicate.RoleBinding, error) {
@@ -177,7 +177,7 @@ func (m *RoleBindingUpdateTimeNEQ) BindRoleBindingUpdateTimeNEQ() (predicate.Rol
 }
 
 type RoleBindingUpdateTimeIn struct {
-	UpdateTimeIn []time.Time `form:"in_update_time"`
+	UpdateTimeIn []time.Time `json:"in_update_time" form:"in_update_time"`
 }
 
 func (m *RoleBindingUpdateTimeIn) BindRoleBindingUpdateTimeIn() (predicate.RoleBinding, error) {
@@ -188,7 +188,7 @@ func (m *RoleBindingUpdateTimeIn) BindRoleBindingUpdateTimeIn() (predicate.RoleB
 }
 
 type RoleBindingUpdateTimeNotIn struct {
-	UpdateTimeNotIn []time.Time `form:"not_in_update_time"`
+	UpdateTimeNotIn []time.Time `json:"not_in_update_time" form:"not_in_update_time"`
 }
 
 func (m *RoleBindingUpdateTimeNotIn) BindRoleBindingUpdateTimeNotIn() (predicate.RoleBinding, error) {
@@ -199,7 +199,7 @@ func (m *RoleBindingUpdateTimeNotIn) BindRoleBindingUpdateTimeNotIn() (predicate
 }
 
 type RoleBindingUpdateTimeGT struct {
-	UpdateTimeGT *time.Time `form:"gt_update_time"`
+	UpdateTimeGT *time.Time `json:"gt_update_time" form:"gt_update_time"`
 }
 
 func (m *RoleBindingUpdateTimeGT) BindRoleBindingUpdateTimeGT() (predicate.RoleBinding, error) {
@@ -210,7 +210,7 @@ func (m *RoleBindingUpdateTimeGT) BindRoleBindingUpdateTimeGT() (predicate.RoleB
 }
 
 type RoleBindingUpdateTimeGTE struct {
-	UpdateTimeGTE *time.Time `form:"gte_update_time"`
+	UpdateTimeGTE *time.Time `json:"gte_update_time" form:"gte_update_time"`
 }
 
 func (m *RoleBindingUpdateTimeGTE) BindRoleBindingUpdateTimeGTE() (predicate.RoleBinding, error) {
@@ -221,7 +221,7 @@ func (m *RoleBindingUpdateTimeGTE) BindRoleBindingUpdateTimeGTE() (predicate.Rol
 }
 
 type RoleBindingUpdateTimeLT struct {
-	UpdateTimeLT *time.Time `form:"lt_update_time"`
+	UpdateTimeLT *time.Time `json:"lt_update_time" form:"lt_update_time"`
 }
 
 func (m *RoleBindingUpdateTimeLT) BindRoleBindingUpdateTimeLT() (predicate.RoleBinding, error) {
@@ -232,7 +232,7 @@ func (m *RoleBindingUpdateTimeLT) BindRoleBindingUpdateTimeLT() (predicate.RoleB
 }
 
 type RoleBindingUpdateTimeLTE struct {
-	UpdateTimeLTE *time.Time `form:"lte_update_time"`
+	UpdateTimeLTE *time.Time `json:"lte_update_time" form:"lte_update_time"`
 }
 
 func (m *RoleBindingUpdateTimeLTE) BindRoleBindingUpdateTimeLTE() (predicate.RoleBinding, error) {
@@ -254,7 +254,7 @@ func (m *RoleBindingRoleEQ) BindRoleBindingRoleEQ() (predicate.RoleBinding, erro
 }
 
 type RoleBindingRoleOr struct {
-	RoleOr []rolebinding.Role `form:"or_role"`
+	RoleOr []rolebinding.Role `json:"or_role" form:"or_role"`
 }
 
 func (m *RoleBindingRoleOr) BindRoleBindingRoleOr() (predicate.RoleBinding, error) {
@@ -269,7 +269,7 @@ func (m *RoleBindingRoleOr) BindRoleBindingRoleOr() (predicate.RoleBinding, erro
 }
 
 type RoleBindingRoleNEQ struct {
-	RoleNEQ *rolebinding.Role `form:"neq_role"`
+	RoleNEQ *rolebinding.Role `json:"neq_role" form:"neq_role"`
 }
 
 func (m *RoleBindingRoleNEQ) BindRoleBindingRoleNEQ() (predicate.RoleBinding, error) {
@@ -280,7 +280,7 @@ func (m *RoleBindingRoleNEQ) BindRoleBindingRoleNEQ() (predicate.RoleBinding, er
 }
 
 type RoleBindingRoleIn struct {
-	RoleIn []rolebinding.Role `form:"in_role"`
+	RoleIn []rolebinding.Role `json:"in_role" form:"in_role"`
 }
 
 func (m *RoleBindingRoleIn) BindRoleBindingRoleIn() (predicate.RoleBinding, error) {
@@ -291,7 +291,7 @@ func (m *RoleBindingRoleIn) BindRoleBindingRoleIn() (predicate.RoleBinding, erro
 }
 
 type RoleBindingRoleNotIn struct {
-	RoleNotIn []rolebinding.Role `form:"not_in_role"`
+	RoleNotIn []rolebinding.Role `json:"not_in_role" form:"not_in_role"`
 }
 
 func (m *RoleBindingRoleNotIn) BindRoleBindingRoleNotIn() (predicate.RoleBinding, error) {

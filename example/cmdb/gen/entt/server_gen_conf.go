@@ -4,12 +4,23 @@ import (
 	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/server"
+	"github.com/gin-gonic/gin"
 )
 
 func ServerSelete(queryer *ent.ServerQuery) {
 	queryer.Select(
 
+		server.FieldCreateTime,
+
+		server.FieldUpdateTime,
+
 		server.FieldIP,
+
+		server.FieldMachineType,
+
+		server.FieldPlatformType,
+
+		server.FieldSystemType,
 	)
 }
 

@@ -2,13 +2,12 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/rolebinding"
-	"cmdb/ent/server"
+	"cmdb/ent/predicate"
 	"cmdb/ent/service"
 	"context"
 	"fmt"
-
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 type ServiceCURD struct {
@@ -96,6 +95,16 @@ func (curd *ServiceCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, data, err)
 		})
 
+		r.DELETE(curd.DeleteOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.DeleteOneProjectByServiceId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.GET(curd.GetOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.GetOneProjectByServiceId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 	case *gin.RouterGroup:
 		r := router.(*gin.RouterGroup)
 
@@ -166,6 +175,16 @@ func (curd *ServiceCURD) RegisterRouter(router interface{}) {
 
 		r.GET(curd.GetListServersByServiceIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.GetListServersByServiceId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.DELETE(curd.DeleteOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.DeleteOneProjectByServiceId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.GET(curd.GetOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.GetOneProjectByServiceId(c)
 			RestReturnFunc(c, data, err)
 		})
 
@@ -678,4 +697,35 @@ func (curd *ServiceCURD) DeleteListServersByServiceId(c *gin.Context) (int, erro
 	}
 
 	return curd.Db.Server.Delete().Where(server.IDIn(ids...)).Exec(context.Background())
+}
+
+func (curd *ServiceCURD) GetOneProjectByServiceIdRoutePath() string {
+	return "/service/:id/project"
+}
+
+func (curd *ServiceCURD) GetOneProjectByServiceId(c *gin.Context) (*ent.Project, error) {
+	queryer, err := curd.defaultGetOneQueryer(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return queryer.QueryProject().First(context.Background())
+}
+
+func (curd *ServiceCURD) DeleteOneProjectByServiceIdRoutePath() string {
+	return "/service/:id/project"
+}
+
+func (curd *ServiceCURD) DeleteOneProjectByServiceId(c *gin.Context) (int, error) {
+	queryer, err := curd.defaultGetOneQueryer(c)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := queryer.QueryProject().OnlyID(context.Background())
+	if err != nil {
+		return 0, err
+	}
+
+	return curd.Db.Project.Delete().Where(project.IDEQ(id)).Exec(context.Background())
 }

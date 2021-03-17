@@ -4,6 +4,7 @@ import (
 	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/rolebinding"
+	"github.com/gin-gonic/gin"
 )
 
 func RoleBindingSelete(queryer *ent.RoleBindingQuery) {

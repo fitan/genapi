@@ -4,6 +4,7 @@ import (
 	"cmdb/ent"
 	"cmdb/ent/alert"
 	"cmdb/ent/predicate"
+	"github.com/gin-gonic/gin"
 )
 
 func AlertSelete(queryer *ent.AlertQuery) {

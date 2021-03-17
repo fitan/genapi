@@ -111,6 +111,8 @@ func {{$n.Name}}{{$method}}(c *gin.Context) {
 // @Router /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [get]
 	{{- end}}
 {{- if eq $method "Create"}}
+	{{- if $e.Inverse}}
+	{{- else}}
 // @Summary create one {{snake $e.Type.Name}}
 // @Accept  json
 // @Produce  json
@@ -119,6 +121,7 @@ func {{$n.Name}}{{$method}}(c *gin.Context) {
 // @Param body body  {{$e.Type.Name}}NodeNotID true " "
 // @Success 200 {object} RestReturn{data={{$e.Type.Name}}Node}
 // @Router /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [post]
+	{{- end}}
 	{{- end}}
 	{{- if eq $method "Delete"}}
 // @Summary delete one {{snake $e.Type.Name}}
@@ -142,7 +145,11 @@ func {{$method}}One{{$e.Type.Name}}By{{$n.Name}}(c *gin.Context) {
 // @Success 200 {object} RestReturn{data=[]{{$e.Type.Name}}Node}
 // @Router /{{snake $n.Name}}/{id}/{{snake (plural $e.Type.Name)}} [get]
 	{{- end}}
+	{{- if $e.Inverse}}
+	{{- else}}
 	{{- if eq $method "Create"}}
+	{{- if $e.Inverse}}
+	{{- else}}
 // @Summary create list {{snake $e.Type.Name}}
 // @Accept  json
 // @Produce  json
@@ -151,6 +158,8 @@ func {{$method}}One{{$e.Type.Name}}By{{$n.Name}}(c *gin.Context) {
 // @Param body body  []{{$e.Type.Name}}NodeNotID true " "
 // @Success 200 {object} RestReturn{data=[]{{$e.Type.Name}}NodeNotID}
 // @Router /{{snake $n.Name}}/{id}/{{snake (plural $e.Type.Name)}} [post]
+    {{- end}}
+    {{- end}}
 	{{- end}}
 	{{- if eq $method "Delete"}}
 // @Summary delete one {{snake $e.Type.Name}}

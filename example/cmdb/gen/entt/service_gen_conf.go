@@ -4,6 +4,7 @@ import (
 	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/service"
+	"github.com/gin-gonic/gin"
 )
 
 func ServiceSelete(queryer *ent.ServiceQuery) {

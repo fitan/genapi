@@ -2,13 +2,12 @@ package entt
 
 import (
 	"cmdb/ent"
+	"cmdb/ent/predicate"
 	"cmdb/ent/project"
-	"cmdb/ent/rolebinding"
-	"cmdb/ent/service"
 	"context"
 	"fmt"
-
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 type ProjectCURD struct {
