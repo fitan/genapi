@@ -1,6 +1,10 @@
 package entt
 
-import "github.com/gin-gonic/gin"
+import (
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
 
 type ProjectID struct {
 	ID int `json:"id,omitempty"`
@@ -22,6 +26,7 @@ type ProjectNodeNotID struct {
 }
 
 type ProjectQuery struct {
+	Includes []string `json:"includes" form:"includes" enums:"role_binding.service,role_binding.user,service.server,service.role_binding,role_binding,role_binding.service.server,role_binding.user.alert,service,service.role_binding.user,service.role_binding.user.alert"`
 }
 
 // @Summary create one project

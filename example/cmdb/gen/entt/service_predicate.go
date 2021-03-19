@@ -1,9 +1,9 @@
 package entt
 
 import (
+	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/service"
-	"github.com/gin-gonic/gin"
 
 	"time"
 )

@@ -371,7 +371,8 @@ func (curd *{{$n.Name}}CURD) DeleteList(c *gin.Context) (int, error) {
 }
 
 {{ range $e := $n.Edges}}
-{{if $e.Unique}}
+{{$rel := PaseRelType $e}}
+{{if eq $rel.Dest "O"}}
 
 func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}IdRoutePath() string {
 	return "/{{snake $n.Name}}/:id/{{snake $e.Type.Name}}"
@@ -387,8 +388,8 @@ func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Contex
 	return queryer.Query{{$e.Type.Name}}().First(context.Background())
 }
 
-{{if $e.Inverse}}
-{{else}}
+
+// {{$e.Rel.Type}}
 func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}IdRoutePath() string {
 	return "/{{snake $n.Name}}/:id/{{snake $e.Type.Name}}"
 }
@@ -399,13 +400,13 @@ func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Con
 		return nil, err
 	}
 
-	{{snake $n.Name}}Creater, err := curd.{{$e.Type.Name}}Obj.defaultCreateOneCreater(c)
+	{{snake $e.Type.Name}}Creater, err := curd.{{$e.Type.Name}}Obj.defaultCreateOneCreater(c)
 	if err != nil {
 		return nil, err
 	}
-	return {{snake $n.Name}}Creater.Set{{$n.Name}}ID(id.ID).Save(context.Background())
+	return {{snake $e.Type.Name}}Creater.{{if eq $rel.Src "M"}}Add{{$n.Name}}IDs(id.ID){{else}}Set{{$n.Name}}ID(id.ID){{end}}.Save(context.Background())
 }
-{{end}}
+
 
 func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}IdRoutePath() string {
 	return "/{{snake $n.Name}}/:id/{{snake $e.Type.Name}}"
@@ -456,8 +457,7 @@ func (curd *{{$n.Name}}CURD) GetList{{plural $e.Type.Name}}By{{$n.Name}}Id(c *gi
 
 }
 
-{{if $e.Inverse}}
-{{else}}
+// {{$e.Rel.Type}}
 func (curd *{{$n.Name}}CURD) CreateList{{plural $e.Type.Name}}By{{$n.Name}}IdRoutePath() string {
 	return "/{{snake $n.Name}}/:id/{{snake (plural $e.Type.Name)}}"
 }
@@ -500,7 +500,6 @@ func (curd *{{$n.Name}}CURD) CreateList{{plural $e.Type.Name}}By{{$n.Name}}Id(c 
 	}
 	return {{snake (plural $e.Type.Name)}}, tx.Commit()
 }
-{{end}}
 
 func (curd *{{$n.Name}}CURD) DeleteList{{plural $e.Type.Name}}By{{$n.Name}}IdRoutePath() string {
 	return "/{{snake $n.Name}}/:id/{{plural (snake $e.Type.Name)}}"
@@ -530,6 +529,6 @@ func (curd *{{$n.Name}}CURD) DeleteList{{plural $e.Type.Name}}By{{$n.Name}}Id(c 
 	return curd.Db.{{$e.Type.Name}}.Delete().Where({{lower $e.Type.Name}}.IDIn(ids...)).Exec(context.Background())
 }
 {{end}}
-
 {{end}}
+
 {{end}}

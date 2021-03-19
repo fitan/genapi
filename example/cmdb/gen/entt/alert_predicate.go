@@ -1,9 +1,9 @@
 package entt
 
 import (
+	"cmdb/ent"
 	"cmdb/ent/alert"
 	"cmdb/ent/predicate"
-	"github.com/gin-gonic/gin"
 )
 
 func AlertPredicatesExec(fs ...func() (predicate.Alert, error)) ([]predicate.Alert, error) {

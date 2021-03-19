@@ -20,6 +20,7 @@ type AlertNodeNotID struct {
 }
 
 type AlertQuery struct {
+	Includes []string `json:"includes" form:"includes" enums:""`
 }
 
 // @Summary create one alert

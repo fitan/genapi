@@ -4,8 +4,11 @@ import (
 	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/server"
-	"github.com/gin-gonic/gin"
 )
+
+type ServerIncludes struct {
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service.role_binding.user.alert service.role_binding service service.project.role_binding.user service.project.role_binding.user.alert service.project.role_binding service.project service.role_binding.project"`
+}
 
 func ServerSelete(queryer *ent.ServerQuery) {
 	queryer.Select(
@@ -69,6 +72,7 @@ func ServerGetIDs(servers ent.Servers) []int {
 }
 
 type ServerDefaultQuery struct {
+	ServerIncludes
 }
 
 func (s *ServerDefaultQuery) PredicatesExec() ([]predicate.Server, error) {
@@ -80,6 +84,7 @@ func (s *ServerDefaultQuery) Exec(queryer *ent.ServerQuery) error {
 	if err != nil {
 		return err
 	}
+	QueryerIncludes(queryer, s.Includes)
 
 	queryer.Where(server.And(ps...))
 

@@ -1,5 +1,5 @@
 {{define "swaggerobj"}}
-{{$n := .}}
+{{range $n := $.Nodes}}
 type {{$n.Name}}ID struct {
     ID {{ $n.ID.Type }} {{ with $n.Annotations.Fields.StructTag.id }}`{{ . }}`{{ else }}`{{ $n.ID.StructTag }}`{{ end }}
 }
@@ -31,6 +31,7 @@ type {{$n.Name}}NodeNotID struct {
 }
 
 type {{$n.Name}}Query struct {
+    Includes []string `json:"includes" form:"includes" enums:"{{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v ","}}{{end}}{{end}}"`
 {{range $f := $n.Fields}}
 {{$a := (PaseRestFieldQueryOp $f.Annotations)}}
 {{range $method := $a}}
@@ -42,4 +43,5 @@ type {{$n.Name}}Query struct {
     {{$n.Name}}Paging
     {{end}}
 }
+{{end}}
 {{end}}

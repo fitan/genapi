@@ -10,6 +10,10 @@ import (
 )
 
 {{ range $n := $.Nodes }}
+type {{$n.Name}}Includes struct {
+    Includes []string `form:"includes" json:"includes" binding:"dive,oneof={{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v " "}}{{end}}{{end}}"`
+}
+
 func {{$n.Name}}Selete(queryer *ent.{{$n.Name}}Query)  {
 	queryer.Select(
 	{{range $f := $n.Fields}}
@@ -64,6 +68,7 @@ func {{$n.Name}}GetIDs({{snake (plural $n.Name)}} ent.{{plural $n.Name}}) []int 
 
 
 type {{$n.Name}}DefaultQuery struct {
+    {{$n.Name}}Includes
     {{range $f := $n.Fields}}
     {{$a := (PaseRestFieldQueryOp $f.Annotations)}}
     {{range $method := $a}}
@@ -107,6 +112,7 @@ func ({{$receiver}} *{{$n.Name}}DefaultQuery) Exec(queryer *ent.{{$n.Name}}Query
     if err != nil {
         return err
     }
+    QueryerIncludes(queryer, {{$receiver}}.Includes)
 
     queryer.Where({{lower $n.Name}}.And(ps...))
 

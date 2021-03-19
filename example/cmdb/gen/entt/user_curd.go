@@ -2,12 +2,13 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/predicate"
+	"cmdb/ent/alert"
+	"cmdb/ent/rolebinding"
 	"cmdb/ent/user"
 	"context"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type UserCURD struct {
@@ -448,6 +449,7 @@ func (curd *UserCURD) GetListRoleBindingsByUserId(c *gin.Context) ([]*ent.RoleBi
 
 }
 
+// O2M
 func (curd *UserCURD) CreateListRoleBindingsByUserIdRoutePath() string {
 	return "/user/:id/role_bindings"
 }
@@ -546,6 +548,7 @@ func (curd *UserCURD) GetListAlertsByUserId(c *gin.Context) ([]*ent.Alert, error
 
 }
 
+// O2M
 func (curd *UserCURD) CreateListAlertsByUserIdRoutePath() string {
 	return "/user/:id/alerts"
 }

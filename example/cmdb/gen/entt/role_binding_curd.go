@@ -2,12 +2,14 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/predicate"
+	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
+	"cmdb/ent/service"
+	"cmdb/ent/user"
 	"context"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type RoleBindingCURD struct {
@@ -65,6 +67,11 @@ func (curd *RoleBindingCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, "", err)
 		})
 
+		r.POST(curd.CreateOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateOneProjectByRoleBindingId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 		r.DELETE(curd.DeleteOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.DeleteOneProjectByRoleBindingId(c)
 			RestReturnFunc(c, data, err)
@@ -75,6 +82,11 @@ func (curd *RoleBindingCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, data, err)
 		})
 
+		r.POST(curd.CreateOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateOneServiceByRoleBindingId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 		r.DELETE(curd.DeleteOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.DeleteOneServiceByRoleBindingId(c)
 			RestReturnFunc(c, data, err)
@@ -82,6 +94,11 @@ func (curd *RoleBindingCURD) RegisterRouter(router interface{}) {
 
 		r.GET(curd.GetOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.GetOneServiceByRoleBindingId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.POST(curd.CreateOneUserByRoleBindingIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateOneUserByRoleBindingId(c)
 			RestReturnFunc(c, data, err)
 		})
 
@@ -138,6 +155,11 @@ func (curd *RoleBindingCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, "", err)
 		})
 
+		r.POST(curd.CreateOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateOneProjectByRoleBindingId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 		r.DELETE(curd.DeleteOneProjectByRoleBindingIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.DeleteOneProjectByRoleBindingId(c)
 			RestReturnFunc(c, data, err)
@@ -148,6 +170,11 @@ func (curd *RoleBindingCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, data, err)
 		})
 
+		r.POST(curd.CreateOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateOneServiceByRoleBindingId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 		r.DELETE(curd.DeleteOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.DeleteOneServiceByRoleBindingId(c)
 			RestReturnFunc(c, data, err)
@@ -155,6 +182,11 @@ func (curd *RoleBindingCURD) RegisterRouter(router interface{}) {
 
 		r.GET(curd.GetOneServiceByRoleBindingIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.GetOneServiceByRoleBindingId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.POST(curd.CreateOneUserByRoleBindingIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateOneUserByRoleBindingId(c)
 			RestReturnFunc(c, data, err)
 		})
 
@@ -496,6 +528,24 @@ func (curd *RoleBindingCURD) GetOneProjectByRoleBindingId(c *gin.Context) (*ent.
 	return queryer.QueryProject().First(context.Background())
 }
 
+// M2O
+func (curd *RoleBindingCURD) CreateOneProjectByRoleBindingIdRoutePath() string {
+	return "/role_binding/:id/project"
+}
+
+func (curd *RoleBindingCURD) CreateOneProjectByRoleBindingId(c *gin.Context) (*ent.Project, error) {
+	id, err := BindId(c)
+	if err != nil {
+		return nil, err
+	}
+
+	projectCreater, err := curd.ProjectObj.defaultCreateOneCreater(c)
+	if err != nil {
+		return nil, err
+	}
+	return projectCreater.AddRoleBindingIDs(id.ID).Save(context.Background())
+}
+
 func (curd *RoleBindingCURD) DeleteOneProjectByRoleBindingIdRoutePath() string {
 	return "/role_binding/:id/project"
 }
@@ -527,6 +577,24 @@ func (curd *RoleBindingCURD) GetOneServiceByRoleBindingId(c *gin.Context) (*ent.
 	return queryer.QueryService().First(context.Background())
 }
 
+// M2O
+func (curd *RoleBindingCURD) CreateOneServiceByRoleBindingIdRoutePath() string {
+	return "/role_binding/:id/service"
+}
+
+func (curd *RoleBindingCURD) CreateOneServiceByRoleBindingId(c *gin.Context) (*ent.Service, error) {
+	id, err := BindId(c)
+	if err != nil {
+		return nil, err
+	}
+
+	serviceCreater, err := curd.ServiceObj.defaultCreateOneCreater(c)
+	if err != nil {
+		return nil, err
+	}
+	return serviceCreater.AddRoleBindingIDs(id.ID).Save(context.Background())
+}
+
 func (curd *RoleBindingCURD) DeleteOneServiceByRoleBindingIdRoutePath() string {
 	return "/role_binding/:id/service"
 }
@@ -556,6 +624,24 @@ func (curd *RoleBindingCURD) GetOneUserByRoleBindingId(c *gin.Context) (*ent.Use
 	}
 
 	return queryer.QueryUser().First(context.Background())
+}
+
+// M2O
+func (curd *RoleBindingCURD) CreateOneUserByRoleBindingIdRoutePath() string {
+	return "/role_binding/:id/user"
+}
+
+func (curd *RoleBindingCURD) CreateOneUserByRoleBindingId(c *gin.Context) (*ent.User, error) {
+	id, err := BindId(c)
+	if err != nil {
+		return nil, err
+	}
+
+	userCreater, err := curd.UserObj.defaultCreateOneCreater(c)
+	if err != nil {
+		return nil, err
+	}
+	return userCreater.AddRoleBindingIDs(id.ID).Save(context.Background())
 }
 
 func (curd *RoleBindingCURD) DeleteOneUserByRoleBindingIdRoutePath() string {

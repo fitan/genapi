@@ -62,7 +62,8 @@ type tmplMsg struct {
 
 type GPacking struct {
 	gen.Graph
-	PkgName string
+	PkgName  string
+	Includes map[string][]string
 }
 
 func (t *tmplMsg) NameFormat(s string) string {
@@ -121,8 +122,9 @@ func Load(schemaPath string, dest string) {
 		log.Fatalln(err.Error())
 	}
 	gPacking := GPacking{
-		Graph:   *g,
-		PkgName: path.Base(dest),
+		Graph:    *g,
+		PkgName:  path.Base(dest),
+		Includes: PaseGraphInclude(*g),
 	}
 
 	assets := assets{

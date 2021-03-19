@@ -215,6 +215,17 @@ var doc = `{
                     "Alert"
                 ],
                 "summary": "get list alert",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -573,6 +584,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -673,6 +693,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -716,6 +745,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -816,6 +854,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -852,6 +899,17 @@ var doc = `{
                     "Project"
                 ],
                 "summary": "get list project",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1455,6 +1513,17 @@ var doc = `{
                     "RoleBinding"
                 ],
                 "summary": "get list role_binding",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1813,6 +1882,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1857,6 +1935,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1893,6 +1980,17 @@ var doc = `{
                     "Server"
                 ],
                 "summary": "get list server",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2335,6 +2433,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2435,6 +2542,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2478,6 +2594,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2578,6 +2703,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2614,6 +2748,17 @@ var doc = `{
                     "Service"
                 ],
                 "summary": "get list service",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2836,6 +2981,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2936,6 +3090,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2979,6 +3142,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3079,6 +3251,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3128,6 +3309,15 @@ var doc = `{
                         },
                         "collectionFormat": "multi",
                         "name": "in_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
                         "in": "query"
                     },
                     {

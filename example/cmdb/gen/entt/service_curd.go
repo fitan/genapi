@@ -2,12 +2,14 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/predicate"
+	"cmdb/ent/project"
+	"cmdb/ent/rolebinding"
+	"cmdb/ent/server"
 	"cmdb/ent/service"
 	"context"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type ServiceCURD struct {
@@ -95,6 +97,11 @@ func (curd *ServiceCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, data, err)
 		})
 
+		r.POST(curd.CreateOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateOneProjectByServiceId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 		r.DELETE(curd.DeleteOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.DeleteOneProjectByServiceId(c)
 			RestReturnFunc(c, data, err)
@@ -175,6 +182,11 @@ func (curd *ServiceCURD) RegisterRouter(router interface{}) {
 
 		r.GET(curd.GetListServersByServiceIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.GetListServersByServiceId(c)
+			RestReturnFunc(c, data, err)
+		})
+
+		r.POST(curd.CreateOneProjectByServiceIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateOneProjectByServiceId(c)
 			RestReturnFunc(c, data, err)
 		})
 
@@ -530,6 +542,7 @@ func (curd *ServiceCURD) GetListRoleBindingsByServiceId(c *gin.Context) ([]*ent.
 
 }
 
+// O2M
 func (curd *ServiceCURD) CreateListRoleBindingsByServiceIdRoutePath() string {
 	return "/service/:id/role_bindings"
 }
@@ -628,6 +641,7 @@ func (curd *ServiceCURD) GetListServersByServiceId(c *gin.Context) ([]*ent.Serve
 
 }
 
+// M2M
 func (curd *ServiceCURD) CreateListServersByServiceIdRoutePath() string {
 	return "/service/:id/servers"
 }
@@ -710,6 +724,24 @@ func (curd *ServiceCURD) GetOneProjectByServiceId(c *gin.Context) (*ent.Project,
 	}
 
 	return queryer.QueryProject().First(context.Background())
+}
+
+// M2O
+func (curd *ServiceCURD) CreateOneProjectByServiceIdRoutePath() string {
+	return "/service/:id/project"
+}
+
+func (curd *ServiceCURD) CreateOneProjectByServiceId(c *gin.Context) (*ent.Project, error) {
+	id, err := BindId(c)
+	if err != nil {
+		return nil, err
+	}
+
+	projectCreater, err := curd.ProjectObj.defaultCreateOneCreater(c)
+	if err != nil {
+		return nil, err
+	}
+	return projectCreater.AddServiceIDs(id.ID).Save(context.Background())
 }
 
 func (curd *ServiceCURD) DeleteOneProjectByServiceIdRoutePath() string {

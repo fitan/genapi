@@ -61,7 +61,7 @@
 	{{ range $e := $n.Edges}}
 	{{$a := (PaseRestEdgeMethod $e.Annotations)}}
 	{{range $method, $route := $a}}
-    {{if or (ne $method "Create") (and (eq $method "Create") (not $e.Inverse))}}
+{{/*    {{if or (ne $method "Create") (and (eq $method "Create") (not $e.Inverse))}}*/}}
 	{{if $e.Unique}}
 	r.{{$route}}(curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
 		data, err := curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}Id(c)
@@ -74,6 +74,6 @@
 	})
 	{{end}}
 	{{end}}
-	{{end}}
+{{/*	{{end}}*/}}
 	{{end}}
 {{end}}

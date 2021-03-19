@@ -1,6 +1,11 @@
 package entt
 
-import "github.com/gin-gonic/gin"
+import (
+	"cmdb/ent/server"
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
 
 type ServerID struct {
 	ID int `json:"id,omitempty"`
@@ -26,6 +31,7 @@ type ServerNodeNotID struct {
 }
 
 type ServerQuery struct {
+	Includes []string `json:"includes" form:"includes" enums:"service.role_binding.user.alert,service.role_binding,service,service.project.role_binding.user,service.project.role_binding.user.alert,service.project.role_binding,service.project,service.role_binding.project"`
 }
 
 // @Summary create one server

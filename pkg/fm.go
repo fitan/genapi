@@ -3,7 +3,6 @@ package pkg
 import (
 	"encoding/json"
 	"entgo.io/ent/entc/gen"
-	"fmt"
 	"log"
 	"strings"
 	"text/template"
@@ -20,6 +19,8 @@ var FM = template.FuncMap{
 	"PaseFieldIsEnum":          PaseFieldIsEnum,
 	"PaseRestEdgeInclude":      PaseRestEdgeInclude,
 	"PaseGraphInclude":         PaseGraphInclude,
+	"IncludesTo":               IncludesTo,
+	"PaseRelType":              PaseRelType,
 }
 
 func OpsString(ops []gen.Op) []string {
@@ -341,16 +342,27 @@ func GetInclude(m map[string]map[string]interface{}, node string, l []string, re
 	}
 }
 
+func IncludesTo(include []string, symbol string) string {
+	tmp := make([]string, 0, len(include))
+	for _, v := range include {
+		tmpInclude := strings.Split(v, ".")[1:]
+		if len(tmpInclude) != 0 {
+			tmp = append(tmp, strings.Join(tmpInclude, "."))
+		}
+	}
+	return strings.Join(tmp, symbol)
+}
+
 func PaseGraphInclude(g gen.Graph) map[string][]string {
 	includeMap := make(map[string]map[string]interface{})
 	for _, node := range g.Nodes {
 		for _, edge := range node.Edges {
 			has := PaseRestEdgeInclude(edge.Annotations)
 			if has {
-				if _, ok := includeMap[node.Name]; ok {
-					includeMap[node.Name][edge.Type.Name] = struct{}{}
+				if _, ok := includeMap[Snake(node.Name)]; ok {
+					includeMap[Snake(node.Name)][Snake(edge.Type.Name)] = struct{}{}
 				} else {
-					includeMap[node.Name] = map[string]interface{}{edge.Type.Name: struct{}{}}
+					includeMap[Snake(node.Name)] = map[string]interface{}{Snake(edge.Type.Name): struct{}{}}
 				}
 			}
 		}
@@ -375,7 +387,6 @@ func PaseGraphInclude(g gen.Graph) map[string][]string {
 			tmpK = append(tmpK, k)
 		}
 
-		fmt.Println(tmpK)
 		includeK[node] = tmpK
 	}
 	return includeK
@@ -445,4 +456,24 @@ func PaseFieldIsEnum(f *gen.Field) EnumData {
 		Has:    f.IsEnum(),
 		Values: strings.Join(f.EnumValues(), ","),
 	}
+}
+
+func Snake(s string) string {
+	return gen.Funcs["snake"].(func(string) string)(s)
+}
+
+func PaseRelType(e *gen.Edge) struct {
+	Src  string
+	Dest string
+} {
+	if len(e.Rel.Type.String()) != 3 {
+		log.Fatalf("Edge Name %v Not Find X2X", e.Name)
+	}
+	var res struct {
+		Src  string
+		Dest string
+	}
+	res.Dest = e.Rel.Type.String()[len(e.Rel.Type.String())-1:]
+	res.Src = e.Rel.Type.String()[0:1]
+	return res
 }

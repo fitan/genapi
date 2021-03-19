@@ -6,6 +6,10 @@ import (
 	"cmdb/ent/user"
 )
 
+type UserIncludes struct {
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=role_binding.service role_binding.service.project role_binding alert role_binding.project role_binding.project.service role_binding.project.service.server"`
+}
+
 func UserSelete(queryer *ent.UserQuery) {
 	queryer.Select(
 
@@ -14,10 +18,6 @@ func UserSelete(queryer *ent.UserQuery) {
 		user.FieldUpdateTime,
 
 		user.FieldName,
-
-		user.FieldPassword,
-
-		user.FieldEmail,
 
 		user.FieldPhone,
 
@@ -70,10 +70,26 @@ func UserGetIDs(users ent.Users) []int {
 }
 
 type UserDefaultQuery struct {
+	UserIncludes
+
+	UserNameEQ
+
+	UserNameIn
+
+	UserNameNotIn
+
+	UserPaging
 }
 
 func (u *UserDefaultQuery) PredicatesExec() ([]predicate.User, error) {
-	return UserPredicatesExec()
+	return UserPredicatesExec(
+
+		u.BindUserNameEQ,
+
+		u.BindUserNameIn,
+
+		u.BindUserNameNotIn,
+	)
 }
 
 func (u *UserDefaultQuery) Exec(queryer *ent.UserQuery) error {
@@ -81,8 +97,11 @@ func (u *UserDefaultQuery) Exec(queryer *ent.UserQuery) error {
 	if err != nil {
 		return err
 	}
+	QueryerIncludes(queryer, u.Includes)
 
 	queryer.Where(user.And(ps...))
+
+	u.BindPagingUser(queryer)
 
 	return nil
 }

@@ -17,9 +17,6 @@ type UserNode struct {
 }
 
 type UserEdges struct {
-	RoleBindings []*RoleBindingID `json:"role_bindings,omitempty"`
-
-	Alerts []*AlertID `json:"alerts,omitempty"`
 }
 
 type UserNodeNotID struct {
@@ -34,46 +31,13 @@ type UserNodeNotID struct {
 }
 
 type UserQuery struct {
-}
+	Includes []string `json:"includes" form:"includes" enums:"role_binding.service,role_binding.service.project,role_binding,alert,role_binding.project,role_binding.project.service,role_binding.project.service.server"`
 
-// @Summary create one user
-// @Accept  json
-// @Produce  json
-// @Tags User
-// @Param body body UserNodeNotID true " "
-// @Success 200 {object} RestReturn{data=UserNode}
-// @Router /user [post]
-func UserCreateOne(c *gin.Context) {
-}
+	UserNameEQ
+	UserNameIn
+	UserNameNotIn
 
-// @Summary create list user
-// @Accept  json
-// @Produce  json
-// @Tags User
-// @Param body body []UserNode true " "
-// @Success 200 {object} RestReturn{data=[]UserNodeNotID}
-// @Router /users [post]
-func UserCreateList(c *gin.Context) {
-}
-
-// @Summary delete one user
-// @Accept  json
-// @Produce  json
-// @Tags User
-// @Param id path int true " "
-// @Success 200 {object} RestReturn{data=UserNode}
-// @Router /user/{id} [delete]
-func UserDeleteOne(c *gin.Context) {
-}
-
-// @Summary delete list user
-// @Accept  json
-// @Produce  json
-// @Tags User
-// @Param ids query IdsQuery true " "
-// @Success 200 {object} RestReturn{data=UserNode}
-// @Router /users [delete]
-func UserDeleteList(c *gin.Context) {
+	UserPaging
 }
 
 // @Summary get one user
@@ -95,27 +59,6 @@ func UserGetOne(c *gin.Context) {
 // @Success 200 {object} RestReturn{data=GetUserListData}
 // @Router /users [get]
 func UserGetList(c *gin.Context) {
-}
-
-// @Summary update one user
-// @Accept  json
-// @Produce  json
-// @Tags User
-// @Param id path int true " "
-// @Param body body UserNodeNotID true " "
-// @Success 200 {object} RestReturn{data=UserNode}
-// @Router /user/{id} [put]
-func UserUpdateOne(c *gin.Context) {
-}
-
-// @Summary update list user
-// @Accept  json
-// @Produce  json
-// @Tags User
-// @Param body body []UserNode true " "
-// @Success 200 {object} RestReturn{data=UserNode}
-// @Router /users [put]
-func UserUpdateList(c *gin.Context) {
 }
 
 // @Summary create list role_binding

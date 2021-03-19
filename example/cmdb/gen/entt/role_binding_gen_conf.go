@@ -4,8 +4,11 @@ import (
 	"cmdb/ent"
 	"cmdb/ent/predicate"
 	"cmdb/ent/rolebinding"
-	"github.com/gin-gonic/gin"
 )
+
+type RoleBindingIncludes struct {
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=project project.service project.service.server service service.server service.project user user.alert"`
+}
 
 func RoleBindingSelete(queryer *ent.RoleBindingQuery) {
 	queryer.Select(
@@ -59,6 +62,7 @@ func RoleBindingGetIDs(role_bindings ent.RoleBindings) []int {
 }
 
 type RoleBindingDefaultQuery struct {
+	RoleBindingIncludes
 }
 
 func (rb *RoleBindingDefaultQuery) PredicatesExec() ([]predicate.RoleBinding, error) {
@@ -70,6 +74,7 @@ func (rb *RoleBindingDefaultQuery) Exec(queryer *ent.RoleBindingQuery) error {
 	if err != nil {
 		return err
 	}
+	QueryerIncludes(queryer, rb.Includes)
 
 	queryer.Where(rolebinding.And(ps...))
 

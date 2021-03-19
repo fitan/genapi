@@ -106,20 +106,19 @@ func QueryerIncludes(queryer interface{}, includes []string)  {
 	{{end}}
 	}
 }
-{{PaseGraphInclude $.Graph}}
 
-var CheckIncludeMap map[string]string
+{{/*var CheckIncludeMap map[string]string*/}}
 
-func Init()  {
-	checkIncludeMap := make(map[string]string,0)
-	checkIncludeMap[user.Label] = rolebinding.Label
-	CheckIncludeMap = checkIncludeMap
-}
+{{/*func Init()  {*/}}
+{{/*	checkIncludeMap := make(map[string]string,0)*/}}
+{{/*	checkIncludeMap[user.Label] = rolebinding.Label*/}}
+{{/*	CheckIncludeMap = checkIncludeMap*/}}
+{{/*}*/}}
 
-func CheckInclude(node, edge string) bool {
-	if CheckIncludeMap[node] == edge {
-		return true
-	} else {
-		return false
-	}
-}
+{{/*func CheckInclude(node, edge string) bool {*/}}
+{{/*	if CheckIncludeMap[node] == edge {*/}}
+{{/*		return true*/}}
+{{/*	} else {*/}}
+{{/*		return false*/}}
+{{/*	}*/}}
+{{/*}*/}}

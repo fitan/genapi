@@ -2,12 +2,12 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/predicate"
 	"cmdb/ent/server"
+	"cmdb/ent/service"
 	"context"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type ServerCURD struct {
@@ -61,6 +61,11 @@ func (curd *ServerCURD) RegisterRouter(router interface{}) {
 			RestReturnFunc(c, "", err)
 		})
 
+		r.POST(curd.CreateListServicesByServerIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateListServicesByServerId(c)
+			RestReturnFunc(c, data, err)
+		})
+
 		r.DELETE(curd.DeleteListServicesByServerIdRoutePath(), func(c *gin.Context) {
 			data, err := curd.DeleteListServicesByServerId(c)
 			RestReturnFunc(c, data, err)
@@ -112,6 +117,11 @@ func (curd *ServerCURD) RegisterRouter(router interface{}) {
 		r.PUT(curd.UpdateListRoutePath(), func(c *gin.Context) {
 			err := curd.UpdateList(c)
 			RestReturnFunc(c, "", err)
+		})
+
+		r.POST(curd.CreateListServicesByServerIdRoutePath(), func(c *gin.Context) {
+			data, err := curd.CreateListServicesByServerId(c)
+			RestReturnFunc(c, data, err)
 		})
 
 		r.DELETE(curd.DeleteListServicesByServerIdRoutePath(), func(c *gin.Context) {
@@ -464,6 +474,50 @@ func (curd *ServerCURD) GetListServicesByServerId(c *gin.Context) ([]*ent.Servic
 
 	return tmpQueryer.All(context.Background())
 
+}
+
+// M2M
+func (curd *ServerCURD) CreateListServicesByServerIdRoutePath() string {
+	return "/server/:id/services"
+}
+
+func (curd *ServerCURD) CreateListServicesByServerId(c *gin.Context) ([]*ent.Service, error) {
+	id, err := BindId(c)
+	if err != nil {
+		return nil, err
+	}
+	bulk, err := curd.ServiceObj.defaultCreateListBulk(c)
+	if err != nil {
+		return nil, err
+	}
+	bg := context.Background()
+	tx, err := curd.Db.Tx(bg)
+	if err != nil {
+		return nil, err
+	}
+
+	services, err := func() ([]*ent.Service, error) {
+		if err != nil {
+			return nil, err
+		}
+		services, err := tx.Service.CreateBulk(bulk...).Save(bg)
+		if err != nil {
+			return nil, err
+		}
+		_, err = tx.Server.UpdateOneID(id.ID).AddServices(services...).Save(bg)
+		if err != nil {
+			return nil, err
+		}
+
+		return services, nil
+	}()
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%v: %v", err, rerr)
+		}
+		return nil, err
+	}
+	return services, tx.Commit()
 }
 
 func (curd *ServerCURD) DeleteListServicesByServerIdRoutePath() string {

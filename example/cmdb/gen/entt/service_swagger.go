@@ -1,6 +1,10 @@
 package entt
 
-import "github.com/gin-gonic/gin"
+import (
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
 
 type ServiceID struct {
 	ID int `json:"id,omitempty"`
@@ -23,6 +27,7 @@ type ServiceNodeNotID struct {
 }
 
 type ServiceQuery struct {
+	Includes []string `json:"includes" form:"includes" enums:"server,project.role_binding.user,project,role_binding.project,role_binding,role_binding.user,role_binding.user.alert,project.role_binding,project.role_binding.user.alert"`
 }
 
 // @Summary create one service

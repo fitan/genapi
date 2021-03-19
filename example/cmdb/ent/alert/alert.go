@@ -9,7 +9,6 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-
 	// Table holds the table name of the alert in the database.
 	Table = "alerts"
 )
@@ -20,7 +19,8 @@ var Columns = []string{
 	FieldName,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the Alert type.
+// ForeignKeys holds the SQL foreign-keys that are owned by the "alerts"
+// table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"user_alerts",
 }

@@ -628,6 +628,13 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -814,6 +821,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -838,6 +851,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -899,6 +918,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -923,6 +948,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1003,6 +1034,13 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1355,6 +1393,13 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1541,6 +1586,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1565,6 +1616,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1611,6 +1668,13 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1846,6 +1910,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1870,6 +1940,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1931,6 +2007,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -1955,6 +2037,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -2035,6 +2123,13 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -2141,6 +2236,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -2165,6 +2266,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -2226,6 +2333,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -2250,6 +2363,12 @@ paths:
         name: id
         required: true
         type: integer
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:
@@ -2314,6 +2433,12 @@ paths:
         items:
           type: string
         name: in_name
+        type: array
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
         type: array
       - in: query
         name: limit

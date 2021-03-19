@@ -2,12 +2,13 @@ package entt
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/predicate"
 	"cmdb/ent/project"
+	"cmdb/ent/rolebinding"
+	"cmdb/ent/service"
 	"context"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type ProjectCURD struct {
@@ -508,6 +509,7 @@ func (curd *ProjectCURD) GetListRoleBindingsByProjectId(c *gin.Context) ([]*ent.
 
 }
 
+// O2M
 func (curd *ProjectCURD) CreateListRoleBindingsByProjectIdRoutePath() string {
 	return "/project/:id/role_bindings"
 }
@@ -606,6 +608,7 @@ func (curd *ProjectCURD) GetListServicesByProjectId(c *gin.Context) ([]*ent.Serv
 
 }
 
+// O2M
 func (curd *ProjectCURD) CreateListServicesByProjectIdRoutePath() string {
 	return "/project/:id/services"
 }

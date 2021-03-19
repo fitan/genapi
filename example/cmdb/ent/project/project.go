@@ -17,12 +17,10 @@ const (
 	FieldUpdateTime = "update_time"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-
 	// EdgeRoleBindings holds the string denoting the role_bindings edge name in mutations.
 	EdgeRoleBindings = "role_bindings"
 	// EdgeServices holds the string denoting the services edge name in mutations.
 	EdgeServices = "services"
-
 	// Table holds the table name of the project in the database.
 	Table = "projects"
 	// RoleBindingsTable is the table the holds the role_bindings relation/edge.

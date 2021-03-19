@@ -451,7 +451,8 @@ func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error)
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*RoleBinding)
 		for i := range nodes {
-			if fk := nodes[i].project_role_bindings; fk != nil {
+			fk := nodes[i].project_role_bindings
+			if fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -476,7 +477,8 @@ func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error)
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*RoleBinding)
 		for i := range nodes {
-			if fk := nodes[i].service_role_bindings; fk != nil {
+			fk := nodes[i].service_role_bindings
+			if fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -501,7 +503,8 @@ func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error)
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*RoleBinding)
 		for i := range nodes {
-			if fk := nodes[i].user_role_bindings; fk != nil {
+			fk := nodes[i].user_role_bindings
+			if fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -533,7 +536,7 @@ func (rbq *RoleBindingQuery) sqlCount(ctx context.Context) (int, error) {
 func (rbq *RoleBindingQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := rbq.sqlCount(ctx)
 	if err != nil {
-		return false, fmt.Errorf("ent: check existence: %v", err)
+		return false, fmt.Errorf("ent: check existence: %w", err)
 	}
 	return n > 0, nil
 }

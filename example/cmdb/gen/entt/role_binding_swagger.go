@@ -1,6 +1,11 @@
 package entt
 
-import "github.com/gin-gonic/gin"
+import (
+	"cmdb/ent/rolebinding"
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
 
 type RoleBindingID struct {
 	ID int `json:"id,omitempty"`
@@ -27,6 +32,7 @@ type RoleBindingNodeNotID struct {
 }
 
 type RoleBindingQuery struct {
+	Includes []string `json:"includes" form:"includes" enums:"project,project.service,project.service.server,service,service.server,service.project,user,user.alert"`
 }
 
 // @Summary create one role_binding

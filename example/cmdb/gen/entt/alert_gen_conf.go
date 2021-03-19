@@ -4,8 +4,11 @@ import (
 	"cmdb/ent"
 	"cmdb/ent/alert"
 	"cmdb/ent/predicate"
-	"github.com/gin-gonic/gin"
 )
+
+type AlertIncludes struct {
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof="`
+}
 
 func AlertSelete(queryer *ent.AlertQuery) {
 	queryer.Select(
@@ -35,6 +38,7 @@ func AlertGetIDs(alerts ent.Alerts) []int {
 }
 
 type AlertDefaultQuery struct {
+	AlertIncludes
 }
 
 func (a *AlertDefaultQuery) PredicatesExec() ([]predicate.Alert, error) {
@@ -46,6 +50,7 @@ func (a *AlertDefaultQuery) Exec(queryer *ent.AlertQuery) error {
 	if err != nil {
 		return err
 	}
+	QueryerIncludes(queryer, a.Includes)
 
 	queryer.Where(alert.And(ps...))
 

@@ -23,9 +23,9 @@ func UserPredicatesExec(fs ...func() (predicate.User, error)) ([]predicate.User,
 }
 
 type UserPaging struct {
-	Limit int `form:"limit"`
+	Limit int `form:"limit" binding:"lte=10" json:"limit"`
 
-	Page int `form:"page"`
+	Page int `form:"page" json:"page"`
 }
 
 func (m *UserPaging) BindPagingUser(queryer *ent.UserQuery) error {
@@ -48,7 +48,7 @@ func (m *UserCreateTimeEQ) BindUserCreateTimeEQ() (predicate.User, error) {
 }
 
 type UserCreateTimeOr struct {
-	CreateTimeOr []time.Time `form:"or_create_time"`
+	CreateTimeOr []time.Time `json:"or_create_time" form:"or_create_time"`
 }
 
 func (m *UserCreateTimeOr) BindUserCreateTimeOr() (predicate.User, error) {
@@ -63,7 +63,7 @@ func (m *UserCreateTimeOr) BindUserCreateTimeOr() (predicate.User, error) {
 }
 
 type UserCreateTimeNEQ struct {
-	CreateTimeNEQ *time.Time `form:"neq_create_time"`
+	CreateTimeNEQ *time.Time `json:"neq_create_time" form:"neq_create_time"`
 }
 
 func (m *UserCreateTimeNEQ) BindUserCreateTimeNEQ() (predicate.User, error) {
@@ -74,7 +74,7 @@ func (m *UserCreateTimeNEQ) BindUserCreateTimeNEQ() (predicate.User, error) {
 }
 
 type UserCreateTimeIn struct {
-	CreateTimeIn []time.Time `form:"in_create_time"`
+	CreateTimeIn []time.Time `json:"in_create_time" form:"in_create_time"`
 }
 
 func (m *UserCreateTimeIn) BindUserCreateTimeIn() (predicate.User, error) {
@@ -85,7 +85,7 @@ func (m *UserCreateTimeIn) BindUserCreateTimeIn() (predicate.User, error) {
 }
 
 type UserCreateTimeNotIn struct {
-	CreateTimeNotIn []time.Time `form:"not_in_create_time"`
+	CreateTimeNotIn []time.Time `json:"not_in_create_time" form:"not_in_create_time"`
 }
 
 func (m *UserCreateTimeNotIn) BindUserCreateTimeNotIn() (predicate.User, error) {
@@ -96,7 +96,7 @@ func (m *UserCreateTimeNotIn) BindUserCreateTimeNotIn() (predicate.User, error) 
 }
 
 type UserCreateTimeGT struct {
-	CreateTimeGT *time.Time `form:"gt_create_time"`
+	CreateTimeGT *time.Time `json:"gt_create_time" form:"gt_create_time"`
 }
 
 func (m *UserCreateTimeGT) BindUserCreateTimeGT() (predicate.User, error) {
@@ -107,7 +107,7 @@ func (m *UserCreateTimeGT) BindUserCreateTimeGT() (predicate.User, error) {
 }
 
 type UserCreateTimeGTE struct {
-	CreateTimeGTE *time.Time `form:"gte_create_time"`
+	CreateTimeGTE *time.Time `json:"gte_create_time" form:"gte_create_time"`
 }
 
 func (m *UserCreateTimeGTE) BindUserCreateTimeGTE() (predicate.User, error) {
@@ -118,7 +118,7 @@ func (m *UserCreateTimeGTE) BindUserCreateTimeGTE() (predicate.User, error) {
 }
 
 type UserCreateTimeLT struct {
-	CreateTimeLT *time.Time `form:"lt_create_time"`
+	CreateTimeLT *time.Time `json:"lt_create_time" form:"lt_create_time"`
 }
 
 func (m *UserCreateTimeLT) BindUserCreateTimeLT() (predicate.User, error) {
@@ -129,7 +129,7 @@ func (m *UserCreateTimeLT) BindUserCreateTimeLT() (predicate.User, error) {
 }
 
 type UserCreateTimeLTE struct {
-	CreateTimeLTE *time.Time `form:"lte_create_time"`
+	CreateTimeLTE *time.Time `json:"lte_create_time" form:"lte_create_time"`
 }
 
 func (m *UserCreateTimeLTE) BindUserCreateTimeLTE() (predicate.User, error) {
@@ -151,7 +151,7 @@ func (m *UserUpdateTimeEQ) BindUserUpdateTimeEQ() (predicate.User, error) {
 }
 
 type UserUpdateTimeOr struct {
-	UpdateTimeOr []time.Time `form:"or_update_time"`
+	UpdateTimeOr []time.Time `json:"or_update_time" form:"or_update_time"`
 }
 
 func (m *UserUpdateTimeOr) BindUserUpdateTimeOr() (predicate.User, error) {
@@ -166,7 +166,7 @@ func (m *UserUpdateTimeOr) BindUserUpdateTimeOr() (predicate.User, error) {
 }
 
 type UserUpdateTimeNEQ struct {
-	UpdateTimeNEQ *time.Time `form:"neq_update_time"`
+	UpdateTimeNEQ *time.Time `json:"neq_update_time" form:"neq_update_time"`
 }
 
 func (m *UserUpdateTimeNEQ) BindUserUpdateTimeNEQ() (predicate.User, error) {
@@ -177,7 +177,7 @@ func (m *UserUpdateTimeNEQ) BindUserUpdateTimeNEQ() (predicate.User, error) {
 }
 
 type UserUpdateTimeIn struct {
-	UpdateTimeIn []time.Time `form:"in_update_time"`
+	UpdateTimeIn []time.Time `json:"in_update_time" form:"in_update_time"`
 }
 
 func (m *UserUpdateTimeIn) BindUserUpdateTimeIn() (predicate.User, error) {
@@ -188,7 +188,7 @@ func (m *UserUpdateTimeIn) BindUserUpdateTimeIn() (predicate.User, error) {
 }
 
 type UserUpdateTimeNotIn struct {
-	UpdateTimeNotIn []time.Time `form:"not_in_update_time"`
+	UpdateTimeNotIn []time.Time `json:"not_in_update_time" form:"not_in_update_time"`
 }
 
 func (m *UserUpdateTimeNotIn) BindUserUpdateTimeNotIn() (predicate.User, error) {
@@ -199,7 +199,7 @@ func (m *UserUpdateTimeNotIn) BindUserUpdateTimeNotIn() (predicate.User, error) 
 }
 
 type UserUpdateTimeGT struct {
-	UpdateTimeGT *time.Time `form:"gt_update_time"`
+	UpdateTimeGT *time.Time `json:"gt_update_time" form:"gt_update_time"`
 }
 
 func (m *UserUpdateTimeGT) BindUserUpdateTimeGT() (predicate.User, error) {
@@ -210,7 +210,7 @@ func (m *UserUpdateTimeGT) BindUserUpdateTimeGT() (predicate.User, error) {
 }
 
 type UserUpdateTimeGTE struct {
-	UpdateTimeGTE *time.Time `form:"gte_update_time"`
+	UpdateTimeGTE *time.Time `json:"gte_update_time" form:"gte_update_time"`
 }
 
 func (m *UserUpdateTimeGTE) BindUserUpdateTimeGTE() (predicate.User, error) {
@@ -221,7 +221,7 @@ func (m *UserUpdateTimeGTE) BindUserUpdateTimeGTE() (predicate.User, error) {
 }
 
 type UserUpdateTimeLT struct {
-	UpdateTimeLT *time.Time `form:"lt_update_time"`
+	UpdateTimeLT *time.Time `json:"lt_update_time" form:"lt_update_time"`
 }
 
 func (m *UserUpdateTimeLT) BindUserUpdateTimeLT() (predicate.User, error) {
@@ -232,7 +232,7 @@ func (m *UserUpdateTimeLT) BindUserUpdateTimeLT() (predicate.User, error) {
 }
 
 type UserUpdateTimeLTE struct {
-	UpdateTimeLTE *time.Time `form:"lte_update_time"`
+	UpdateTimeLTE *time.Time `json:"lte_update_time" form:"lte_update_time"`
 }
 
 func (m *UserUpdateTimeLTE) BindUserUpdateTimeLTE() (predicate.User, error) {
@@ -254,7 +254,7 @@ func (m *UserNameEQ) BindUserNameEQ() (predicate.User, error) {
 }
 
 type UserNameOr struct {
-	NameOr []string `form:"or_name"`
+	NameOr []string `json:"or_name" form:"or_name"`
 }
 
 func (m *UserNameOr) BindUserNameOr() (predicate.User, error) {
@@ -269,7 +269,7 @@ func (m *UserNameOr) BindUserNameOr() (predicate.User, error) {
 }
 
 type UserNameNEQ struct {
-	NameNEQ *string `form:"neq_name"`
+	NameNEQ *string `json:"neq_name" form:"neq_name"`
 }
 
 func (m *UserNameNEQ) BindUserNameNEQ() (predicate.User, error) {
@@ -280,7 +280,7 @@ func (m *UserNameNEQ) BindUserNameNEQ() (predicate.User, error) {
 }
 
 type UserNameIn struct {
-	NameIn []string `form:"in_name"`
+	NameIn []string `json:"in_name" form:"in_name"`
 }
 
 func (m *UserNameIn) BindUserNameIn() (predicate.User, error) {
@@ -291,7 +291,7 @@ func (m *UserNameIn) BindUserNameIn() (predicate.User, error) {
 }
 
 type UserNameNotIn struct {
-	NameNotIn []string `form:"not_in_name"`
+	NameNotIn []string `json:"not_in_name" form:"not_in_name"`
 }
 
 func (m *UserNameNotIn) BindUserNameNotIn() (predicate.User, error) {
@@ -302,7 +302,7 @@ func (m *UserNameNotIn) BindUserNameNotIn() (predicate.User, error) {
 }
 
 type UserNameGT struct {
-	NameGT *string `form:"gt_name"`
+	NameGT *string `json:"gt_name" form:"gt_name"`
 }
 
 func (m *UserNameGT) BindUserNameGT() (predicate.User, error) {
@@ -313,7 +313,7 @@ func (m *UserNameGT) BindUserNameGT() (predicate.User, error) {
 }
 
 type UserNameGTE struct {
-	NameGTE *string `form:"gte_name"`
+	NameGTE *string `json:"gte_name" form:"gte_name"`
 }
 
 func (m *UserNameGTE) BindUserNameGTE() (predicate.User, error) {
@@ -324,7 +324,7 @@ func (m *UserNameGTE) BindUserNameGTE() (predicate.User, error) {
 }
 
 type UserNameLT struct {
-	NameLT *string `form:"lt_name"`
+	NameLT *string `json:"lt_name" form:"lt_name"`
 }
 
 func (m *UserNameLT) BindUserNameLT() (predicate.User, error) {
@@ -335,7 +335,7 @@ func (m *UserNameLT) BindUserNameLT() (predicate.User, error) {
 }
 
 type UserNameLTE struct {
-	NameLTE *string `form:"lte_name"`
+	NameLTE *string `json:"lte_name" form:"lte_name"`
 }
 
 func (m *UserNameLTE) BindUserNameLTE() (predicate.User, error) {
@@ -346,7 +346,7 @@ func (m *UserNameLTE) BindUserNameLTE() (predicate.User, error) {
 }
 
 type UserNameContains struct {
-	NameContains *string `form:"contains_name"`
+	NameContains *string `json:"contains_name" form:"contains_name"`
 }
 
 func (m *UserNameContains) BindUserNameContains() (predicate.User, error) {
@@ -357,7 +357,7 @@ func (m *UserNameContains) BindUserNameContains() (predicate.User, error) {
 }
 
 type UserNameHasPrefix struct {
-	NameHasPrefix *string `form:"has_prefix_name"`
+	NameHasPrefix *string `json:"has_prefix_name" form:"has_prefix_name"`
 }
 
 func (m *UserNameHasPrefix) BindUserNameHasPrefix() (predicate.User, error) {
@@ -369,7 +369,7 @@ func (m *UserNameHasPrefix) BindUserNameHasPrefix() (predicate.User, error) {
 }
 
 type UserNameHasSuffix struct {
-	NameHasSuffix *string `form:"has_suffix_name"`
+	NameHasSuffix *string `json:"has_suffix_name" form:"has_suffix_name"`
 }
 
 func (m *UserNameHasSuffix) BindUserNameHasSuffix() (predicate.User, error) {
@@ -391,7 +391,7 @@ func (m *UserPasswordEQ) BindUserPasswordEQ() (predicate.User, error) {
 }
 
 type UserPasswordOr struct {
-	PasswordOr []string `form:"or_password"`
+	PasswordOr []string `json:"or_password" form:"or_password"`
 }
 
 func (m *UserPasswordOr) BindUserPasswordOr() (predicate.User, error) {
@@ -406,7 +406,7 @@ func (m *UserPasswordOr) BindUserPasswordOr() (predicate.User, error) {
 }
 
 type UserPasswordNEQ struct {
-	PasswordNEQ *string `form:"neq_password"`
+	PasswordNEQ *string `json:"neq_password" form:"neq_password"`
 }
 
 func (m *UserPasswordNEQ) BindUserPasswordNEQ() (predicate.User, error) {
@@ -417,7 +417,7 @@ func (m *UserPasswordNEQ) BindUserPasswordNEQ() (predicate.User, error) {
 }
 
 type UserPasswordIn struct {
-	PasswordIn []string `form:"in_password"`
+	PasswordIn []string `json:"in_password" form:"in_password"`
 }
 
 func (m *UserPasswordIn) BindUserPasswordIn() (predicate.User, error) {
@@ -428,7 +428,7 @@ func (m *UserPasswordIn) BindUserPasswordIn() (predicate.User, error) {
 }
 
 type UserPasswordNotIn struct {
-	PasswordNotIn []string `form:"not_in_password"`
+	PasswordNotIn []string `json:"not_in_password" form:"not_in_password"`
 }
 
 func (m *UserPasswordNotIn) BindUserPasswordNotIn() (predicate.User, error) {
@@ -439,7 +439,7 @@ func (m *UserPasswordNotIn) BindUserPasswordNotIn() (predicate.User, error) {
 }
 
 type UserPasswordGT struct {
-	PasswordGT *string `form:"gt_password"`
+	PasswordGT *string `json:"gt_password" form:"gt_password"`
 }
 
 func (m *UserPasswordGT) BindUserPasswordGT() (predicate.User, error) {
@@ -450,7 +450,7 @@ func (m *UserPasswordGT) BindUserPasswordGT() (predicate.User, error) {
 }
 
 type UserPasswordGTE struct {
-	PasswordGTE *string `form:"gte_password"`
+	PasswordGTE *string `json:"gte_password" form:"gte_password"`
 }
 
 func (m *UserPasswordGTE) BindUserPasswordGTE() (predicate.User, error) {
@@ -461,7 +461,7 @@ func (m *UserPasswordGTE) BindUserPasswordGTE() (predicate.User, error) {
 }
 
 type UserPasswordLT struct {
-	PasswordLT *string `form:"lt_password"`
+	PasswordLT *string `json:"lt_password" form:"lt_password"`
 }
 
 func (m *UserPasswordLT) BindUserPasswordLT() (predicate.User, error) {
@@ -472,7 +472,7 @@ func (m *UserPasswordLT) BindUserPasswordLT() (predicate.User, error) {
 }
 
 type UserPasswordLTE struct {
-	PasswordLTE *string `form:"lte_password"`
+	PasswordLTE *string `json:"lte_password" form:"lte_password"`
 }
 
 func (m *UserPasswordLTE) BindUserPasswordLTE() (predicate.User, error) {
@@ -483,7 +483,7 @@ func (m *UserPasswordLTE) BindUserPasswordLTE() (predicate.User, error) {
 }
 
 type UserPasswordContains struct {
-	PasswordContains *string `form:"contains_password"`
+	PasswordContains *string `json:"contains_password" form:"contains_password"`
 }
 
 func (m *UserPasswordContains) BindUserPasswordContains() (predicate.User, error) {
@@ -494,7 +494,7 @@ func (m *UserPasswordContains) BindUserPasswordContains() (predicate.User, error
 }
 
 type UserPasswordHasPrefix struct {
-	PasswordHasPrefix *string `form:"has_prefix_password"`
+	PasswordHasPrefix *string `json:"has_prefix_password" form:"has_prefix_password"`
 }
 
 func (m *UserPasswordHasPrefix) BindUserPasswordHasPrefix() (predicate.User, error) {
@@ -506,7 +506,7 @@ func (m *UserPasswordHasPrefix) BindUserPasswordHasPrefix() (predicate.User, err
 }
 
 type UserPasswordHasSuffix struct {
-	PasswordHasSuffix *string `form:"has_suffix_password"`
+	PasswordHasSuffix *string `json:"has_suffix_password" form:"has_suffix_password"`
 }
 
 func (m *UserPasswordHasSuffix) BindUserPasswordHasSuffix() (predicate.User, error) {
@@ -528,7 +528,7 @@ func (m *UserEmailEQ) BindUserEmailEQ() (predicate.User, error) {
 }
 
 type UserEmailOr struct {
-	EmailOr []string `form:"or_email"`
+	EmailOr []string `json:"or_email" form:"or_email"`
 }
 
 func (m *UserEmailOr) BindUserEmailOr() (predicate.User, error) {
@@ -543,7 +543,7 @@ func (m *UserEmailOr) BindUserEmailOr() (predicate.User, error) {
 }
 
 type UserEmailNEQ struct {
-	EmailNEQ *string `form:"neq_email"`
+	EmailNEQ *string `json:"neq_email" form:"neq_email"`
 }
 
 func (m *UserEmailNEQ) BindUserEmailNEQ() (predicate.User, error) {
@@ -554,7 +554,7 @@ func (m *UserEmailNEQ) BindUserEmailNEQ() (predicate.User, error) {
 }
 
 type UserEmailIn struct {
-	EmailIn []string `form:"in_email"`
+	EmailIn []string `json:"in_email" form:"in_email"`
 }
 
 func (m *UserEmailIn) BindUserEmailIn() (predicate.User, error) {
@@ -565,7 +565,7 @@ func (m *UserEmailIn) BindUserEmailIn() (predicate.User, error) {
 }
 
 type UserEmailNotIn struct {
-	EmailNotIn []string `form:"not_in_email"`
+	EmailNotIn []string `json:"not_in_email" form:"not_in_email"`
 }
 
 func (m *UserEmailNotIn) BindUserEmailNotIn() (predicate.User, error) {
@@ -576,7 +576,7 @@ func (m *UserEmailNotIn) BindUserEmailNotIn() (predicate.User, error) {
 }
 
 type UserEmailGT struct {
-	EmailGT *string `form:"gt_email"`
+	EmailGT *string `json:"gt_email" form:"gt_email"`
 }
 
 func (m *UserEmailGT) BindUserEmailGT() (predicate.User, error) {
@@ -587,7 +587,7 @@ func (m *UserEmailGT) BindUserEmailGT() (predicate.User, error) {
 }
 
 type UserEmailGTE struct {
-	EmailGTE *string `form:"gte_email"`
+	EmailGTE *string `json:"gte_email" form:"gte_email"`
 }
 
 func (m *UserEmailGTE) BindUserEmailGTE() (predicate.User, error) {
@@ -598,7 +598,7 @@ func (m *UserEmailGTE) BindUserEmailGTE() (predicate.User, error) {
 }
 
 type UserEmailLT struct {
-	EmailLT *string `form:"lt_email"`
+	EmailLT *string `json:"lt_email" form:"lt_email"`
 }
 
 func (m *UserEmailLT) BindUserEmailLT() (predicate.User, error) {
@@ -609,7 +609,7 @@ func (m *UserEmailLT) BindUserEmailLT() (predicate.User, error) {
 }
 
 type UserEmailLTE struct {
-	EmailLTE *string `form:"lte_email"`
+	EmailLTE *string `json:"lte_email" form:"lte_email"`
 }
 
 func (m *UserEmailLTE) BindUserEmailLTE() (predicate.User, error) {
@@ -620,7 +620,7 @@ func (m *UserEmailLTE) BindUserEmailLTE() (predicate.User, error) {
 }
 
 type UserEmailContains struct {
-	EmailContains *string `form:"contains_email"`
+	EmailContains *string `json:"contains_email" form:"contains_email"`
 }
 
 func (m *UserEmailContains) BindUserEmailContains() (predicate.User, error) {
@@ -631,7 +631,7 @@ func (m *UserEmailContains) BindUserEmailContains() (predicate.User, error) {
 }
 
 type UserEmailHasPrefix struct {
-	EmailHasPrefix *string `form:"has_prefix_email"`
+	EmailHasPrefix *string `json:"has_prefix_email" form:"has_prefix_email"`
 }
 
 func (m *UserEmailHasPrefix) BindUserEmailHasPrefix() (predicate.User, error) {
@@ -643,7 +643,7 @@ func (m *UserEmailHasPrefix) BindUserEmailHasPrefix() (predicate.User, error) {
 }
 
 type UserEmailHasSuffix struct {
-	EmailHasSuffix *string `form:"has_suffix_email"`
+	EmailHasSuffix *string `json:"has_suffix_email" form:"has_suffix_email"`
 }
 
 func (m *UserEmailHasSuffix) BindUserEmailHasSuffix() (predicate.User, error) {
@@ -665,7 +665,7 @@ func (m *UserPhoneEQ) BindUserPhoneEQ() (predicate.User, error) {
 }
 
 type UserPhoneOr struct {
-	PhoneOr []string `form:"or_phone"`
+	PhoneOr []string `json:"or_phone" form:"or_phone"`
 }
 
 func (m *UserPhoneOr) BindUserPhoneOr() (predicate.User, error) {
@@ -680,7 +680,7 @@ func (m *UserPhoneOr) BindUserPhoneOr() (predicate.User, error) {
 }
 
 type UserPhoneNEQ struct {
-	PhoneNEQ *string `form:"neq_phone"`
+	PhoneNEQ *string `json:"neq_phone" form:"neq_phone"`
 }
 
 func (m *UserPhoneNEQ) BindUserPhoneNEQ() (predicate.User, error) {
@@ -691,7 +691,7 @@ func (m *UserPhoneNEQ) BindUserPhoneNEQ() (predicate.User, error) {
 }
 
 type UserPhoneIn struct {
-	PhoneIn []string `form:"in_phone"`
+	PhoneIn []string `json:"in_phone" form:"in_phone"`
 }
 
 func (m *UserPhoneIn) BindUserPhoneIn() (predicate.User, error) {
@@ -702,7 +702,7 @@ func (m *UserPhoneIn) BindUserPhoneIn() (predicate.User, error) {
 }
 
 type UserPhoneNotIn struct {
-	PhoneNotIn []string `form:"not_in_phone"`
+	PhoneNotIn []string `json:"not_in_phone" form:"not_in_phone"`
 }
 
 func (m *UserPhoneNotIn) BindUserPhoneNotIn() (predicate.User, error) {
@@ -713,7 +713,7 @@ func (m *UserPhoneNotIn) BindUserPhoneNotIn() (predicate.User, error) {
 }
 
 type UserPhoneGT struct {
-	PhoneGT *string `form:"gt_phone"`
+	PhoneGT *string `json:"gt_phone" form:"gt_phone"`
 }
 
 func (m *UserPhoneGT) BindUserPhoneGT() (predicate.User, error) {
@@ -724,7 +724,7 @@ func (m *UserPhoneGT) BindUserPhoneGT() (predicate.User, error) {
 }
 
 type UserPhoneGTE struct {
-	PhoneGTE *string `form:"gte_phone"`
+	PhoneGTE *string `json:"gte_phone" form:"gte_phone"`
 }
 
 func (m *UserPhoneGTE) BindUserPhoneGTE() (predicate.User, error) {
@@ -735,7 +735,7 @@ func (m *UserPhoneGTE) BindUserPhoneGTE() (predicate.User, error) {
 }
 
 type UserPhoneLT struct {
-	PhoneLT *string `form:"lt_phone"`
+	PhoneLT *string `json:"lt_phone" form:"lt_phone"`
 }
 
 func (m *UserPhoneLT) BindUserPhoneLT() (predicate.User, error) {
@@ -746,7 +746,7 @@ func (m *UserPhoneLT) BindUserPhoneLT() (predicate.User, error) {
 }
 
 type UserPhoneLTE struct {
-	PhoneLTE *string `form:"lte_phone"`
+	PhoneLTE *string `json:"lte_phone" form:"lte_phone"`
 }
 
 func (m *UserPhoneLTE) BindUserPhoneLTE() (predicate.User, error) {
@@ -757,7 +757,7 @@ func (m *UserPhoneLTE) BindUserPhoneLTE() (predicate.User, error) {
 }
 
 type UserPhoneContains struct {
-	PhoneContains *string `form:"contains_phone"`
+	PhoneContains *string `json:"contains_phone" form:"contains_phone"`
 }
 
 func (m *UserPhoneContains) BindUserPhoneContains() (predicate.User, error) {
@@ -768,7 +768,7 @@ func (m *UserPhoneContains) BindUserPhoneContains() (predicate.User, error) {
 }
 
 type UserPhoneHasPrefix struct {
-	PhoneHasPrefix *string `form:"has_prefix_phone"`
+	PhoneHasPrefix *string `json:"has_prefix_phone" form:"has_prefix_phone"`
 }
 
 func (m *UserPhoneHasPrefix) BindUserPhoneHasPrefix() (predicate.User, error) {
@@ -780,7 +780,7 @@ func (m *UserPhoneHasPrefix) BindUserPhoneHasPrefix() (predicate.User, error) {
 }
 
 type UserPhoneHasSuffix struct {
-	PhoneHasSuffix *string `form:"has_suffix_phone"`
+	PhoneHasSuffix *string `json:"has_suffix_phone" form:"has_suffix_phone"`
 }
 
 func (m *UserPhoneHasSuffix) BindUserPhoneHasSuffix() (predicate.User, error) {
@@ -802,7 +802,7 @@ func (m *UserRoleEQ) BindUserRoleEQ() (predicate.User, error) {
 }
 
 type UserRoleOr struct {
-	RoleOr []user.Role `form:"or_role"`
+	RoleOr []user.Role `json:"or_role" form:"or_role"`
 }
 
 func (m *UserRoleOr) BindUserRoleOr() (predicate.User, error) {
@@ -817,7 +817,7 @@ func (m *UserRoleOr) BindUserRoleOr() (predicate.User, error) {
 }
 
 type UserRoleNEQ struct {
-	RoleNEQ *user.Role `form:"neq_role"`
+	RoleNEQ *user.Role `json:"neq_role" form:"neq_role"`
 }
 
 func (m *UserRoleNEQ) BindUserRoleNEQ() (predicate.User, error) {
@@ -828,7 +828,7 @@ func (m *UserRoleNEQ) BindUserRoleNEQ() (predicate.User, error) {
 }
 
 type UserRoleIn struct {
-	RoleIn []user.Role `form:"in_role"`
+	RoleIn []user.Role `json:"in_role" form:"in_role"`
 }
 
 func (m *UserRoleIn) BindUserRoleIn() (predicate.User, error) {
@@ -839,7 +839,7 @@ func (m *UserRoleIn) BindUserRoleIn() (predicate.User, error) {
 }
 
 type UserRoleNotIn struct {
-	RoleNotIn []user.Role `form:"not_in_role"`
+	RoleNotIn []user.Role `json:"not_in_role" form:"not_in_role"`
 }
 
 func (m *UserRoleNotIn) BindUserRoleNotIn() (predicate.User, error) {

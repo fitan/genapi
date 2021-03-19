@@ -26,12 +26,10 @@ const (
 	FieldPhone = "phone"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
-
 	// EdgeRoleBindings holds the string denoting the role_bindings edge name in mutations.
 	EdgeRoleBindings = "role_bindings"
 	// EdgeAlerts holds the string denoting the alerts edge name in mutations.
 	EdgeAlerts = "alerts"
-
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleBindingsTable is the table the holds the role_bindings relation/edge.
