@@ -60,8 +60,8 @@ func {{$n.Name}}UpdateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 
 func {{$n.Name}}GetIDs({{snake (plural $n.Name)}} ent.{{plural $n.Name}}) []int {
 	IDs := make([]{{$.IDType}}, 0, len({{snake (plural $n.Name)}}))
-	for _, {{snake $n.Name}} := range {{snake (plural $n.Name)}} {
-		IDs = append(IDs, {{snake $n.Name}}.ID)
+	for i, _ := range {{snake (plural $n.Name)}} {
+		IDs[i] = {{snake (plural $n.Name)}}[i].ID
 	}
 	return IDs
 }
