@@ -32,7 +32,7 @@ type RoleBindingNodeNotID struct {
 }
 
 type RoleBindingQuery struct {
-	Includes []string `json:"includes" form:"includes" enums:"project,project.service,project.service.server,service,service.server,service.project,user,user.alert"`
+	Includes []string `json:"includes" form:"includes" enums:"service.project,user,user.alert,project,project.service,project.service.server,service,service.server"`
 }
 
 // @Summary create one role_binding

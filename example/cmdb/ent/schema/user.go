@@ -22,7 +22,12 @@ func (User) Annotations() []schema.Annotation {
 				Must:     false,
 				MaxLimit: 10,
 			},
-			Order: pkg.Order{},
+			Order: pkg.Order{
+				DefaultAcsOrder:   nil,
+				DefaultDescOrder:  nil,
+				OpenOptionalOrder: false,
+				OptionalOrder:     nil,
+			},
 			Method: pkg.NodeMethod{
 				Get:    pkg.GenRestTrue,
 				Create: pkg.GenRestFalse,
@@ -44,9 +49,21 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").Annotations(pkg.RestFieldOp{
 			FieldQueryable: pkg.FieldQueryable{
-				EQ:    pkg.GenRestTrue,
-				In:    pkg.GenRestTrue,
-				NotIn: pkg.GenRestTrue,
+				EQ:           pkg.GenRestTrue,
+				NEQ:          pkg.GenRestTrue,
+				GT:           pkg.GenRestTrue,
+				GTE:          pkg.GenRestTrue,
+				LT:           0,
+				LTE:          0,
+				IsNil:        0,
+				NotNil:       0,
+				EqualFold:    0,
+				Contains:     0,
+				ContainsFold: 0,
+				HasPrefix:    0,
+				HasSuffix:    0,
+				In:           0,
+				NotIn:        0,
 			},
 			FieldOperability: pkg.FieldOperability{
 				Selete: 0,

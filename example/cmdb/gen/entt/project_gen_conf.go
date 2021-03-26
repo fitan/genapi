@@ -7,7 +7,7 @@ import (
 )
 
 type ProjectIncludes struct {
-	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=role_binding.service role_binding.user service.server service.role_binding role_binding role_binding.service.server role_binding.user.alert service service.role_binding.user service.role_binding.user.alert"`
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service role_binding.service role_binding.service.server role_binding.user.alert service.role_binding service.server role_binding role_binding.user service.role_binding.user service.role_binding.user.alert"`
 }
 
 func ProjectSelete(queryer *ent.ProjectQuery) {

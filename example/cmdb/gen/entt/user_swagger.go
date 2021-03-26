@@ -31,11 +31,12 @@ type UserNodeNotID struct {
 }
 
 type UserQuery struct {
-	Includes []string `json:"includes" form:"includes" enums:"role_binding.service,role_binding.service.project,role_binding,alert,role_binding.project,role_binding.project.service,role_binding.project.service.server"`
+	Includes []string `json:"includes" form:"includes" enums:"role_binding.project,role_binding.project.service,role_binding.project.service.server,role_binding.service,role_binding.service.project,role_binding,alert"`
 
 	UserNameEQ
-	UserNameIn
-	UserNameNotIn
+	UserNameNEQ
+	UserNameGT
+	UserNameGTE
 
 	UserPaging
 }

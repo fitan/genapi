@@ -7,7 +7,7 @@ import (
 )
 
 type RoleBindingIncludes struct {
-	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=project project.service project.service.server service service.server service.project user user.alert"`
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service.project user user.alert project project.service project.service.server service service.server"`
 }
 
 func RoleBindingSelete(queryer *ent.RoleBindingQuery) {

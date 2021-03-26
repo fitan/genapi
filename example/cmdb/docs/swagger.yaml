@@ -487,6 +487,15 @@ definitions:
         format: date-time
         type: string
     type: object
+  router.Result:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      err:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -706,6 +715,37 @@ paths:
       summary: update list alert
       tags:
       - Alert
+  /api/usercall/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: eq_name
+        type: string
+      - collectionFormat: multi
+        in: query
+        items:
+          type: string
+        name: includes
+        type: array
+      - description: ' '
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/router.Result'
+            - properties:
+                data:
+                  $ref: '#/definitions/ent.User'
+              type: object
   /project:
     post:
       consumes:
@@ -2428,12 +2468,12 @@ paths:
       - in: query
         name: eq_name
         type: string
-      - collectionFormat: multi
-        in: query
-        items:
-          type: string
-        name: in_name
-        type: array
+      - in: query
+        name: gt_name
+        type: string
+      - in: query
+        name: gte_name
+        type: string
       - collectionFormat: multi
         in: query
         items:
@@ -2443,12 +2483,9 @@ paths:
       - in: query
         name: limit
         type: integer
-      - collectionFormat: multi
-        in: query
-        items:
-          type: string
-        name: not_in_name
-        type: array
+      - in: query
+        name: neq_name
+        type: string
       - in: query
         name: page
         type: integer

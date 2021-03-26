@@ -7,7 +7,7 @@ import (
 )
 
 type ServerIncludes struct {
-	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service.role_binding.user.alert service.role_binding service service.project.role_binding.user service.project.role_binding.user.alert service.project.role_binding service.project service.role_binding.project"`
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service.role_binding.user.alert service service.project service.project.role_binding service.project.role_binding.user service.project.role_binding.user.alert service.role_binding.user service.role_binding"`
 }
 
 func ServerSelete(queryer *ent.ServerQuery) {

@@ -6,6 +6,7 @@ import (
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/server"
 	"cmdb/gen/entt"
+	"cmdb/gen/router"
 	"cmdb/public"
 	"context"
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,7 @@ func main() {
 		c.JSON(200, all)
 	})
 	curdall.RegisterRouterALL(r)
+	router.RegisterAll(r)
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	r.Run()

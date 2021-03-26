@@ -386,6 +386,59 @@ var doc = `{
                 }
             }
         },
+        "/api/usercall/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "eq_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": " ",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/router.Result"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/ent.User"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/project": {
             "post": {
                 "consumes": [
@@ -3303,12 +3356,13 @@ var doc = `{
                         "in": "query"
                     },
                     {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "name": "in_name",
+                        "type": "string",
+                        "name": "gt_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "gte_name",
                         "in": "query"
                     },
                     {
@@ -3326,12 +3380,8 @@ var doc = `{
                         "in": "query"
                     },
                     {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "multi",
-                        "name": "not_in_name",
+                        "type": "string",
+                        "name": "neq_name",
                         "in": "query"
                     },
                     {
@@ -4057,6 +4107,20 @@ var doc = `{
                 "update_time": {
                     "type": "string",
                     "format": "date-time"
+                }
+            }
+        },
+        "router.Result": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object"
+                },
+                "err": {
+                    "type": "string"
                 }
             }
         }
