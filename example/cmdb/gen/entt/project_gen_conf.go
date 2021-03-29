@@ -7,7 +7,12 @@ import (
 )
 
 type ProjectIncludes struct {
-	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service role_binding.service role_binding.service.server role_binding.user.alert service.role_binding service.server role_binding role_binding.user service.role_binding.user service.role_binding.user.alert"`
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=role_binding.service.server service.role_binding.user service.role_binding.user.alert service.server role_binding role_binding.user role_binding.user.alert service.role_binding service role_binding.service"`
+}
+
+type GetProjectListData struct {
+	Count  int
+	Result []*ent.Project
 }
 
 func ProjectSelete(queryer *ent.ProjectQuery) {
@@ -43,8 +48,8 @@ func ProjectUpdateMutation(m *ent.ProjectMutation, v *ent.Project) {
 
 func ProjectGetIDs(projects ent.Projects) []int {
 	IDs := make([]int, 0, len(projects))
-	for _, project := range projects {
-		IDs = append(IDs, project.ID)
+	for i, _ := range projects {
+		IDs[i] = projects[i].ID
 	}
 	return IDs
 }

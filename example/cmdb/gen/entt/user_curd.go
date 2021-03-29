@@ -128,24 +128,12 @@ func (curd *UserCURD) BindDefaultQuery(c *gin.Context) (*UserDefaultQuery, error
 	return body, err
 }
 
-func (curd *UserCURD) GetIDs(users ent.Users) []int {
-	IDs := make([]int, 0, len(users))
-	for _, user := range users {
-		IDs = append(IDs, user.ID)
-	}
-	return IDs
-}
-
-func (curd *UserCURD) BaseGetOneQueryer(id int) (*ent.UserQuery, error) {
-	return curd.Db.User.Query().Where(user.IDEQ(id)), nil
-}
-
-func (curd *UserCURD) defaultGetOneQueryer(c *gin.Context) (*ent.UserQuery, error) {
+func (curd *UserCURD) BaseGetOneQueryer(c *gin.Context) (*ent.UserQuery, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseGetOneQueryer(id.ID)
+	return curd.Db.User.Query().Where(user.IDEQ(id.ID)), nil
 }
 
 func (curd *UserCURD) GetOneRoutePath() string {
@@ -153,7 +141,7 @@ func (curd *UserCURD) GetOneRoutePath() string {
 }
 
 func (curd *UserCURD) GetOne(c *gin.Context) (*ent.User, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +149,7 @@ func (curd *UserCURD) GetOne(c *gin.Context) (*ent.User, error) {
 	return queryer.Only(context.Background())
 }
 
-func (curd *UserCURD) BaseGetListCount(queryer *ent.UserQuery, query *UserDefaultQuery) error {
+func (curd *UserCURD) defaultGetListCount(queryer *ent.UserQuery, query *UserDefaultQuery) error {
 	ps, err := query.PredicatesExec()
 	if err != nil {
 		return err
@@ -170,7 +158,7 @@ func (curd *UserCURD) BaseGetListCount(queryer *ent.UserQuery, query *UserDefaul
 	return nil
 }
 
-func (curd *UserCURD) BaseGetListQueryer(queryer *ent.UserQuery, query *UserDefaultQuery) error {
+func (curd *UserCURD) defaultGetListQueryer(queryer *ent.UserQuery, query *UserDefaultQuery) error {
 	err := query.Exec(queryer)
 	if err != nil {
 		return err
@@ -182,20 +170,20 @@ func (curd *UserCURD) BaseGetListQueryer(queryer *ent.UserQuery, query *UserDefa
 	return nil
 }
 
-func (curd *UserCURD) defaultGetListQueryer(c *gin.Context) (*ent.UserQuery, *ent.UserQuery, error) {
+func (curd *UserCURD) BaseGetListQueryer(c *gin.Context) (*ent.UserQuery, *ent.UserQuery, error) {
 	query, err := curd.BindDefaultQuery(c)
 	if err != nil {
 		return nil, nil, err
 	}
 	countQueryer := curd.Db.User.Query()
 
-	err = curd.BaseGetListCount(countQueryer, query)
+	err = curd.defaultGetListCount(countQueryer, query)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	getListQueryer := curd.Db.User.Query()
-	err = curd.BaseGetListQueryer(getListQueryer, query)
+	err = curd.defaultGetListQueryer(getListQueryer, query)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -206,23 +194,19 @@ func (curd *UserCURD) GetListRoutePath() string {
 	return "/users"
 }
 
-type GetUserListData struct {
-	Count  int
-	Result []*ent.User
-}
-
 func (curd *UserCURD) GetList(c *gin.Context) (*GetUserListData, error) {
-	getListQueryer, countQueryer, err := curd.defaultGetListQueryer(c)
+	getListQueryer, countQueryer, err := curd.BaseGetListQueryer(c)
 	if err != nil {
 		return nil, err
 	}
 
-	count, err := countQueryer.Count(context.Background())
+	bg := context.Background()
+	count, err := countQueryer.Count(bg)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := getListQueryer.All(context.Background())
+	res, err := getListQueryer.All(bg)
 	if err != nil {
 		return nil, err
 	}
@@ -247,18 +231,14 @@ func (curd *UserCURD) defaultOrder(queryer *ent.UserQuery) {
 	}...)
 }
 
-func (curd *UserCURD) BaseCreateOneCreater(body *ent.User) *ent.UserCreate {
-	creater := curd.Db.User.Create()
-	UserCreateMutation(creater.Mutation(), body)
-	return creater
-}
-
-func (curd *UserCURD) defaultCreateOneCreater(c *gin.Context) (*ent.UserCreate, error) {
+func (curd *UserCURD) BaseCreateOneCreater(c *gin.Context) (*ent.UserCreate, error) {
 	body, err := curd.BindObj(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateOneCreater(body), nil
+	creater := curd.Db.User.Create()
+	UserCreateMutation(creater.Mutation(), body)
+	return creater, nil
 }
 
 func (curd *UserCURD) CreateOneRoutePath() string {
@@ -266,29 +246,33 @@ func (curd *UserCURD) CreateOneRoutePath() string {
 }
 
 func (curd *UserCURD) CreateOne(c *gin.Context) (*ent.User, error) {
-	creater, err := curd.defaultCreateOneCreater(c)
+	creater, err := curd.BaseCreateOneCreater(c)
 	if err != nil {
 		return nil, err
 	}
 	return creater.Save(context.Background())
 }
 
-func (curd *UserCURD) BaseCreateListBulk(body ent.Users) []*ent.UserCreate {
+func (curd *UserCURD) BaseCreateListBulk(c *gin.Context) ([]*ent.UserCreate, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	bulk := make([]*ent.UserCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.User.Create()
 		UserCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
-	return bulk
+	return bulk, nil
 }
 
-func (curd *UserCURD) defaultCreateListBulk(c *gin.Context) ([]*ent.UserCreate, error) {
-	body, err := curd.BindObjs(c)
+func (curd *UserCURD) BaseCreateList(c *gin.Context) (*ent.UserCreateBulk, error) {
+	bulk, err := curd.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateListBulk(body), nil
+	return curd.Db.User.CreateBulk(bulk...), nil
 }
 
 func (curd *UserCURD) CreateListRoutePath() string {
@@ -296,20 +280,14 @@ func (curd *UserCURD) CreateListRoutePath() string {
 }
 
 func (curd *UserCURD) CreateList(c *gin.Context) ([]*ent.User, error) {
-	bulk, err := curd.defaultCreateListBulk(c)
+	creater, err := curd.BaseCreateList(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.Db.User.CreateBulk(bulk...).Save(context.Background())
+	return creater.Save(context.Background())
 }
 
-func (curd *UserCURD) BaseUpdateOneUpdater(id int, body *ent.User) (*ent.UserUpdateOne, error) {
-	updater := curd.Db.User.UpdateOneID(id)
-	UserUpdateMutation(updater.Mutation(), body)
-	return updater, nil
-}
-
-func (curd *UserCURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.UserUpdateOne, error) {
+func (curd *UserCURD) BaseUpdateOneUpdater(c *gin.Context) (*ent.UserUpdateOne, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
@@ -318,7 +296,9 @@ func (curd *UserCURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.UserUpdateOn
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseUpdateOneUpdater(id.ID, body)
+	updater := curd.Db.User.UpdateOneID(id.ID)
+	UserUpdateMutation(updater.Mutation(), body)
+	return updater, nil
 }
 
 func (curd *UserCURD) UpdateOneRoutePath() string {
@@ -326,14 +306,18 @@ func (curd *UserCURD) UpdateOneRoutePath() string {
 }
 
 func (curd *UserCURD) UpdateOne(c *gin.Context) (*ent.User, error) {
-	updater, err := curd.defaultUpdateOneUpdater(c)
+	updater, err := curd.BaseUpdateOneUpdater(c)
 	if err != nil {
 		return nil, err
 	}
 	return updater.Save(context.Background())
 }
 
-func (curd *UserCURD) BaseUpdateListUpdater(body ent.Users) (*ent.Tx, error) {
+func (curd *UserCURD) BaseUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	ctx := context.Background()
 	tx, err := curd.Db.Tx(ctx)
 	if err != nil {
@@ -352,37 +336,24 @@ func (curd *UserCURD) BaseUpdateListUpdater(body ent.Users) (*ent.Tx, error) {
 	return tx, nil
 }
 
-func (curd *UserCURD) defaultUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
-	body, err := curd.BindObjs(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return curd.BaseUpdateListUpdater(body)
-}
-
 func (curd *UserCURD) UpdateListRoutePath() string {
 	return "/users"
 }
 
 func (curd *UserCURD) UpdateList(c *gin.Context) error {
-	tx, err := curd.defaultUpdateListUpdater(c)
+	tx, err := curd.BaseUpdateListUpdater(c)
 	if err != nil {
 		return err
 	}
 	return tx.Commit()
 }
 
-func (curd *UserCURD) BaseDeleteOneDeleter(id int) *ent.UserDelete {
-	return curd.Db.User.Delete().Where(user.IDEQ(id))
-}
-
-func (curd *UserCURD) defaultDeleteOneDeleter(c *gin.Context) (*ent.UserDelete, error) {
+func (curd *UserCURD) BaseDeleteOneDeleter(c *gin.Context) (*ent.UserDelete, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseDeleteOneDeleter(id.ID), nil
+	return curd.Db.User.Delete().Where(user.IDEQ(id.ID)), nil
 }
 
 func (curd *UserCURD) DeleteOneRoutePath() string {
@@ -390,24 +361,20 @@ func (curd *UserCURD) DeleteOneRoutePath() string {
 }
 
 func (curd *UserCURD) DeleteOne(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteOneDeleter(c)
+	deleter, err := curd.BaseDeleteOneDeleter(c)
 	if err != nil {
 		return 0, err
 	}
 	return deleter.Exec(context.Background())
 }
 
-func (curd *UserCURD) BaseDeleteListDeleter(ids []int) *ent.UserDelete {
-	return curd.Db.User.Delete().Where(user.IDIn(ids...))
-}
-
-func (curd *UserCURD) defaultDeleteListDeleter(c *gin.Context) (*ent.UserDelete, error) {
+func (curd *UserCURD) BaseDeleteListDeleter(c *gin.Context) (*ent.UserDelete, error) {
 	ids, err := BindIds(c)
 	if err != nil {
 		return nil, err
 	}
 
-	return curd.BaseDeleteListDeleter(ids.Ids), nil
+	return curd.Db.User.Delete().Where(user.IDIn(ids.Ids...)), nil
 }
 
 func (curd *UserCURD) DeleteListRoutePath() string {
@@ -415,7 +382,7 @@ func (curd *UserCURD) DeleteListRoutePath() string {
 }
 
 func (curd *UserCURD) DeleteList(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteListDeleter(c)
+	deleter, err := curd.BaseDeleteListDeleter(c)
 	if err != nil {
 		return 0, nil
 	}
@@ -427,7 +394,7 @@ func (curd *UserCURD) GetListRoleBindingsByUserIdRoutePath() string {
 }
 
 func (curd *UserCURD) GetListRoleBindingsByUserId(c *gin.Context) ([]*ent.RoleBinding, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -459,7 +426,7 @@ func (curd *UserCURD) CreateListRoleBindingsByUserId(c *gin.Context) ([]*ent.Rol
 	if err != nil {
 		return nil, err
 	}
-	bulk, err := curd.RoleBindingObj.defaultCreateListBulk(c)
+	bulk, err := curd.RoleBindingObj.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
@@ -498,7 +465,7 @@ func (curd *UserCURD) DeleteListRoleBindingsByUserIdRoutePath() string {
 }
 
 func (curd *UserCURD) DeleteListRoleBindingsByUserId(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return 0, err
 	}
@@ -526,7 +493,7 @@ func (curd *UserCURD) GetListAlertsByUserIdRoutePath() string {
 }
 
 func (curd *UserCURD) GetListAlertsByUserId(c *gin.Context) ([]*ent.Alert, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -558,7 +525,7 @@ func (curd *UserCURD) CreateListAlertsByUserId(c *gin.Context) ([]*ent.Alert, er
 	if err != nil {
 		return nil, err
 	}
-	bulk, err := curd.AlertObj.defaultCreateListBulk(c)
+	bulk, err := curd.AlertObj.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
@@ -597,7 +564,7 @@ func (curd *UserCURD) DeleteListAlertsByUserIdRoutePath() string {
 }
 
 func (curd *UserCURD) DeleteListAlertsByUserId(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return 0, err
 	}

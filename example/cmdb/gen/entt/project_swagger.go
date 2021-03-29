@@ -26,7 +26,7 @@ type ProjectNodeNotID struct {
 }
 
 type ProjectQuery struct {
-	Includes []string `json:"includes" form:"includes" enums:"service,role_binding.service,role_binding.service.server,role_binding.user.alert,service.role_binding,service.server,role_binding,role_binding.user,service.role_binding.user,service.role_binding.user.alert"`
+	Includes []string `json:"includes" form:"includes" enums:"role_binding.service.server,service.role_binding.user,service.role_binding.user.alert,service.server,role_binding,role_binding.user,role_binding.user.alert,service.role_binding,service,role_binding.service"`
 }
 
 // @Summary create one project

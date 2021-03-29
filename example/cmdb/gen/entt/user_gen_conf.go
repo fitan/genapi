@@ -7,7 +7,12 @@ import (
 )
 
 type UserIncludes struct {
-	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=role_binding.service role_binding.service.project role_binding alert role_binding.project role_binding.project.service role_binding.project.service.server"`
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=role_binding.project role_binding.project.service role_binding.project.service.server role_binding.service role_binding.service.project role_binding alert"`
+}
+
+type GetUserListData struct {
+	Count  int
+	Result []*ent.User
 }
 
 func UserSelete(queryer *ent.UserQuery) {
@@ -63,8 +68,8 @@ func UserUpdateMutation(m *ent.UserMutation, v *ent.User) {
 
 func UserGetIDs(users ent.Users) []int {
 	IDs := make([]int, 0, len(users))
-	for _, user := range users {
-		IDs = append(IDs, user.ID)
+	for i, _ := range users {
+		IDs[i] = users[i].ID
 	}
 	return IDs
 }
@@ -74,9 +79,11 @@ type UserDefaultQuery struct {
 
 	UserNameEQ
 
-	UserNameIn
+	UserNameNEQ
 
-	UserNameNotIn
+	UserNameGT
+
+	UserNameGTE
 
 	UserPaging
 }
@@ -86,9 +93,11 @@ func (u *UserDefaultQuery) PredicatesExec() ([]predicate.User, error) {
 
 		u.BindUserNameEQ,
 
-		u.BindUserNameIn,
+		u.BindUserNameNEQ,
 
-		u.BindUserNameNotIn,
+		u.BindUserNameGT,
+
+		u.BindUserNameGTE,
 	)
 }
 

@@ -7,7 +7,12 @@ import (
 )
 
 type ServerIncludes struct {
-	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service.role_binding.user.alert service service.project service.project.role_binding service.project.role_binding.user service.project.role_binding.user.alert service.role_binding.user service.role_binding"`
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service.role_binding.user.alert service service.project.role_binding service.project.role_binding.user service.project.role_binding.user.alert service.project service.role_binding service.role_binding.project"`
+}
+
+type GetServerListData struct {
+	Count  int
+	Result []*ent.Server
 }
 
 func ServerSelete(queryer *ent.ServerQuery) {
@@ -65,8 +70,8 @@ func ServerUpdateMutation(m *ent.ServerMutation, v *ent.Server) {
 
 func ServerGetIDs(servers ent.Servers) []int {
 	IDs := make([]int, 0, len(servers))
-	for _, server := range servers {
-		IDs = append(IDs, server.ID)
+	for i, _ := range servers {
+		IDs[i] = servers[i].ID
 	}
 	return IDs
 }

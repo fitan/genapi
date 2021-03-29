@@ -31,7 +31,7 @@ type ServerNodeNotID struct {
 }
 
 type ServerQuery struct {
-	Includes []string `json:"includes" form:"includes" enums:"service.role_binding.user.alert,service,service.project,service.project.role_binding,service.project.role_binding.user,service.project.role_binding.user.alert,service.role_binding.user,service.role_binding"`
+	Includes []string `json:"includes" form:"includes" enums:"service.role_binding.user.alert,service,service.project.role_binding,service.project.role_binding.user,service.project.role_binding.user.alert,service.project,service.role_binding,service.role_binding.project"`
 }
 
 // @Summary create one server

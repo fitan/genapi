@@ -221,24 +221,12 @@ func (curd *RoleBindingCURD) BindDefaultQuery(c *gin.Context) (*RoleBindingDefau
 	return body, err
 }
 
-func (curd *RoleBindingCURD) GetIDs(role_bindings ent.RoleBindings) []int {
-	IDs := make([]int, 0, len(role_bindings))
-	for _, role_binding := range role_bindings {
-		IDs = append(IDs, role_binding.ID)
-	}
-	return IDs
-}
-
-func (curd *RoleBindingCURD) BaseGetOneQueryer(id int) (*ent.RoleBindingQuery, error) {
-	return curd.Db.RoleBinding.Query().Where(rolebinding.IDEQ(id)), nil
-}
-
-func (curd *RoleBindingCURD) defaultGetOneQueryer(c *gin.Context) (*ent.RoleBindingQuery, error) {
+func (curd *RoleBindingCURD) BaseGetOneQueryer(c *gin.Context) (*ent.RoleBindingQuery, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseGetOneQueryer(id.ID)
+	return curd.Db.RoleBinding.Query().Where(rolebinding.IDEQ(id.ID)), nil
 }
 
 func (curd *RoleBindingCURD) GetOneRoutePath() string {
@@ -246,7 +234,7 @@ func (curd *RoleBindingCURD) GetOneRoutePath() string {
 }
 
 func (curd *RoleBindingCURD) GetOne(c *gin.Context) (*ent.RoleBinding, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +242,7 @@ func (curd *RoleBindingCURD) GetOne(c *gin.Context) (*ent.RoleBinding, error) {
 	return queryer.Only(context.Background())
 }
 
-func (curd *RoleBindingCURD) BaseGetListCount(queryer *ent.RoleBindingQuery, query *RoleBindingDefaultQuery) error {
+func (curd *RoleBindingCURD) defaultGetListCount(queryer *ent.RoleBindingQuery, query *RoleBindingDefaultQuery) error {
 	ps, err := query.PredicatesExec()
 	if err != nil {
 		return err
@@ -263,7 +251,7 @@ func (curd *RoleBindingCURD) BaseGetListCount(queryer *ent.RoleBindingQuery, que
 	return nil
 }
 
-func (curd *RoleBindingCURD) BaseGetListQueryer(queryer *ent.RoleBindingQuery, query *RoleBindingDefaultQuery) error {
+func (curd *RoleBindingCURD) defaultGetListQueryer(queryer *ent.RoleBindingQuery, query *RoleBindingDefaultQuery) error {
 	err := query.Exec(queryer)
 	if err != nil {
 		return err
@@ -275,20 +263,20 @@ func (curd *RoleBindingCURD) BaseGetListQueryer(queryer *ent.RoleBindingQuery, q
 	return nil
 }
 
-func (curd *RoleBindingCURD) defaultGetListQueryer(c *gin.Context) (*ent.RoleBindingQuery, *ent.RoleBindingQuery, error) {
+func (curd *RoleBindingCURD) BaseGetListQueryer(c *gin.Context) (*ent.RoleBindingQuery, *ent.RoleBindingQuery, error) {
 	query, err := curd.BindDefaultQuery(c)
 	if err != nil {
 		return nil, nil, err
 	}
 	countQueryer := curd.Db.RoleBinding.Query()
 
-	err = curd.BaseGetListCount(countQueryer, query)
+	err = curd.defaultGetListCount(countQueryer, query)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	getListQueryer := curd.Db.RoleBinding.Query()
-	err = curd.BaseGetListQueryer(getListQueryer, query)
+	err = curd.defaultGetListQueryer(getListQueryer, query)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -299,23 +287,19 @@ func (curd *RoleBindingCURD) GetListRoutePath() string {
 	return "/role_bindings"
 }
 
-type GetRoleBindingListData struct {
-	Count  int
-	Result []*ent.RoleBinding
-}
-
 func (curd *RoleBindingCURD) GetList(c *gin.Context) (*GetRoleBindingListData, error) {
-	getListQueryer, countQueryer, err := curd.defaultGetListQueryer(c)
+	getListQueryer, countQueryer, err := curd.BaseGetListQueryer(c)
 	if err != nil {
 		return nil, err
 	}
 
-	count, err := countQueryer.Count(context.Background())
+	bg := context.Background()
+	count, err := countQueryer.Count(bg)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := getListQueryer.All(context.Background())
+	res, err := getListQueryer.All(bg)
 	if err != nil {
 		return nil, err
 	}
@@ -340,18 +324,14 @@ func (curd *RoleBindingCURD) defaultOrder(queryer *ent.RoleBindingQuery) {
 	}...)
 }
 
-func (curd *RoleBindingCURD) BaseCreateOneCreater(body *ent.RoleBinding) *ent.RoleBindingCreate {
-	creater := curd.Db.RoleBinding.Create()
-	RoleBindingCreateMutation(creater.Mutation(), body)
-	return creater
-}
-
-func (curd *RoleBindingCURD) defaultCreateOneCreater(c *gin.Context) (*ent.RoleBindingCreate, error) {
+func (curd *RoleBindingCURD) BaseCreateOneCreater(c *gin.Context) (*ent.RoleBindingCreate, error) {
 	body, err := curd.BindObj(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateOneCreater(body), nil
+	creater := curd.Db.RoleBinding.Create()
+	RoleBindingCreateMutation(creater.Mutation(), body)
+	return creater, nil
 }
 
 func (curd *RoleBindingCURD) CreateOneRoutePath() string {
@@ -359,29 +339,33 @@ func (curd *RoleBindingCURD) CreateOneRoutePath() string {
 }
 
 func (curd *RoleBindingCURD) CreateOne(c *gin.Context) (*ent.RoleBinding, error) {
-	creater, err := curd.defaultCreateOneCreater(c)
+	creater, err := curd.BaseCreateOneCreater(c)
 	if err != nil {
 		return nil, err
 	}
 	return creater.Save(context.Background())
 }
 
-func (curd *RoleBindingCURD) BaseCreateListBulk(body ent.RoleBindings) []*ent.RoleBindingCreate {
+func (curd *RoleBindingCURD) BaseCreateListBulk(c *gin.Context) ([]*ent.RoleBindingCreate, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	bulk := make([]*ent.RoleBindingCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.RoleBinding.Create()
 		RoleBindingCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
-	return bulk
+	return bulk, nil
 }
 
-func (curd *RoleBindingCURD) defaultCreateListBulk(c *gin.Context) ([]*ent.RoleBindingCreate, error) {
-	body, err := curd.BindObjs(c)
+func (curd *RoleBindingCURD) BaseCreateList(c *gin.Context) (*ent.RoleBindingCreateBulk, error) {
+	bulk, err := curd.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateListBulk(body), nil
+	return curd.Db.RoleBinding.CreateBulk(bulk...), nil
 }
 
 func (curd *RoleBindingCURD) CreateListRoutePath() string {
@@ -389,20 +373,14 @@ func (curd *RoleBindingCURD) CreateListRoutePath() string {
 }
 
 func (curd *RoleBindingCURD) CreateList(c *gin.Context) ([]*ent.RoleBinding, error) {
-	bulk, err := curd.defaultCreateListBulk(c)
+	creater, err := curd.BaseCreateList(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.Db.RoleBinding.CreateBulk(bulk...).Save(context.Background())
+	return creater.Save(context.Background())
 }
 
-func (curd *RoleBindingCURD) BaseUpdateOneUpdater(id int, body *ent.RoleBinding) (*ent.RoleBindingUpdateOne, error) {
-	updater := curd.Db.RoleBinding.UpdateOneID(id)
-	RoleBindingUpdateMutation(updater.Mutation(), body)
-	return updater, nil
-}
-
-func (curd *RoleBindingCURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.RoleBindingUpdateOne, error) {
+func (curd *RoleBindingCURD) BaseUpdateOneUpdater(c *gin.Context) (*ent.RoleBindingUpdateOne, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
@@ -411,7 +389,9 @@ func (curd *RoleBindingCURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.RoleB
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseUpdateOneUpdater(id.ID, body)
+	updater := curd.Db.RoleBinding.UpdateOneID(id.ID)
+	RoleBindingUpdateMutation(updater.Mutation(), body)
+	return updater, nil
 }
 
 func (curd *RoleBindingCURD) UpdateOneRoutePath() string {
@@ -419,14 +399,18 @@ func (curd *RoleBindingCURD) UpdateOneRoutePath() string {
 }
 
 func (curd *RoleBindingCURD) UpdateOne(c *gin.Context) (*ent.RoleBinding, error) {
-	updater, err := curd.defaultUpdateOneUpdater(c)
+	updater, err := curd.BaseUpdateOneUpdater(c)
 	if err != nil {
 		return nil, err
 	}
 	return updater.Save(context.Background())
 }
 
-func (curd *RoleBindingCURD) BaseUpdateListUpdater(body ent.RoleBindings) (*ent.Tx, error) {
+func (curd *RoleBindingCURD) BaseUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	ctx := context.Background()
 	tx, err := curd.Db.Tx(ctx)
 	if err != nil {
@@ -445,37 +429,24 @@ func (curd *RoleBindingCURD) BaseUpdateListUpdater(body ent.RoleBindings) (*ent.
 	return tx, nil
 }
 
-func (curd *RoleBindingCURD) defaultUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
-	body, err := curd.BindObjs(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return curd.BaseUpdateListUpdater(body)
-}
-
 func (curd *RoleBindingCURD) UpdateListRoutePath() string {
 	return "/role_bindings"
 }
 
 func (curd *RoleBindingCURD) UpdateList(c *gin.Context) error {
-	tx, err := curd.defaultUpdateListUpdater(c)
+	tx, err := curd.BaseUpdateListUpdater(c)
 	if err != nil {
 		return err
 	}
 	return tx.Commit()
 }
 
-func (curd *RoleBindingCURD) BaseDeleteOneDeleter(id int) *ent.RoleBindingDelete {
-	return curd.Db.RoleBinding.Delete().Where(rolebinding.IDEQ(id))
-}
-
-func (curd *RoleBindingCURD) defaultDeleteOneDeleter(c *gin.Context) (*ent.RoleBindingDelete, error) {
+func (curd *RoleBindingCURD) BaseDeleteOneDeleter(c *gin.Context) (*ent.RoleBindingDelete, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseDeleteOneDeleter(id.ID), nil
+	return curd.Db.RoleBinding.Delete().Where(rolebinding.IDEQ(id.ID)), nil
 }
 
 func (curd *RoleBindingCURD) DeleteOneRoutePath() string {
@@ -483,24 +454,20 @@ func (curd *RoleBindingCURD) DeleteOneRoutePath() string {
 }
 
 func (curd *RoleBindingCURD) DeleteOne(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteOneDeleter(c)
+	deleter, err := curd.BaseDeleteOneDeleter(c)
 	if err != nil {
 		return 0, err
 	}
 	return deleter.Exec(context.Background())
 }
 
-func (curd *RoleBindingCURD) BaseDeleteListDeleter(ids []int) *ent.RoleBindingDelete {
-	return curd.Db.RoleBinding.Delete().Where(rolebinding.IDIn(ids...))
-}
-
-func (curd *RoleBindingCURD) defaultDeleteListDeleter(c *gin.Context) (*ent.RoleBindingDelete, error) {
+func (curd *RoleBindingCURD) BaseDeleteListDeleter(c *gin.Context) (*ent.RoleBindingDelete, error) {
 	ids, err := BindIds(c)
 	if err != nil {
 		return nil, err
 	}
 
-	return curd.BaseDeleteListDeleter(ids.Ids), nil
+	return curd.Db.RoleBinding.Delete().Where(rolebinding.IDIn(ids.Ids...)), nil
 }
 
 func (curd *RoleBindingCURD) DeleteListRoutePath() string {
@@ -508,7 +475,7 @@ func (curd *RoleBindingCURD) DeleteListRoutePath() string {
 }
 
 func (curd *RoleBindingCURD) DeleteList(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteListDeleter(c)
+	deleter, err := curd.BaseDeleteListDeleter(c)
 	if err != nil {
 		return 0, nil
 	}

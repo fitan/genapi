@@ -122,24 +122,12 @@ func (curd *AlertCURD) BindDefaultQuery(c *gin.Context) (*AlertDefaultQuery, err
 	return body, err
 }
 
-func (curd *AlertCURD) GetIDs(alerts ent.Alerts) []int {
-	IDs := make([]int, 0, len(alerts))
-	for _, alert := range alerts {
-		IDs = append(IDs, alert.ID)
-	}
-	return IDs
-}
-
-func (curd *AlertCURD) BaseGetOneQueryer(id int) (*ent.AlertQuery, error) {
-	return curd.Db.Alert.Query().Where(alert.IDEQ(id)), nil
-}
-
-func (curd *AlertCURD) defaultGetOneQueryer(c *gin.Context) (*ent.AlertQuery, error) {
+func (curd *AlertCURD) BaseGetOneQueryer(c *gin.Context) (*ent.AlertQuery, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseGetOneQueryer(id.ID)
+	return curd.Db.Alert.Query().Where(alert.IDEQ(id.ID)), nil
 }
 
 func (curd *AlertCURD) GetOneRoutePath() string {
@@ -147,7 +135,7 @@ func (curd *AlertCURD) GetOneRoutePath() string {
 }
 
 func (curd *AlertCURD) GetOne(c *gin.Context) (*ent.Alert, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +143,7 @@ func (curd *AlertCURD) GetOne(c *gin.Context) (*ent.Alert, error) {
 	return queryer.Only(context.Background())
 }
 
-func (curd *AlertCURD) BaseGetListCount(queryer *ent.AlertQuery, query *AlertDefaultQuery) error {
+func (curd *AlertCURD) defaultGetListCount(queryer *ent.AlertQuery, query *AlertDefaultQuery) error {
 	ps, err := query.PredicatesExec()
 	if err != nil {
 		return err
@@ -164,7 +152,7 @@ func (curd *AlertCURD) BaseGetListCount(queryer *ent.AlertQuery, query *AlertDef
 	return nil
 }
 
-func (curd *AlertCURD) BaseGetListQueryer(queryer *ent.AlertQuery, query *AlertDefaultQuery) error {
+func (curd *AlertCURD) defaultGetListQueryer(queryer *ent.AlertQuery, query *AlertDefaultQuery) error {
 	err := query.Exec(queryer)
 	if err != nil {
 		return err
@@ -176,20 +164,20 @@ func (curd *AlertCURD) BaseGetListQueryer(queryer *ent.AlertQuery, query *AlertD
 	return nil
 }
 
-func (curd *AlertCURD) defaultGetListQueryer(c *gin.Context) (*ent.AlertQuery, *ent.AlertQuery, error) {
+func (curd *AlertCURD) BaseGetListQueryer(c *gin.Context) (*ent.AlertQuery, *ent.AlertQuery, error) {
 	query, err := curd.BindDefaultQuery(c)
 	if err != nil {
 		return nil, nil, err
 	}
 	countQueryer := curd.Db.Alert.Query()
 
-	err = curd.BaseGetListCount(countQueryer, query)
+	err = curd.defaultGetListCount(countQueryer, query)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	getListQueryer := curd.Db.Alert.Query()
-	err = curd.BaseGetListQueryer(getListQueryer, query)
+	err = curd.defaultGetListQueryer(getListQueryer, query)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -200,23 +188,19 @@ func (curd *AlertCURD) GetListRoutePath() string {
 	return "/alerts"
 }
 
-type GetAlertListData struct {
-	Count  int
-	Result []*ent.Alert
-}
-
 func (curd *AlertCURD) GetList(c *gin.Context) (*GetAlertListData, error) {
-	getListQueryer, countQueryer, err := curd.defaultGetListQueryer(c)
+	getListQueryer, countQueryer, err := curd.BaseGetListQueryer(c)
 	if err != nil {
 		return nil, err
 	}
 
-	count, err := countQueryer.Count(context.Background())
+	bg := context.Background()
+	count, err := countQueryer.Count(bg)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := getListQueryer.All(context.Background())
+	res, err := getListQueryer.All(bg)
 	if err != nil {
 		return nil, err
 	}
@@ -241,18 +225,14 @@ func (curd *AlertCURD) defaultOrder(queryer *ent.AlertQuery) {
 	}...)
 }
 
-func (curd *AlertCURD) BaseCreateOneCreater(body *ent.Alert) *ent.AlertCreate {
-	creater := curd.Db.Alert.Create()
-	AlertCreateMutation(creater.Mutation(), body)
-	return creater
-}
-
-func (curd *AlertCURD) defaultCreateOneCreater(c *gin.Context) (*ent.AlertCreate, error) {
+func (curd *AlertCURD) BaseCreateOneCreater(c *gin.Context) (*ent.AlertCreate, error) {
 	body, err := curd.BindObj(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateOneCreater(body), nil
+	creater := curd.Db.Alert.Create()
+	AlertCreateMutation(creater.Mutation(), body)
+	return creater, nil
 }
 
 func (curd *AlertCURD) CreateOneRoutePath() string {
@@ -260,29 +240,33 @@ func (curd *AlertCURD) CreateOneRoutePath() string {
 }
 
 func (curd *AlertCURD) CreateOne(c *gin.Context) (*ent.Alert, error) {
-	creater, err := curd.defaultCreateOneCreater(c)
+	creater, err := curd.BaseCreateOneCreater(c)
 	if err != nil {
 		return nil, err
 	}
 	return creater.Save(context.Background())
 }
 
-func (curd *AlertCURD) BaseCreateListBulk(body ent.Alerts) []*ent.AlertCreate {
+func (curd *AlertCURD) BaseCreateListBulk(c *gin.Context) ([]*ent.AlertCreate, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	bulk := make([]*ent.AlertCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.Alert.Create()
 		AlertCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
-	return bulk
+	return bulk, nil
 }
 
-func (curd *AlertCURD) defaultCreateListBulk(c *gin.Context) ([]*ent.AlertCreate, error) {
-	body, err := curd.BindObjs(c)
+func (curd *AlertCURD) BaseCreateList(c *gin.Context) (*ent.AlertCreateBulk, error) {
+	bulk, err := curd.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateListBulk(body), nil
+	return curd.Db.Alert.CreateBulk(bulk...), nil
 }
 
 func (curd *AlertCURD) CreateListRoutePath() string {
@@ -290,20 +274,14 @@ func (curd *AlertCURD) CreateListRoutePath() string {
 }
 
 func (curd *AlertCURD) CreateList(c *gin.Context) ([]*ent.Alert, error) {
-	bulk, err := curd.defaultCreateListBulk(c)
+	creater, err := curd.BaseCreateList(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.Db.Alert.CreateBulk(bulk...).Save(context.Background())
+	return creater.Save(context.Background())
 }
 
-func (curd *AlertCURD) BaseUpdateOneUpdater(id int, body *ent.Alert) (*ent.AlertUpdateOne, error) {
-	updater := curd.Db.Alert.UpdateOneID(id)
-	AlertUpdateMutation(updater.Mutation(), body)
-	return updater, nil
-}
-
-func (curd *AlertCURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.AlertUpdateOne, error) {
+func (curd *AlertCURD) BaseUpdateOneUpdater(c *gin.Context) (*ent.AlertUpdateOne, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
@@ -312,7 +290,9 @@ func (curd *AlertCURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.AlertUpdate
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseUpdateOneUpdater(id.ID, body)
+	updater := curd.Db.Alert.UpdateOneID(id.ID)
+	AlertUpdateMutation(updater.Mutation(), body)
+	return updater, nil
 }
 
 func (curd *AlertCURD) UpdateOneRoutePath() string {
@@ -320,14 +300,18 @@ func (curd *AlertCURD) UpdateOneRoutePath() string {
 }
 
 func (curd *AlertCURD) UpdateOne(c *gin.Context) (*ent.Alert, error) {
-	updater, err := curd.defaultUpdateOneUpdater(c)
+	updater, err := curd.BaseUpdateOneUpdater(c)
 	if err != nil {
 		return nil, err
 	}
 	return updater.Save(context.Background())
 }
 
-func (curd *AlertCURD) BaseUpdateListUpdater(body ent.Alerts) (*ent.Tx, error) {
+func (curd *AlertCURD) BaseUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	ctx := context.Background()
 	tx, err := curd.Db.Tx(ctx)
 	if err != nil {
@@ -346,37 +330,24 @@ func (curd *AlertCURD) BaseUpdateListUpdater(body ent.Alerts) (*ent.Tx, error) {
 	return tx, nil
 }
 
-func (curd *AlertCURD) defaultUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
-	body, err := curd.BindObjs(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return curd.BaseUpdateListUpdater(body)
-}
-
 func (curd *AlertCURD) UpdateListRoutePath() string {
 	return "/alerts"
 }
 
 func (curd *AlertCURD) UpdateList(c *gin.Context) error {
-	tx, err := curd.defaultUpdateListUpdater(c)
+	tx, err := curd.BaseUpdateListUpdater(c)
 	if err != nil {
 		return err
 	}
 	return tx.Commit()
 }
 
-func (curd *AlertCURD) BaseDeleteOneDeleter(id int) *ent.AlertDelete {
-	return curd.Db.Alert.Delete().Where(alert.IDEQ(id))
-}
-
-func (curd *AlertCURD) defaultDeleteOneDeleter(c *gin.Context) (*ent.AlertDelete, error) {
+func (curd *AlertCURD) BaseDeleteOneDeleter(c *gin.Context) (*ent.AlertDelete, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseDeleteOneDeleter(id.ID), nil
+	return curd.Db.Alert.Delete().Where(alert.IDEQ(id.ID)), nil
 }
 
 func (curd *AlertCURD) DeleteOneRoutePath() string {
@@ -384,24 +355,20 @@ func (curd *AlertCURD) DeleteOneRoutePath() string {
 }
 
 func (curd *AlertCURD) DeleteOne(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteOneDeleter(c)
+	deleter, err := curd.BaseDeleteOneDeleter(c)
 	if err != nil {
 		return 0, err
 	}
 	return deleter.Exec(context.Background())
 }
 
-func (curd *AlertCURD) BaseDeleteListDeleter(ids []int) *ent.AlertDelete {
-	return curd.Db.Alert.Delete().Where(alert.IDIn(ids...))
-}
-
-func (curd *AlertCURD) defaultDeleteListDeleter(c *gin.Context) (*ent.AlertDelete, error) {
+func (curd *AlertCURD) BaseDeleteListDeleter(c *gin.Context) (*ent.AlertDelete, error) {
 	ids, err := BindIds(c)
 	if err != nil {
 		return nil, err
 	}
 
-	return curd.BaseDeleteListDeleter(ids.Ids), nil
+	return curd.Db.Alert.Delete().Where(alert.IDIn(ids.Ids...)), nil
 }
 
 func (curd *AlertCURD) DeleteListRoutePath() string {
@@ -409,7 +376,7 @@ func (curd *AlertCURD) DeleteListRoutePath() string {
 }
 
 func (curd *AlertCURD) DeleteList(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteListDeleter(c)
+	deleter, err := curd.BaseDeleteListDeleter(c)
 	if err != nil {
 		return 0, nil
 	}

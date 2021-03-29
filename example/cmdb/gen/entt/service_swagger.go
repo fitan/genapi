@@ -27,7 +27,7 @@ type ServiceNodeNotID struct {
 }
 
 type ServiceQuery struct {
-	Includes []string `json:"includes" form:"includes" enums:"role_binding.project,project.role_binding.user,project.role_binding.user.alert,project.role_binding,role_binding,role_binding.user,role_binding.user.alert,server,project"`
+	Includes []string `json:"includes" form:"includes" enums:"role_binding.user.alert,project.role_binding.user,project.role_binding.user.alert,project,project.role_binding,role_binding,role_binding.user,role_binding.project,server"`
 }
 
 // @Summary create one service

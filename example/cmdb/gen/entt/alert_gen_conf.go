@@ -10,6 +10,11 @@ type AlertIncludes struct {
 	Includes []string `form:"includes" json:"includes" binding:"dive,oneof="`
 }
 
+type GetAlertListData struct {
+	Count  int
+	Result []*ent.Alert
+}
+
 func AlertSelete(queryer *ent.AlertQuery) {
 	queryer.Select(
 
@@ -31,8 +36,8 @@ func AlertUpdateMutation(m *ent.AlertMutation, v *ent.Alert) {
 
 func AlertGetIDs(alerts ent.Alerts) []int {
 	IDs := make([]int, 0, len(alerts))
-	for _, alert := range alerts {
-		IDs = append(IDs, alert.ID)
+	for i, _ := range alerts {
+		IDs[i] = alerts[i].ID
 	}
 	return IDs
 }

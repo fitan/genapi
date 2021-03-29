@@ -188,24 +188,12 @@ func (curd *ProjectCURD) BindDefaultQuery(c *gin.Context) (*ProjectDefaultQuery,
 	return body, err
 }
 
-func (curd *ProjectCURD) GetIDs(projects ent.Projects) []int {
-	IDs := make([]int, 0, len(projects))
-	for _, project := range projects {
-		IDs = append(IDs, project.ID)
-	}
-	return IDs
-}
-
-func (curd *ProjectCURD) BaseGetOneQueryer(id int) (*ent.ProjectQuery, error) {
-	return curd.Db.Project.Query().Where(project.IDEQ(id)), nil
-}
-
-func (curd *ProjectCURD) defaultGetOneQueryer(c *gin.Context) (*ent.ProjectQuery, error) {
+func (curd *ProjectCURD) BaseGetOneQueryer(c *gin.Context) (*ent.ProjectQuery, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseGetOneQueryer(id.ID)
+	return curd.Db.Project.Query().Where(project.IDEQ(id.ID)), nil
 }
 
 func (curd *ProjectCURD) GetOneRoutePath() string {
@@ -213,7 +201,7 @@ func (curd *ProjectCURD) GetOneRoutePath() string {
 }
 
 func (curd *ProjectCURD) GetOne(c *gin.Context) (*ent.Project, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +209,7 @@ func (curd *ProjectCURD) GetOne(c *gin.Context) (*ent.Project, error) {
 	return queryer.Only(context.Background())
 }
 
-func (curd *ProjectCURD) BaseGetListCount(queryer *ent.ProjectQuery, query *ProjectDefaultQuery) error {
+func (curd *ProjectCURD) defaultGetListCount(queryer *ent.ProjectQuery, query *ProjectDefaultQuery) error {
 	ps, err := query.PredicatesExec()
 	if err != nil {
 		return err
@@ -230,7 +218,7 @@ func (curd *ProjectCURD) BaseGetListCount(queryer *ent.ProjectQuery, query *Proj
 	return nil
 }
 
-func (curd *ProjectCURD) BaseGetListQueryer(queryer *ent.ProjectQuery, query *ProjectDefaultQuery) error {
+func (curd *ProjectCURD) defaultGetListQueryer(queryer *ent.ProjectQuery, query *ProjectDefaultQuery) error {
 	err := query.Exec(queryer)
 	if err != nil {
 		return err
@@ -242,20 +230,20 @@ func (curd *ProjectCURD) BaseGetListQueryer(queryer *ent.ProjectQuery, query *Pr
 	return nil
 }
 
-func (curd *ProjectCURD) defaultGetListQueryer(c *gin.Context) (*ent.ProjectQuery, *ent.ProjectQuery, error) {
+func (curd *ProjectCURD) BaseGetListQueryer(c *gin.Context) (*ent.ProjectQuery, *ent.ProjectQuery, error) {
 	query, err := curd.BindDefaultQuery(c)
 	if err != nil {
 		return nil, nil, err
 	}
 	countQueryer := curd.Db.Project.Query()
 
-	err = curd.BaseGetListCount(countQueryer, query)
+	err = curd.defaultGetListCount(countQueryer, query)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	getListQueryer := curd.Db.Project.Query()
-	err = curd.BaseGetListQueryer(getListQueryer, query)
+	err = curd.defaultGetListQueryer(getListQueryer, query)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -266,23 +254,19 @@ func (curd *ProjectCURD) GetListRoutePath() string {
 	return "/projects"
 }
 
-type GetProjectListData struct {
-	Count  int
-	Result []*ent.Project
-}
-
 func (curd *ProjectCURD) GetList(c *gin.Context) (*GetProjectListData, error) {
-	getListQueryer, countQueryer, err := curd.defaultGetListQueryer(c)
+	getListQueryer, countQueryer, err := curd.BaseGetListQueryer(c)
 	if err != nil {
 		return nil, err
 	}
 
-	count, err := countQueryer.Count(context.Background())
+	bg := context.Background()
+	count, err := countQueryer.Count(bg)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := getListQueryer.All(context.Background())
+	res, err := getListQueryer.All(bg)
 	if err != nil {
 		return nil, err
 	}
@@ -307,18 +291,14 @@ func (curd *ProjectCURD) defaultOrder(queryer *ent.ProjectQuery) {
 	}...)
 }
 
-func (curd *ProjectCURD) BaseCreateOneCreater(body *ent.Project) *ent.ProjectCreate {
-	creater := curd.Db.Project.Create()
-	ProjectCreateMutation(creater.Mutation(), body)
-	return creater
-}
-
-func (curd *ProjectCURD) defaultCreateOneCreater(c *gin.Context) (*ent.ProjectCreate, error) {
+func (curd *ProjectCURD) BaseCreateOneCreater(c *gin.Context) (*ent.ProjectCreate, error) {
 	body, err := curd.BindObj(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateOneCreater(body), nil
+	creater := curd.Db.Project.Create()
+	ProjectCreateMutation(creater.Mutation(), body)
+	return creater, nil
 }
 
 func (curd *ProjectCURD) CreateOneRoutePath() string {
@@ -326,29 +306,33 @@ func (curd *ProjectCURD) CreateOneRoutePath() string {
 }
 
 func (curd *ProjectCURD) CreateOne(c *gin.Context) (*ent.Project, error) {
-	creater, err := curd.defaultCreateOneCreater(c)
+	creater, err := curd.BaseCreateOneCreater(c)
 	if err != nil {
 		return nil, err
 	}
 	return creater.Save(context.Background())
 }
 
-func (curd *ProjectCURD) BaseCreateListBulk(body ent.Projects) []*ent.ProjectCreate {
+func (curd *ProjectCURD) BaseCreateListBulk(c *gin.Context) ([]*ent.ProjectCreate, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	bulk := make([]*ent.ProjectCreate, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.Project.Create()
 		ProjectCreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
-	return bulk
+	return bulk, nil
 }
 
-func (curd *ProjectCURD) defaultCreateListBulk(c *gin.Context) ([]*ent.ProjectCreate, error) {
-	body, err := curd.BindObjs(c)
+func (curd *ProjectCURD) BaseCreateList(c *gin.Context) (*ent.ProjectCreateBulk, error) {
+	bulk, err := curd.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateListBulk(body), nil
+	return curd.Db.Project.CreateBulk(bulk...), nil
 }
 
 func (curd *ProjectCURD) CreateListRoutePath() string {
@@ -356,20 +340,14 @@ func (curd *ProjectCURD) CreateListRoutePath() string {
 }
 
 func (curd *ProjectCURD) CreateList(c *gin.Context) ([]*ent.Project, error) {
-	bulk, err := curd.defaultCreateListBulk(c)
+	creater, err := curd.BaseCreateList(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.Db.Project.CreateBulk(bulk...).Save(context.Background())
+	return creater.Save(context.Background())
 }
 
-func (curd *ProjectCURD) BaseUpdateOneUpdater(id int, body *ent.Project) (*ent.ProjectUpdateOne, error) {
-	updater := curd.Db.Project.UpdateOneID(id)
-	ProjectUpdateMutation(updater.Mutation(), body)
-	return updater, nil
-}
-
-func (curd *ProjectCURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.ProjectUpdateOne, error) {
+func (curd *ProjectCURD) BaseUpdateOneUpdater(c *gin.Context) (*ent.ProjectUpdateOne, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
@@ -378,7 +356,9 @@ func (curd *ProjectCURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.ProjectUp
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseUpdateOneUpdater(id.ID, body)
+	updater := curd.Db.Project.UpdateOneID(id.ID)
+	ProjectUpdateMutation(updater.Mutation(), body)
+	return updater, nil
 }
 
 func (curd *ProjectCURD) UpdateOneRoutePath() string {
@@ -386,14 +366,18 @@ func (curd *ProjectCURD) UpdateOneRoutePath() string {
 }
 
 func (curd *ProjectCURD) UpdateOne(c *gin.Context) (*ent.Project, error) {
-	updater, err := curd.defaultUpdateOneUpdater(c)
+	updater, err := curd.BaseUpdateOneUpdater(c)
 	if err != nil {
 		return nil, err
 	}
 	return updater.Save(context.Background())
 }
 
-func (curd *ProjectCURD) BaseUpdateListUpdater(body ent.Projects) (*ent.Tx, error) {
+func (curd *ProjectCURD) BaseUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	ctx := context.Background()
 	tx, err := curd.Db.Tx(ctx)
 	if err != nil {
@@ -412,37 +396,24 @@ func (curd *ProjectCURD) BaseUpdateListUpdater(body ent.Projects) (*ent.Tx, erro
 	return tx, nil
 }
 
-func (curd *ProjectCURD) defaultUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
-	body, err := curd.BindObjs(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return curd.BaseUpdateListUpdater(body)
-}
-
 func (curd *ProjectCURD) UpdateListRoutePath() string {
 	return "/projects"
 }
 
 func (curd *ProjectCURD) UpdateList(c *gin.Context) error {
-	tx, err := curd.defaultUpdateListUpdater(c)
+	tx, err := curd.BaseUpdateListUpdater(c)
 	if err != nil {
 		return err
 	}
 	return tx.Commit()
 }
 
-func (curd *ProjectCURD) BaseDeleteOneDeleter(id int) *ent.ProjectDelete {
-	return curd.Db.Project.Delete().Where(project.IDEQ(id))
-}
-
-func (curd *ProjectCURD) defaultDeleteOneDeleter(c *gin.Context) (*ent.ProjectDelete, error) {
+func (curd *ProjectCURD) BaseDeleteOneDeleter(c *gin.Context) (*ent.ProjectDelete, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseDeleteOneDeleter(id.ID), nil
+	return curd.Db.Project.Delete().Where(project.IDEQ(id.ID)), nil
 }
 
 func (curd *ProjectCURD) DeleteOneRoutePath() string {
@@ -450,24 +421,20 @@ func (curd *ProjectCURD) DeleteOneRoutePath() string {
 }
 
 func (curd *ProjectCURD) DeleteOne(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteOneDeleter(c)
+	deleter, err := curd.BaseDeleteOneDeleter(c)
 	if err != nil {
 		return 0, err
 	}
 	return deleter.Exec(context.Background())
 }
 
-func (curd *ProjectCURD) BaseDeleteListDeleter(ids []int) *ent.ProjectDelete {
-	return curd.Db.Project.Delete().Where(project.IDIn(ids...))
-}
-
-func (curd *ProjectCURD) defaultDeleteListDeleter(c *gin.Context) (*ent.ProjectDelete, error) {
+func (curd *ProjectCURD) BaseDeleteListDeleter(c *gin.Context) (*ent.ProjectDelete, error) {
 	ids, err := BindIds(c)
 	if err != nil {
 		return nil, err
 	}
 
-	return curd.BaseDeleteListDeleter(ids.Ids), nil
+	return curd.Db.Project.Delete().Where(project.IDIn(ids.Ids...)), nil
 }
 
 func (curd *ProjectCURD) DeleteListRoutePath() string {
@@ -475,7 +442,7 @@ func (curd *ProjectCURD) DeleteListRoutePath() string {
 }
 
 func (curd *ProjectCURD) DeleteList(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteListDeleter(c)
+	deleter, err := curd.BaseDeleteListDeleter(c)
 	if err != nil {
 		return 0, nil
 	}
@@ -487,7 +454,7 @@ func (curd *ProjectCURD) GetListRoleBindingsByProjectIdRoutePath() string {
 }
 
 func (curd *ProjectCURD) GetListRoleBindingsByProjectId(c *gin.Context) ([]*ent.RoleBinding, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -519,7 +486,7 @@ func (curd *ProjectCURD) CreateListRoleBindingsByProjectId(c *gin.Context) ([]*e
 	if err != nil {
 		return nil, err
 	}
-	bulk, err := curd.RoleBindingObj.defaultCreateListBulk(c)
+	bulk, err := curd.RoleBindingObj.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
@@ -558,7 +525,7 @@ func (curd *ProjectCURD) DeleteListRoleBindingsByProjectIdRoutePath() string {
 }
 
 func (curd *ProjectCURD) DeleteListRoleBindingsByProjectId(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return 0, err
 	}
@@ -586,7 +553,7 @@ func (curd *ProjectCURD) GetListServicesByProjectIdRoutePath() string {
 }
 
 func (curd *ProjectCURD) GetListServicesByProjectId(c *gin.Context) ([]*ent.Service, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -618,7 +585,7 @@ func (curd *ProjectCURD) CreateListServicesByProjectId(c *gin.Context) ([]*ent.S
 	if err != nil {
 		return nil, err
 	}
-	bulk, err := curd.ServiceObj.defaultCreateListBulk(c)
+	bulk, err := curd.ServiceObj.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
@@ -657,7 +624,7 @@ func (curd *ProjectCURD) DeleteListServicesByProjectIdRoutePath() string {
 }
 
 func (curd *ProjectCURD) DeleteListServicesByProjectId(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return 0, err
 	}

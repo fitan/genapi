@@ -7,7 +7,12 @@ import (
 )
 
 type ServiceIncludes struct {
-	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=server project.role_binding.user project role_binding.project role_binding role_binding.user role_binding.user.alert project.role_binding project.role_binding.user.alert"`
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=role_binding.user.alert project.role_binding.user project.role_binding.user.alert project project.role_binding role_binding role_binding.user role_binding.project server"`
+}
+
+type GetServiceListData struct {
+	Count  int
+	Result []*ent.Service
 }
 
 func ServiceSelete(queryer *ent.ServiceQuery) {
@@ -47,8 +52,8 @@ func ServiceUpdateMutation(m *ent.ServiceMutation, v *ent.Service) {
 
 func ServiceGetIDs(services ent.Services) []int {
 	IDs := make([]int, 0, len(services))
-	for _, service := range services {
-		IDs = append(IDs, service.ID)
+	for i, _ := range services {
+		IDs[i] = services[i].ID
 	}
 	return IDs
 }

@@ -7,7 +7,12 @@ import (
 )
 
 type RoleBindingIncludes struct {
-	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service.project user user.alert project project.service project.service.server service service.server"`
+	Includes []string `form:"includes" json:"includes" binding:"dive,oneof=service.project user user.alert project project.service.server project.service service service.server"`
+}
+
+type GetRoleBindingListData struct {
+	Count  int
+	Result []*ent.RoleBinding
 }
 
 func RoleBindingSelete(queryer *ent.RoleBindingQuery) {
@@ -55,8 +60,8 @@ func RoleBindingUpdateMutation(m *ent.RoleBindingMutation, v *ent.RoleBinding) {
 
 func RoleBindingGetIDs(role_bindings ent.RoleBindings) []int {
 	IDs := make([]int, 0, len(role_bindings))
-	for _, role_binding := range role_bindings {
-		IDs = append(IDs, role_binding.ID)
+	for i, _ := range role_bindings {
+		IDs[i] = role_bindings[i].ID
 	}
 	return IDs
 }
