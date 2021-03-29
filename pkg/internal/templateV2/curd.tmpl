@@ -347,7 +347,7 @@ func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}IdRoutePath() st
 
 
 func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context) (*ent.{{$e.Type.Name}}, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +367,7 @@ func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Con
 		return nil, err
 	}
 
-	{{snake $e.Type.Name}}Creater, err := curd.{{$e.Type.Name}}Obj.defaultCreateOneCreater(c)
+	{{snake $e.Type.Name}}Creater, err := curd.{{$e.Type.Name}}Obj.BaseCreateOneCreater(c)
 	if err != nil {
 		return nil, err
 	}
@@ -381,7 +381,7 @@ func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}IdRoutePath()
 
 
 func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return 0, err
 	}

@@ -9,9 +9,12 @@ import (
 	"cmdb/gen/router"
 	"cmdb/public"
 	"context"
+	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"os"
 )
 
 // @title cmdbapi
@@ -21,9 +24,21 @@ import (
 // @BasePath /
 // @query.collection.format multi
 func main() {
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if gin.IsDebugging() {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+	ginLog := zerolog.New(os.Stdout).With().Logger()
+
 	db := public.GetDB()
 	curdall := entt.NewCURDALL(db)
 	r := gin.Default()
+	r.Use(logger.SetLogger(logger.Config{
+		Logger:         &ginLog,
+		UTC:            false,
+		SkipPath:       nil,
+		SkipPathRegexp: nil,
+	}))
 	r.GET("test", func(c *gin.Context) {
 		all, _ := db.User.Query().WithRoleBindings(func(query *ent.RoleBindingQuery) {
 			query.Select(rolebinding.FieldRole).WithService(func(query *ent.ServiceQuery) {
