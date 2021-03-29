@@ -10,8 +10,14 @@ import (
 )
 
 {{ range $n := $.Nodes }}
+
 type {{$n.Name}}Includes struct {
     Includes []string `form:"includes" json:"includes" binding:"dive,oneof={{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v " "}}{{end}}{{end}}"`
+}
+
+type Get{{$n.Name}}ListData struct {
+	Count int
+	Result []*ent.{{$n.Name}}
 }
 
 func {{$n.Name}}Selete(queryer *ent.{{$n.Name}}Query)  {
@@ -130,4 +136,6 @@ func ({{$receiver}} *{{$n.Name}}DefaultQuery) Exec(queryer *ent.{{$n.Name}}Query
 
     return nil
 }
+
+
 {{end}}

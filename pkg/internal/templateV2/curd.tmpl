@@ -53,26 +53,12 @@ func (curd *{{$n.Name}}CURD) BindDefaultQuery(c *gin.Context) (*{{$n.Name}}Defau
 	return body, err
 }
 
-func (curd *{{$n.Name}}CURD) GetIDs({{snake (plural $n.Name)}} ent.{{plural $n.Name}}) []int {
-	IDs := make([]int, 0, len({{snake (plural $n.Name)}}))
-	for _,{{snake $n.Name}} := range {{snake (plural $n.Name)}} {
-		IDs = append(IDs, {{snake $n.Name}}.ID)
-	}
-	return IDs
-}
-
-
-
-func (curd *{{$n.Name}}CURD) BaseGetOneQueryer(id int) (*ent.{{$n.Name}}Query, error) {
-	return curd.Db.{{$n.Name}}.Query().Where({{lower $n.Name}}.IDEQ(id)), nil
-}
-
-func (curd *{{$n.Name}}CURD) defaultGetOneQueryer(c *gin.Context) (*ent.{{$n.Name}}Query, error) {
+func (curd *{{$n.Name}}CURD) BaseGetOneQueryer(c *gin.Context) (*ent.{{$n.Name}}Query, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseGetOneQueryer(id.ID)
+	return curd.Db.{{$n.Name}}.Query().Where({{lower $n.Name}}.IDEQ(id.ID)), nil
 }
 
 func (curd *{{$n.Name}}CURD) GetOneRoutePath() string {
@@ -80,7 +66,7 @@ func (curd *{{$n.Name}}CURD) GetOneRoutePath() string {
 }
 
 func (curd *{{$n.Name}}CURD) GetOne(c *gin.Context) (*ent.{{$n.Name}}, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +74,7 @@ func (curd *{{$n.Name}}CURD) GetOne(c *gin.Context) (*ent.{{$n.Name}}, error) {
 	return queryer.Only(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) BaseGetListCount(queryer *ent.{{$n.Name}}Query,query *{{$n.Name}}DefaultQuery) (error) {
+func (curd *{{$n.Name}}CURD) defaultGetListCount(queryer *ent.{{$n.Name}}Query,query *{{$n.Name}}DefaultQuery) (error) {
 	ps, err := query.PredicatesExec()
 	if err != nil {
 		return err
@@ -97,7 +83,7 @@ func (curd *{{$n.Name}}CURD) BaseGetListCount(queryer *ent.{{$n.Name}}Query,quer
     return nil
 }
 
-func (curd *{{$n.Name}}CURD) BaseGetListQueryer(queryer *ent.{{$n.Name}}Query,query *{{$n.Name}}DefaultQuery) (error) {
+func (curd *{{$n.Name}}CURD) defaultGetListQueryer(queryer *ent.{{$n.Name}}Query,query *{{$n.Name}}DefaultQuery) (error) {
 	err := query.Exec(queryer)
 	if err != nil {
 		return err
@@ -109,20 +95,20 @@ func (curd *{{$n.Name}}CURD) BaseGetListQueryer(queryer *ent.{{$n.Name}}Query,qu
 	return nil
 }
 
-func (curd *{{$n.Name}}CURD) defaultGetListQueryer(c *gin.Context) (*ent.{{$n.Name}}Query, *ent.{{$n.Name}}Query,error) {
+func (curd *{{$n.Name}}CURD) BaseGetListQueryer(c *gin.Context) (*ent.{{$n.Name}}Query, *ent.{{$n.Name}}Query,error) {
 	query, err := curd.BindDefaultQuery(c)
 	if err != nil {
 		return nil,nil, err
 	}
 	countQueryer := curd.Db.{{$n.Name}}.Query()
 
-	err = curd.BaseGetListCount(countQueryer,query)
+	err = curd.defaultGetListCount(countQueryer,query)
 	if err != nil {
 		return nil,nil,err
 	}
 
 	getListQueryer := curd.Db.{{$n.Name}}.Query()
-	err = curd.BaseGetListQueryer(getListQueryer,query)
+	err = curd.defaultGetListQueryer(getListQueryer,query)
 	if err != nil {
 		return nil,nil,err
 	}
@@ -133,23 +119,19 @@ func (curd *{{$n.Name}}CURD) GetListRoutePath() string {
 	return "/{{snake (plural $n.Name)}}"
 }
 
-type Get{{$n.Name}}ListData struct {
-	Count int
-	Result []*ent.{{$n.Name}}
-}
-
 func (curd *{{$n.Name}}CURD) GetList(c *gin.Context) (*Get{{$n.Name}}ListData, error) {
-	getListQueryer,countQueryer, err := curd.defaultGetListQueryer(c)
+	getListQueryer,countQueryer, err := curd.BaseGetListQueryer(c)
 	if err != nil {
 		return nil, err
 	}
 
-	count, err := countQueryer.Count(context.Background())
+	bg := context.Background()
+	count, err := countQueryer.Count(bg)
 	if err != nil {
 		return nil,err
 	}
 
-	res, err := getListQueryer.All(context.Background())
+	res, err := getListQueryer.All(bg)
 	if err != nil {
 		return nil,err
 	}
@@ -189,18 +171,14 @@ func (curd *{{$n.Name}}CURD) defaultOrder(queryer *ent.{{$n.Name}}Query)  {
 	}...)
 }
 
-func (curd *{{$n.Name}}CURD) BaseCreateOneCreater(body *ent.{{$n.Name}}) (*ent.{{$n.Name}}Create) {
-	creater := curd.Db.{{$n.Name}}.Create()
-	{{$n.Name}}CreateMutation(creater.Mutation(), body)
-	return creater
-}
-
-func (curd *{{$n.Name}}CURD) defaultCreateOneCreater(c *gin.Context) (*ent.{{$n.Name}}Create, error) {
+func (curd *{{$n.Name}}CURD) BaseCreateOneCreater(c *gin.Context) (*ent.{{$n.Name}}Create, error) {
 	body, err := curd.BindObj(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateOneCreater(body), nil
+	creater := curd.Db.{{$n.Name}}.Create()
+	{{$n.Name}}CreateMutation(creater.Mutation(), body)
+	return creater, nil
 }
 
 func (curd *{{$n.Name}}CURD) CreateOneRoutePath() string {
@@ -209,29 +187,33 @@ func (curd *{{$n.Name}}CURD) CreateOneRoutePath() string {
 
 
 func (curd *{{$n.Name}}CURD) CreateOne(c *gin.Context) (*ent.{{$n.Name}}, error) {
-	creater, err := curd.defaultCreateOneCreater(c)
+	creater, err := curd.BaseCreateOneCreater(c)
 	if err != nil {
 		return nil, err
 	}
 	return creater.Save(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) BaseCreateListBulk(body ent.{{plural $n.Name}}) ([]*ent.{{$n.Name}}Create) {
+func (curd *{{$n.Name}}CURD) BaseCreateListBulk(c *gin.Context) ([]*ent.{{$n.Name}}Create,error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	bulk := make([]*ent.{{$n.Name}}Create, 0, len(body))
 	for _, v := range body {
 		creater := curd.Db.{{$n.Name}}.Create()
 	{{$n.Name}}CreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
-	return bulk
+	return bulk,nil
 }
 
-func (curd *{{$n.Name}}CURD) defaultCreateListBulk(c *gin.Context) ([]*ent.{{$n.Name}}Create, error) {
-	body, err := curd.BindObjs(c)
+func (curd *{{$n.Name}}CURD) BaseCreateList(c *gin.Context) (*ent.{{$n.Name}}CreateBulk, error) {
+	bulk,err := curd.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseCreateListBulk(body),nil
+	return curd.Db.{{$n.Name}}.CreateBulk(bulk...),nil
 }
 
 func (curd *{{$n.Name}}CURD) CreateListRoutePath() string {
@@ -240,20 +222,14 @@ func (curd *{{$n.Name}}CURD) CreateListRoutePath() string {
 
 
 func (curd *{{$n.Name}}CURD) CreateList(c *gin.Context) ([]*ent.{{$n.Name}}, error) {
-	bulk, err := curd.defaultCreateListBulk(c)
+	creater, err := curd.BaseCreateList(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.Db.{{$n.Name}}.CreateBulk(bulk...).Save(context.Background())
+	return creater.Save(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) BaseUpdateOneUpdater(id int, body *ent.{{$n.Name}}) (*ent.{{$n.Name}}UpdateOne, error) {
-	updater := curd.Db.{{$n.Name}}.UpdateOneID(id)
-	{{$n.Name}}UpdateMutation(updater.Mutation(), body)
-	return updater, nil
-}
-
-func (curd *{{$n.Name}}CURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.{{$n.Name}}UpdateOne, error) {
+func (curd *{{$n.Name}}CURD) BaseUpdateOneUpdater(c *gin.Context) (*ent.{{$n.Name}}UpdateOne, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
@@ -262,7 +238,9 @@ func (curd *{{$n.Name}}CURD) defaultUpdateOneUpdater(c *gin.Context) (*ent.{{$n.
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseUpdateOneUpdater(id.ID, body)
+	updater := curd.Db.{{$n.Name}}.UpdateOneID(id.ID)
+	{{$n.Name}}UpdateMutation(updater.Mutation(), body)
+	return updater, nil
 }
 
 func (curd *{{$n.Name}}CURD) UpdateOneRoutePath() string {
@@ -271,14 +249,19 @@ func (curd *{{$n.Name}}CURD) UpdateOneRoutePath() string {
 
 
 func (curd *{{$n.Name}}CURD) UpdateOne(c *gin.Context) (*ent.{{$n.Name}}, error) {
-	updater, err := curd.defaultUpdateOneUpdater(c)
+	updater, err := curd.BaseUpdateOneUpdater(c)
 	if err != nil {
 		return nil, err
 	}
 	return updater.Save(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) BaseUpdateListUpdater(body ent.{{plural $n.Name}}) (*ent.Tx, error) {
+
+func (curd *{{$n.Name}}CURD) BaseUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
+	body, err := curd.BindObjs(c)
+	if err != nil {
+		return nil, err
+	}
 	ctx := context.Background()
 	tx, err := curd.Db.Tx(ctx)
 	if err != nil {
@@ -297,38 +280,26 @@ func (curd *{{$n.Name}}CURD) BaseUpdateListUpdater(body ent.{{plural $n.Name}}) 
 	return tx, nil
 }
 
-func (curd *{{$n.Name}}CURD) defaultUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
-	body, err := curd.BindObjs(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return curd.BaseUpdateListUpdater(body)
-}
-
 func (curd *{{$n.Name}}CURD) UpdateListRoutePath() string {
 	return "/{{snake (plural $n.Name)}}"
 }
 
 
 func (curd *{{$n.Name}}CURD) UpdateList(c *gin.Context) error {
-	tx, err := curd.defaultUpdateListUpdater(c)
+	tx, err := curd.BaseUpdateListUpdater(c)
 	if err != nil {
 		return err
 	}
 	return tx.Commit()
 }
 
-func (curd *{{$n.Name}}CURD) BaseDeleteOneDeleter(id int) (*ent.{{$n.Name}}Delete) {
-	return curd.Db.{{$n.Name}}.Delete().Where({{lower $n.Name}}.IDEQ(id))
-}
 
-func (curd *{{$n.Name}}CURD) defaultDeleteOneDeleter(c *gin.Context) (*ent.{{$n.Name}}Delete, error) {
+func (curd *{{$n.Name}}CURD) BaseDeleteOneDeleter(c *gin.Context) (*ent.{{$n.Name}}Delete, error) {
 	id, err := BindId(c)
 	if err != nil {
 		return nil, err
 	}
-	return curd.BaseDeleteOneDeleter(id.ID), nil
+	return curd.Db.{{$n.Name}}.Delete().Where({{lower $n.Name}}.IDEQ(id.ID)), nil
 }
 
 func (curd *{{$n.Name}}CURD) DeleteOneRoutePath() string {
@@ -337,24 +308,20 @@ func (curd *{{$n.Name}}CURD) DeleteOneRoutePath() string {
 
 
 func (curd *{{$n.Name}}CURD) DeleteOne(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteOneDeleter(c)
+	deleter, err := curd.BaseDeleteOneDeleter(c)
 	if err != nil {
 		return 0, err
 	}
 	return deleter.Exec(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) BaseDeleteListDeleter(ids []int) (*ent.{{$n.Name}}Delete) {
-	return curd.Db.{{$n.Name}}.Delete().Where({{lower $n.Name}}.IDIn(ids...))
-}
-
-func (curd *{{$n.Name}}CURD) defaultDeleteListDeleter(c *gin.Context) (*ent.{{$n.Name}}Delete, error) {
+func (curd *{{$n.Name}}CURD) BaseDeleteListDeleter(c *gin.Context) (*ent.{{$n.Name}}Delete, error) {
 	ids, err := BindIds(c)
 	if err != nil {
 		return nil, err
 	}
 
-	return curd.BaseDeleteListDeleter(ids.Ids), nil
+	return curd.Db.{{$n.Name}}.Delete().Where({{lower $n.Name}}.IDIn(ids.Ids...)), nil
 }
 
 func (curd *{{$n.Name}}CURD) DeleteListRoutePath() string {
@@ -363,7 +330,7 @@ func (curd *{{$n.Name}}CURD) DeleteListRoutePath() string {
 
 
 func (curd *{{$n.Name}}CURD) DeleteList(c *gin.Context) (int, error) {
-	deleter, err := curd.defaultDeleteListDeleter(c)
+	deleter, err := curd.BaseDeleteListDeleter(c)
 	if err != nil {
 		return 0, nil
 	}
@@ -434,7 +401,7 @@ func (curd *{{$n.Name}}CURD) GetList{{plural $e.Type.Name}}By{{$n.Name}}IdRouteP
 
 
 func (curd *{{$n.Name}}CURD) GetList{{plural $e.Type.Name}}By{{$n.Name}}Id(c *gin.Context) ([]*ent.{{$e.Type.Name}}, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return nil, err
 	}
@@ -467,7 +434,7 @@ func (curd *{{$n.Name}}CURD) CreateList{{plural $e.Type.Name}}By{{$n.Name}}Id(c 
 	if err != nil {
 		return nil, err
 	}
-	bulk, err := curd.{{$e.Type.Name}}Obj.defaultCreateListBulk(c)
+	bulk, err := curd.{{$e.Type.Name}}Obj.BaseCreateListBulk(c)
 	if err != nil {
 		return nil, err
 	}
@@ -506,7 +473,7 @@ func (curd *{{$n.Name}}CURD) DeleteList{{plural $e.Type.Name}}By{{$n.Name}}IdRou
 }
 
 func (curd *{{$n.Name}}CURD) DeleteList{{plural $e.Type.Name}}By{{$n.Name}}Id(c *gin.Context) (int, error) {
-	queryer, err := curd.defaultGetOneQueryer(c)
+	queryer, err := curd.BaseGetOneQueryer(c)
 	if err != nil {
 		return 0, err
 	}

@@ -579,6 +579,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1172,6 +1181,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1263,6 +1281,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1306,6 +1333,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1877,6 +1913,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2253,6 +2298,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2344,6 +2398,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2387,6 +2450,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2428,6 +2500,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2976,6 +3057,15 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3348,6 +3438,15 @@
                     {
                         "type": "string",
                         "name": "gte_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
                         "in": "query"
                     },
                     {

@@ -594,6 +594,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1187,6 +1196,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1278,6 +1296,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1321,6 +1348,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1892,6 +1928,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2268,6 +2313,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2359,6 +2413,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2402,6 +2465,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2443,6 +2515,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2991,6 +3072,15 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3363,6 +3453,15 @@ var doc = `{
                     {
                         "type": "string",
                         "name": "gte_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "name": "includes",
                         "in": "query"
                     },
                     {
