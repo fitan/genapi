@@ -8,7 +8,7 @@
 
 #### 安装教程
 
-1.  xxxx
+1.  go get gitee.com/fitan/genapi/tree/master/cmd/genapi
 2.  xxxx
 3.  xxxx
 
