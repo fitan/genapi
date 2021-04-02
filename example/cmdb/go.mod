@@ -6,6 +6,7 @@ require (
 	entgo.io/ent v0.7.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/fitan/genapi v0.0.0
+	github.com/gin-contrib/logger v0.0.2 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
 	github.com/rs/zerolog v1.21.0

@@ -45,9 +45,11 @@ type {{$n.Name}}Paging struct {
 	{{if eq (toString $page.MaxLimit) "0"}}
     Limit int `form:"limit" json:"limit"`
     {{else}}
+    // limit must <= {{$page.MaxLimit}}
     Limit int `form:"limit" binding:"lte={{$page.MaxLimit}}" json:"limit"`
     {{end}}
     {{if eq (toString $page.Must) "true"}}
+    // page must > 0
     Page int `form:"page" binding:"gt=0" json"page"`
     {{else}}
     Page int `form:"page" json:"page"`
@@ -65,6 +67,7 @@ func (m *{{$n.Name}}Paging)BindPaging{{$n.Name}}(queryer *ent.{{$n.Name}}Query) 
             {{range $method := opsString (ops $f)}}
 {{ if eq $method  "EQ"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} == %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -78,6 +81,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "NEQ"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} != %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -92,6 +96,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "In"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} in []%v
     {{$f.StructField}}{{$method}} []{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -107,6 +112,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "NotIn"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // // {{$f.StructField}} not in []%v
     {{$f.StructField}}{{$method}} []{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -120,6 +126,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "GT"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} > %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -133,6 +140,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "GTE"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} >= %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -146,6 +154,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method  "LT"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} < %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -159,6 +168,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "LTE"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} <= %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -174,6 +184,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 {{$TmpMethod := $method}}
 {{ $method = "Or"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} == []%v
     {{$f.StructField}}{{$method}} []{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -192,6 +203,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "Contains"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} $method %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -206,6 +218,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "ContainsFold"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} $method %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -220,6 +233,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "HasPrefix"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} $method %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 
@@ -234,6 +248,7 @@ func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructFiel
 
 {{if eq $method "HasSuffix"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} $method %v
     {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
 }
 

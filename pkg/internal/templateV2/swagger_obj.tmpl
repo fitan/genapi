@@ -25,12 +25,16 @@ type {{$n.Name}}Edges struct {
 
 type {{$n.Name}}NodeNotID struct {
     {{range $f := $n.Fields}}
+    // {{$f.Comment}}
     {{$f.StructField}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `{{$f.StructTag}} {{if eq (toString $f.Type) "uuid.UUID"}}format:"uuid"{{end}} {{if eq (toString $f.Type) "time.Time"}}format:"date-time"{{end}} {{$isEnum := PaseFieldIsEnum $f}}{{if $isEnum.Has}}enums:"{{$isEnum.Values}}" binding:"oneof={{$isEnum.Values}}"{{end}}`
     {{- end}}
     Edges {{$n.Name}}Edges `json:"edges"`
 }
 
 type {{$n.Name}}Query struct {
+    // Association query Multiple choice:
+    {{- range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{range $value := $v}}
+    // {{$value}}{{end}}{{end}}{{end}}
     Includes []string `json:"includes" form:"includes" enums:"{{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v ","}}{{end}}{{end}}"`
 {{range $f := $n.Fields}}
 {{$a := (PaseRestFieldQueryOp $f.Annotations)}}

@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -30,7 +31,7 @@ func (User) Annotations() []schema.Annotation {
 			},
 			Method: pkg.NodeMethod{
 				Get:    pkg.GenRestTrue,
-				Create: pkg.GenRestFalse,
+				Create: pkg.GenRestTrue,
 				Update: pkg.GenRestFalse,
 				Delete: pkg.GenRestFalse,
 			},
@@ -83,7 +84,7 @@ func (User) Fields() []ent.Field {
 				Selete: pkg.GenRestFalse,
 			},
 		}),
-		field.String("phone"),
+		field.String("phone").Comment("这是我的电话"),
 		field.Enum("role").Values("user", "admin", "tourist"),
 	}
 }
@@ -91,7 +92,7 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("role_bindings", RoleBinding.Type),
+		edge.To("role_bindings", RoleBinding.Type).Annotations(entsql.Annotation{}),
 		edge.To("alerts", Alert.Type),
 	}
 }
