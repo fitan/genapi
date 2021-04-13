@@ -33,8 +33,7 @@ type {{$n.Name}}NodeNotID struct {
 
 type {{$n.Name}}Query struct {
     // Association query Multiple choice:
-    {{- range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{range $value := $v}}
-    // {{$value}}{{end}}{{end}}{{end}}
+    // {{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v "\n    // "}}{{end}}{{end}}
     Includes []string `json:"includes" form:"includes" enums:"{{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v ","}}{{end}}{{end}}"`
 {{range $f := $n.Fields}}
 {{$a := (PaseRestFieldQueryOp $f.Annotations)}}

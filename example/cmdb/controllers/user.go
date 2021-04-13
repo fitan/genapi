@@ -16,12 +16,19 @@ type UserCallQuery struct {
 
 type UserCallIn struct {
 	Query UserCallQuery
-	Uri   entt.IdUri
 }
 
-// @GenApi /api/usercall/{id} [get]
-func UserCall(c *gin.Context, in *UserCallIn) (*ent.User, error) {
-	qureyer := public.DB.User.Query()
-	entt.QueryerIncludes(qureyer, in.Query.Includes)
-	return qureyer.Where(user.IDEQ(in.Uri.ID)).Only(context.Background())
+// @GenApi /api/usercall [get]
+func UserCall(c *gin.Context, in *UserCallIn) ([]*ent.User, error) {
+	db := public.GetDB()
+	query := db.User.Query()
+	ps, err := entt.UserPredicatesExec(in.Query.BindUserNameEQ)
+	if err != nil {
+		return nil, err
+	}
+
+	query.Where(user.And(ps...))
+	entt.QueryerIncludes(query, in.Query.Includes)
+	return query.All(context.Background())
+
 }

@@ -12,6 +12,8 @@ import (
 {{ range $n := $.Nodes }}
 
 type {{$n.Name}}Includes struct {
+    // Association query Multiple choice:
+    // {{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v "\n    // "}}{{end}}{{end}}
     Includes []string `form:"includes" json:"includes" binding:"dive,oneof={{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v " "}}{{end}}{{end}}"`
 }
 
