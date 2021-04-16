@@ -3,8 +3,8 @@ package public
 import (
 	"cmdb/ent"
 	"context"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 )
 
 var DB *ent.Client
@@ -14,12 +14,15 @@ func Init() {
 }
 
 func NewDB() *ent.Client {
-	db, err := ent.Open("mysql", "root:123456@tcp(10.143.131.148:3306)/cmdb?charset=utf8&parseTime=true")
+	db, err := ent.Open("mysql", GetConf().Mysql.Addr)
 	if err != nil {
-		log.Fatalln(err.Error())
+		XLog.Error().Err(err)
+	}
+	if GetConf().Mysql.Debug {
+		db.Debug()
 	}
 	if err := db.Schema.Create(context.Background()); err != nil {
-		log.Fatalf("failed creating schema resources: %v", err)
+		XLog.Error().Err(fmt.Errorf("failed creating schema resources: %v", err))
 	}
 	return db
 }
@@ -27,7 +30,6 @@ func NewDB() *ent.Client {
 func GetDB() *ent.Client {
 	if DB == nil {
 		DB = NewDB()
-		return DB
 	}
 
 	return DB

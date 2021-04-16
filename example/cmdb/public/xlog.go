@@ -9,18 +9,15 @@ import (
 
 var XLog *xLog
 
-const (
-	MaxSize    int  = 500
-	MaxBackups int  = 3
-	MaxAge     int  = 7
-	Compress   bool = false
-)
-
 func init() {
-	XLog = NewXLog("./logs", "")
+	XLog = NewXLog(GetConf().Log.Dir, GetConf().App.Name)
 }
 
 func NewXLog(dir string, mark string) *xLog {
+	MaxSize    := GetConf().Log.MaxSize
+	MaxBackups := GetConf().Log.MaxBackups
+	MaxAge   := GetConf().Log.MaxAge
+	Compress  := GetConf().Log.Compress
 	fileName := func(mark string, name string) string {
 		if mark == "" {
 			return name
@@ -81,7 +78,7 @@ type Result struct {
 	Err  string
 }
 
-func HttpResultTmp(data interface{}, err error) Result {
+func HttpResultTmpl(data interface{}, err error) Result {
 	res := Result{Data: data}
 	if err != nil {
 		XLog.Error().Err(err).Msg("")
@@ -94,5 +91,5 @@ func HttpResultTmp(data interface{}, err error) Result {
 }
 
 func GinHttpResult(c *gin.Context, data interface{}, err error) {
-	c.JSON(200, HttpResultTmp(data, err))
+	c.JSON(200, HttpResultTmpl(data, err))
 }
