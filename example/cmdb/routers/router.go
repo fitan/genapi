@@ -2,6 +2,7 @@ package routers
 
 import (
 	"cmdb/middleware/jwt"
+	"cmdb/public"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,6 +11,9 @@ var authRouter *gin.RouterGroup
 
 func NewRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(func(c *gin.Context) {
+		public.XLog.Info().Msg(c.FullPath())
+	})
 	return r
 }
 

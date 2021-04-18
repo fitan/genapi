@@ -1,9 +1,18 @@
 package main
 
 import (
-	_ "cmdb/docs"
 	"cmdb/public"
 	"cmdb/routers"
+	"fmt"
+	"os"
+)
+
+// go build -ldflags "-X main.GitCommitId=`git rev-parse HEAD` -X 'main.goVersion=$(go version)' -X 'main.gitHash=$(git show -s --format=%H)' -X 'main.buildTime=$(git show -s --format=%cd)'" -o main.exe version.go
+var (
+	gitHash     string
+	gitCommitId string
+	buildTime   string
+	goVersion   string
 )
 
 // @title cmdbapi
@@ -13,5 +22,13 @@ import (
 // @BasePath /
 // @query.collection.format multi
 func main() {
+	args := os.Args
+	if len(args) == 2 && (args[1] == "--version" || args[1] == "-v") {
+		fmt.Printf("Git Commit: %s \n", gitCommitId)
+		fmt.Printf("Git Commit Hash: %s \n", gitHash)
+		fmt.Printf("Build TimeStamp: %s \n", buildTime)
+		fmt.Printf("GoLang Version: %s \n", goVersion)
+		return
+	}
 	routers.GetDefaultRouter().Run(public.GetConf().App.Host + ":" + public.GetConf().App.Port)
 }
