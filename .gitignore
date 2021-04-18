@@ -25,6 +25,7 @@ gen
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+/example/cmdb/ent/
 /example/cmdb/gen/
 /example/cmdb/logs/
 /example/cmdb/docs/
