@@ -30,6 +30,33 @@ var pkg_name_tmpl string
 
 const GenMark string = "@GenApi"
 
+func JudgeBuiltInType(t string) bool {
+	m := map[string]int{
+		"uint8":      0,
+		"uint16":     0,
+		"uint32":     0,
+		"uint64":     0,
+		"int8":       0,
+		"int16":      0,
+		"int32":      0,
+		"int64":      0,
+		"float32":    0,
+		"float64":    0,
+		"complex64":  0,
+		"complex128": 0,
+		"byte":       0,
+		"rune":       0,
+		"uint":       0,
+		"int":        0,
+		"uintptr":    0,
+		"string":     0,
+		"bool":       0,
+		"error":      0,
+	}
+	_, ok := m[t]
+	return ok
+}
+
 func ParseFuncApi(src string, dest string) ParseContext {
 	fset, pkgs := LoadPkgs(src)
 	context := ParseContext{
