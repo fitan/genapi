@@ -42,8 +42,8 @@ var genApiCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(genApiCmd)
 
-	genApiSrc = genApiCmd.Flags().StringP("src", "s", "./controllers", "generate src.")
-	genApiDest = genApiCmd.Flags().StringP("dest", "d", "./gen/router", "generate dest.")
+	genApiSrc = genApiCmd.Flags().StringP("src", "s", "./logic", "generate src.")
+	genApiDest = genApiCmd.Flags().StringP("dest", "d", "./gen/handler", "generate dest.")
 
 	// Here you will define your flags and configuration settings.
 

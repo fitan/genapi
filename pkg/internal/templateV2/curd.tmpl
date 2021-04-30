@@ -23,16 +23,8 @@ type {{$n.Name}}CURD struct {
 	{{ end }}	
 }
 
-func (curd *{{$n.Name}}CURD) RegisterRouter(router interface{}) {
-	switch router.(type) {
-	case *gin.Engine:
-	r := router.(*gin.Engine)
+func (curd *{{$n.Name}}CURD) RegisterRouter(r gin.IRouter) {
 	{{template "router" $n}}
-
-	case *gin.RouterGroup:
-	r := router.(*gin.RouterGroup)
-	{{template "router" $n}}
-	}
 }
 
 func (curd *{{$n.Name}}CURD) BindObj(c *gin.Context) (*ent.{{$n.Name}}, error) {

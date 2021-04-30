@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"cmdb/models"
 	"cmdb/public"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,25 @@ type AdminAuthorizator struct {
 }
 
 func (a AdminAuthorizator) Authorizator(data interface{}, c *gin.Context) bool {
-	if v, ok := data.(string); ok && v == "admin" {
+	path := c.FullPath()
+	method := c.Request.Method
+	var role string
+	if v, ok := data.(string); ok {
+		role = v
+	} else {
+		return false
+	}
+	//err := models.GetCasbin().LoadPolicy()
+	//if err != nil {
+	//	public.GetXLog().Error().Err(err).Msg("")
+	//	return false
+	//}
+	has, err := models.GetCasbin().Enforce(role, path, method)
+	if err != nil {
+		public.GetXLog().Error().Err(err).Msg("")
+		return false
+	}
+	if has {
 		return true
 	}
 	return false
@@ -21,7 +40,7 @@ func GetMyJwtMid() *jwt.GinJWTMiddleware {
 	if myJwtMid == nil {
 		middleware, err := NewAuthMiddleware(AdminAuthorizator{})
 		if err != nil {
-			public.XLog.Fatal().Err(err).Msg("")
+			public.GetXLog().Fatal().Err(err).Msg("")
 		}
 		myJwtMid = middleware
 	}

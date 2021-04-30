@@ -3,7 +3,7 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-func RegisterAll(c *gin.Engine) {
+func RegisterAll(c gin.IRouter) {
 {{range $fileMap := $.ApiMap}}
     {{range $funcMap := $fileMap}}
         {{range $funcName, $msg := $funcMap}}

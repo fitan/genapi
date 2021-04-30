@@ -1,4 +1,4 @@
-package controllers
+package logic
 
 import (
 	"cmdb/ent"
@@ -30,5 +30,4 @@ func UserCall(c *gin.Context, in *UserCallIn) ([]*ent.User, error) {
 	query.Where(user.And(ps...))
 	entt.QueryerIncludes(query, in.Query.Includes)
 	return query.All(context.Background())
-
 }

@@ -116,8 +116,8 @@ func (c *ParseContext) Enter() {
 			filterFuncs := c.FileEnter(file)
 			parseImport := ParseImport(file, c.Fset)
 			for _, f := range filterFuncs {
-				inObjectMsg := c.FindObjectMsg(f.Type.Params.List[1], file, filePath, parseImport)
-				outObjectMsg := c.FindObjectMsg(f.Type.Results.List[0], file, filePath, parseImport)
+				inObjectMsg := c.FindInObjectMsg(f.Type.Params.List[1], file, filePath, parseImport)
+				outObjectMsg := c.FindOutObjectMsg(f.Type.Results.List[0], file, filePath, parseImport)
 				outObjectMsg.RawName = strings.ReplaceAll(outObjectMsg.RawName, "*", "")
 				_, funcRouter := c.FuncHasSwaggerRouter(f.Doc)
 				apiMsg := ApiMsg{
@@ -201,11 +201,11 @@ func (c *ParseContext) ConformFormat(f *ast.FuncDecl) bool {
 	}
 	return false
 }
-
-func (c *ParseContext) FindObjectMsg(field *ast.Field, file *ast.File, filePath string, msgMap map[string]ObjectImportMsg) ObjectMsg {
+func (c *ParseContext) FindOutObjectMsg(field *ast.Field, file *ast.File, filePath string, msgMap map[string]ObjectImportMsg) ObjectMsg {
 	msg := ObjectMsg{
 		PkgName:     file.Name.Name,
-		RawName:     NodeString(c.Fset, field.Type),
+		//RawName:     NodeString(c.Fset, field.Type),
+		RawName: "",
 		SelectorSel: "",
 		SelectorX:   "",
 		IsSelector:  false,
@@ -221,11 +221,43 @@ func (c *ParseContext) FindObjectMsg(field *ast.Field, file *ast.File, filePath 
 		} else {
 			msg.ObjectImportMsg = fileImportMsg
 		}
+		msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset,field.Type, file.Name.Name))
 		return msg
 	}
-	msg.SelectorSel = field.Type.(*ast.StarExpr).X.(*ast.Ident).Name
-	log.Println(msg.RawName + " filepath: " + filePath)
+	//fmt.Println(NodeString())
+	//msg.SelectorSel = field.Type.(*ast.StarExpr).X.(*ast.Ident).Name
 	msg.ObjectImportMsg = ObjectImportMsg{RawImport: path.Join(c.LocalModuleName, c.ParsePath)}
+	msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset,field.Type, file.Name.Name))
+	return msg
+}
+
+func (c *ParseContext) FindInObjectMsg(field *ast.Field, file *ast.File, filePath string, msgMap map[string]ObjectImportMsg) ObjectMsg {
+	msg := ObjectMsg{
+		PkgName:     file.Name.Name,
+		//RawName:     NodeString(c.Fset, field.Type),
+		RawName: "",
+		SelectorSel: "",
+		SelectorX:   "",
+		IsSelector:  false,
+	}
+
+	has, x, sel := FieldIsSelector(field)
+	if has {
+		msg.IsSelector = true
+		msg.SelectorX = x
+		msg.SelectorSel = sel
+		if fileImportMsg, ok := msgMap[x]; !ok {
+			log.Fatalf("没有找到x %v \n", x)
+		} else {
+			msg.ObjectImportMsg = fileImportMsg
+		}
+		msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset,field.Type, file.Name.Name))
+		return msg
+	}
+	//fmt.Println(NodeString())
+	msg.SelectorSel = field.Type.(*ast.StarExpr).X.(*ast.Ident).Name
+	msg.ObjectImportMsg = ObjectImportMsg{RawImport: path.Join(c.LocalModuleName, c.ParsePath)}
+	msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset,field.Type, file.Name.Name))
 	return msg
 }
 

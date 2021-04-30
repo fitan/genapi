@@ -3,7 +3,7 @@ module github.com/fitan/genapi
 go 1.16
 
 require (
-	entgo.io/ent v0.7.0
+	entgo.io/ent v0.8.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.1.3

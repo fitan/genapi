@@ -2,7 +2,10 @@ package public
 
 import (
 	"gopkg.in/ini.v1"
+	"sync"
 )
+
+var confLock sync.Mutex
 
 type Conf struct {
 	App   App   `ini:"app"`
@@ -51,21 +54,14 @@ func NewConf() (*Conf, error) {
 	return conf, err
 }
 
-func init() {
-	conf, err := NewConf()
-	if err != nil {
-		XLog.Fatal().Err(err).Msg("")
-		return
-	}
-	readConf = conf
-}
 
 func GetConf() *Conf {
 	if readConf == nil {
+		confLock.Lock()
+		defer  confLock.Unlock()
 		conf, err := NewConf()
 		if err != nil {
-			XLog.Fatal().Err(err).Msg("")
-			return nil
+			GetXLog().Error().Err(err).Msgf("")
 		}
 
 		readConf = conf

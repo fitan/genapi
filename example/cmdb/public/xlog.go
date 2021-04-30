@@ -6,13 +6,20 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"path"
+	"sync"
 )
 
-var XLog *xLog
+var log *xLog
+var logLock sync.Mutex
 var buildLog bool
 
-func init() {
-	XLog = NewXLog(GetConf().Log.Dir, GetConf().App.Name)
+func GetXLog() *xLog {
+	if log == nil {
+		logLock.Lock()
+		defer logLock.Unlock()
+		log = NewXLog(GetConf().Log.Dir, GetConf().App.Name)
+	}
+	return log
 }
 
 func NewXLog(dir string, mark string) *xLog {
@@ -106,7 +113,7 @@ type Result struct {
 func HttpResultTmpl(data interface{}, err error) Result {
 	res := Result{Data: data}
 	if err != nil {
-		XLog.Error().Err(err).Msg("")
+		GetXLog().Error().Err(err).Msg("")
 		res.Code = 503
 		res.Err = err.Error()
 	} else {
