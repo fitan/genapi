@@ -1,7 +1,6 @@
-package models
+package public
 
 import (
-	"cmdb/public"
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	_ "github.com/go-sql-driver/mysql"
@@ -9,10 +8,10 @@ import (
 )
 
 var enforcer *casbin.Enforcer
-var lock sync.Mutex
+var casbinLock sync.Mutex
 
 func newCasbin() (*casbin.Enforcer, error) {
-	a, err := gormadapter.NewAdapter("mysql", public.GetConf().Mysql.Addr, true)
+	a, err := gormadapter.NewAdapter("mysql", GetConf().Mysql.Addr, true)
 	if err != nil {
 		return nil, err
 	}
@@ -29,11 +28,11 @@ func newCasbin() (*casbin.Enforcer, error) {
 
 func GetCasbin() *casbin.Enforcer {
 	if enforcer == nil {
-		lock.Lock()
-		defer lock.Unlock()
+		casbinLock.Lock()
+		defer casbinLock.Unlock()
 		e, err := newCasbin()
 		if err != nil {
-			public.GetXLog().Error().Err(err).Msg("")
+			GetXLog().Error().Err(err).Msg("")
 		}
 		enforcer = e
 	}

@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"cmdb/models"
 	"cmdb/public"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,7 @@ func (a AdminAuthorizator) Authorizator(data interface{}, c *gin.Context) bool {
 	//	public.GetXLog().Error().Err(err).Msg("")
 	//	return false
 	//}
-	has, err := models.GetCasbin().Enforce(role, path, method)
+	has, err := public.GetCasbin().Enforce(role, path, method)
 	if err != nil {
 		public.GetXLog().Error().Err(err).Msg("")
 		return false

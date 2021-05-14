@@ -6,9 +6,8 @@ import (
 	"sync"
 )
 
-var dB *ent.Client
+var db *ent.Client
 var dbLock sync.Mutex
-
 
 func NewDB() (*ent.Client, error){
 	db, err := ent.Open("mysql", GetConf().Mysql.Addr)
@@ -25,15 +24,14 @@ func NewDB() (*ent.Client, error){
 }
 
 func GetDB() *ent.Client {
-	if dB == nil {
+	if db == nil {
 		dbLock.Lock()
 		defer dbLock.Unlock()
 		d, err := NewDB()
 		if err != nil {
 			GetXLog().Error().Err(err).Msg("")
 		}
-		dB = d
+		db = d
 	}
-
-	return dB
+	return db
 }
