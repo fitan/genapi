@@ -8,7 +8,6 @@ require (
 	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/casbin/casbin/v2 v2.28.1
 	github.com/casbin/gorm-adapter/v3 v3.2.6
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fitan/genapi v0.0.0
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-playground/validator/v10 v10.5.0 // indirect
@@ -26,8 +25,6 @@ require (
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/ini.v1 v1.51.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
-	gorm.io/driver/mysql v1.0.1
-	gorm.io/gorm v1.20.7
 )
 
 replace github.com/fitan/genapi v0.0.0 => ../../

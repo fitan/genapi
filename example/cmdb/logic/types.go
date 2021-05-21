@@ -1,4 +1,4 @@
-package casbin
+package logic
 
 
 type Policy struct {
@@ -54,5 +54,5 @@ type UpdateIn struct {
 }
 
 type DeleteIn struct {
-	Query  Query
+	Query Query
 }

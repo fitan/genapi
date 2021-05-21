@@ -1,0 +1,297 @@
+(*ast.Field)(0xc0002879c0)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002fe940)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a030)({
+  Star: (token.Pos) 160,
+  X: (*ast.Ident)(0xc0002fe960)(GetListIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc0002879c0)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002fe940)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a030)({
+  Star: (token.Pos) 160,
+  X: (*ast.Ident)(0xc0002fe960)(GetListIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+x:   sel:  GetListIn has:  false
+pkg:  &{logic scope 0x0 {}
+ map[] map[logic/authorization.go:0xc0000db100 logic/conf.go:0xc0000db180 logic/types.go:0xc0000db300 logic/user.go:0xc0000db500]} structName:  GetListIn
+(*ast.Field)(0xc00039ca40)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002ffdc0)(Query)
+ },
+ Type: (*ast.Ident)(0xc0002ffde0)(Query),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc000287bc0)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002febe0)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a138)({
+  Star: (token.Pos) 325,
+  X: (*ast.Ident)(0xc0002fec00)(AddListIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc000287bc0)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002febe0)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a138)({
+  Star: (token.Pos) 325,
+  X: (*ast.Ident)(0xc0002fec00)(AddListIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+x:   sel:  AddListIn has:  false
+pkg:  &{logic scope 0x0 {}
+ map[] map[logic/authorization.go:0xc0000db100 logic/conf.go:0xc0000db180 logic/types.go:0xc0000db300 logic/user.go:0xc0000db500]} structName:  AddListIn
+(*ast.Field)(0xc00039cb40)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002ffe80)(Body)
+ },
+ Type: (*ast.ArrayType)(0xc000398d20)({
+  Lbrack: (token.Pos) 1499,
+  Len: (ast.Expr) <nil>,
+  Elt: (*ast.Ident)(0xc0002ffea0)(Policy)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc00039c000)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002ff140)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a270)({
+  Star: (token.Pos) 596,
+  X: (*ast.Ident)(0xc0002ff160)(UpdateIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc00039c000)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002ff140)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a270)({
+  Star: (token.Pos) 596,
+  X: (*ast.Ident)(0xc0002ff160)(UpdateIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+x:   sel:  UpdateIn has:  false
+pkg:  &{logic scope 0x0 {}
+ map[] map[logic/authorization.go:0xc0000db100 logic/conf.go:0xc0000db180 logic/types.go:0xc0000db300 logic/user.go:0xc0000db500]} structName:  UpdateIn
+(*ast.Field)(0xc00039cc80)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002fffc0)(Body)
+ },
+ Type: (*ast.Ident)(0xc0002fffe0)(UpdateBody),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc00039c200)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002ff400)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a3c0)({
+  Star: (token.Pos) 784,
+  X: (*ast.Ident)(0xc0002ff420)(DeleteIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc00039c200)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc0002ff400)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a3c0)({
+  Star: (token.Pos) 784,
+  X: (*ast.Ident)(0xc0002ff420)(DeleteIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+x:   sel:  DeleteIn has:  false
+pkg:  &{logic scope 0x0 {}
+ map[] map[logic/authorization.go:0xc0000db100 logic/conf.go:0xc0000db180 logic/types.go:0xc0000db300 logic/user.go:0xc0000db500]} structName:  DeleteIn
+(*ast.Field)(0xc00039cd00)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc00039e020)(Query)
+ },
+ Type: (*ast.Ident)(0xc00039e040)(Query),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc00039d000)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc00039e340)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a6c0)({
+  Star: (token.Pos) 1982,
+  X: (*ast.Ident)(0xc00039e360)(UserCallIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+(*ast.Field)(0xc00039d000)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc00039e340)(in)
+ },
+ Type: (*ast.StarExpr)(0xc00039a6c0)({
+  Star: (token.Pos) 1982,
+  X: (*ast.Ident)(0xc00039e360)(UserCallIn)
+ }),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+x:   sel:  UserCallIn has:  false
+pkg:  &{logic scope 0x0 {}
+ map[] map[logic/authorization.go:0xc0000db100 logic/conf.go:0xc0000db180 logic/types.go:0xc0000db300 logic/user.go:0xc0000db500]} structName:  UserCallIn
+(*ast.Field)(0xc00039cf00)({
+ Doc: (*ast.CommentGroup)(<nil>),
+ Names: ([]*ast.Ident) (len=1 cap=1) {
+  (*ast.Ident)(0xc00039e260)(Query)
+ },
+ Type: (*ast.Ident)(0xc00039e280)(UserCallQuery),
+ Tag: (*ast.BasicLit)(<nil>),
+ Comment: (*ast.CommentGroup)(<nil>)
+})
+([]gen_apiV2.Func) (len=4 cap=4) {
+ (gen_apiV2.Func) {
+  Comments: ([]string) (len=1 cap=1) {
+   (string) (len=24) "// @Router /policy [get]"
+  },
+  Router: (gen_apiV2.Router) {
+   Method: (string) (len=3) "GET",
+   GinPath: (string) (len=7) "/policy"
+  },
+  FuncName: (string) (len=13) "GetPolicyList",
+  Bind: (gen_apiV2.Bind) {
+   HasUri: (bool) false,
+   HasQuery: (bool) true,
+   HasBody: (bool) false,
+   HasHeader: (bool) false,
+   QuoteBody: (string) "",
+   QuoteQuery: (string) (len=11) "logic.Query",
+   QuoteHeader: (string) "",
+   QuoteUri: (string) ""
+  },
+  ResOut0: (string) (len=10) "[][]string"
+ },
+ (gen_apiV2.Func) {
+  Comments: ([]string) (len=1 cap=1) {
+   (string) (len=25) "// @Router /policy [post]"
+  },
+  Router: (gen_apiV2.Router) {
+   Method: (string) (len=4) "POST",
+   GinPath: (string) (len=7) "/policy"
+  },
+  FuncName: (string) (len=11) "AddPolicies",
+  Bind: (gen_apiV2.Bind) {
+   HasUri: (bool) false,
+   HasQuery: (bool) false,
+   HasBody: (bool) true,
+   HasHeader: (bool) false,
+   QuoteBody: (string) (len=14) "[]logic.Policy",
+   QuoteQuery: (string) "",
+   QuoteHeader: (string) "",
+   QuoteUri: (string) ""
+  },
+  ResOut0: (string) (len=4) "bool"
+ },
+ (gen_apiV2.Func) {
+  Comments: ([]string) (len=1 cap=1) {
+   (string) (len=24) "// @Router /policy [put]"
+  },
+  Router: (gen_apiV2.Router) {
+   Method: (string) (len=3) "PUT",
+   GinPath: (string) (len=7) "/policy"
+  },
+  FuncName: (string) (len=12) "UpdatePolicy",
+  Bind: (gen_apiV2.Bind) {
+   HasUri: (bool) false,
+   HasQuery: (bool) false,
+   HasBody: (bool) true,
+   HasHeader: (bool) false,
+   QuoteBody: (string) (len=16) "logic.UpdateBody",
+   QuoteQuery: (string) "",
+   QuoteHeader: (string) "",
+   QuoteUri: (string) ""
+  },
+  ResOut0: (string) (len=4) "bool"
+ },
+ (gen_apiV2.Func) {
+  Comments: ([]string) (len=1 cap=1) {
+   (string) (len=27) "// @Router /policy [delete]"
+  },
+  Router: (gen_apiV2.Router) {
+   Method: (string) (len=6) "DELETE",
+   GinPath: (string) (len=7) "/policy"
+  },
+  FuncName: (string) (len=12) "DeletePolicy",
+  Bind: (gen_apiV2.Bind) {
+   HasUri: (bool) false,
+   HasQuery: (bool) true,
+   HasBody: (bool) false,
+   HasHeader: (bool) false,
+   QuoteBody: (string) "",
+   QuoteQuery: (string) (len=11) "logic.Query",
+   QuoteHeader: (string) "",
+   QuoteUri: (string) ""
+  },
+  ResOut0: (string) (len=4) "bool"
+ }
+}
+([]gen_apiV2.Func) {
+}
+([]gen_apiV2.Func) {
+}
+([]gen_apiV2.Func) (len=1 cap=1) {
+ (gen_apiV2.Func) {
+  Comments: ([]string) (len=1 cap=1) {
+   (string) (len=30) "// @Router /api/usercall [get]"
+  },
+  Router: (gen_apiV2.Router) {
+   Method: (string) (len=3) "GET",
+   GinPath: (string) (len=13) "/api/usercall"
+  },
+  FuncName: (string) (len=8) "UserCall",
+  Bind: (gen_apiV2.Bind) {
+   HasUri: (bool) false,
+   HasQuery: (bool) true,
+   HasBody: (bool) false,
+   HasHeader: (bool) false,
+   QuoteBody: (string) "",
+   QuoteQuery: (string) (len=19) "logic.UserCallQuery",
+   QuoteHeader: (string) "",
+   QuoteUri: (string) ""
+  },
+  ResOut0: (string) (len=10) "[]ent.User"
+ }
+}

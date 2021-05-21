@@ -1,4 +1,4 @@
-package casbin
+package logic
 
 import (
 	"cmdb/public"
