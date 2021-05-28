@@ -10,6 +10,13 @@ import (
 var enforcer *casbin.Enforcer
 var casbinLock sync.Mutex
 
+type Header struct {
+	// 这是Header 的姓名
+	Name string `header:"name"`
+	// 这是age 的姓名
+	Age int `header:"age"`
+}
+
 func newCasbin() (*casbin.Enforcer, error) {
 	a, err := gormadapter.NewAdapter("mysql", GetConf().Mysql.Addr, true)
 	if err != nil {

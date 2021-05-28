@@ -14,22 +14,30 @@ type UserCallQuery struct {
 	entt.UserNameEQ
 }
 
-type UserCallIn struct {
-	Id int `json:"id" uri:"id"`
-	ent.UserQuery
 
+type UserCallIn struct {
+	//MUri map[string]struct{
+	//	Id int
+	//}
 	Uri struct{
-		Id int `json:"id"`
+		// 查询id
+		Id int `json:"id" uri:"id"`
 	}
 	Body struct{
 		Name string `json:"name"`
 		Age int `json:"age"`
 	}
 	Query UserCallQuery `json:"query" genapi:"query"`
+	Header public.Header
 }
 
+//type Header struct {
+//	Name string `header:"name"`
+//	Age int `header:"age"`
+//}
+
 // @GenApi /api/usercall [get]
-func UserCall(c *gin.Context, in *UserCallIn) {
+func UserCall(c *gin.Context, in *UserCallIn) ([]*ent.User, error) {
 	db := public.GetDB()
 	query := db.User.Query()
 	ps, err := entt.UserPredicatesExec(in.Query.BindUserNameEQ)
@@ -39,6 +47,6 @@ func UserCall(c *gin.Context, in *UserCallIn) {
 
 	query.Where(user.And(ps...))
 	entt.QueryerIncludes(query, in.Query.Includes)
-	//return query.All(context.Background())
-	return in.Body,nil
+	return query.All(context.Background())
+	//return in.Body,nil
 }
