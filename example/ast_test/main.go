@@ -8,17 +8,17 @@ import (
 	"go/format"
 	"go/token"
 	"go/types"
+	"golang.org/x/tools/go/packages"
 	"log"
 	"path"
 	"strings"
-
-	"golang.org/x/tools/go/packages"
 )
 
 func MatchPath(pkg *packages.Package, dir string) *packages.Package {
-	path, _ := path.Split(dir)
+	pth, _ := path.Split(dir)
+
 	for k, v := range pkg.Imports {
-		if strings.HasSuffix(path, k) {
+		if strings.HasSuffix(path.Clean(pth), k) {
 			return v
 		}
 	}
@@ -90,13 +90,18 @@ func FindTagByType(pkg *packages.Package, ty ast.Node) {
 			if ok {
 				ts, ok := pkg.TypesInfo.TypeOf(e).Underlying().(*types.Struct)
 				if ok {
-					fmt.Println("struct", t, ts.String())
+					if ts.NumFields() > 0 {
+						fileName := pkg.Fset.Position(ts.Field(0).Pos()).Filename
+						depPkg := MatchPath(pkg, fileName)
+						fmt.Println("struct: ", t, ts.String(), depPkg)
+					}
+					//depPkg := MatchPath(pkg, pkg.Fset.Position(e.Pos()).Filename)
+					//fmt.Println("struct", t, ts.String(), depPkg)
+					_, ok := t.(*ast.SelectorExpr)
+					if ok {
+						return false
+					}
 				}
-				_, seOk := t.(*ast.SelectorExpr)
-				if seOk {
-					return false
-				}
-
 			}
 		}
 
