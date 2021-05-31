@@ -1,7 +1,7 @@
 package types
 
 import (
-	models "ast_test/models"
+	models2 "ast_test/models"
 )
 
 type alia string
@@ -21,7 +21,7 @@ type In struct {
 	A  alia
 	A2 alia2
 	alia2
-	models.Out
-	Out1  models.Out
+	models2.Out
+	Out1  models2.Out
 	Hello string `json:"hello"`
 }

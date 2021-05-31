@@ -11,6 +11,8 @@ import (
 	"golang.org/x/tools/go/packages"
 	"log"
 	"path"
+	"reflect"
+
 	"strings"
 )
 
@@ -30,28 +32,29 @@ type TagMsg struct {
 	Comment  string
 }
 
-func FindTags(pkg *packages.Package, structType *ast.StructType, tagName string) {
-	//tagMsgs := make([]TagMsg, 0,0)
+func FindTags(pkg *packages.Package,file *ast.File, structType *ast.StructType, tagName string) {
+	tagMsgs := make([]TagMsg, 0,0)
 	ast.Inspect(structType.Fields, func(node ast.Node) bool {
-		//fd,ok := node.(*ast.Field)
-		//if ok {
-		//	tagTool := reflect.StructTag(fd.Tag.Value[1 : len(fd.Tag.Value)-1])
-		//	value, ok := tagTool.Lookup(tagName)
-		//	if ok {
-		//		msg := TagMsg{
-		//			TagValue: value,
-		//			Comment:  fd.Doc.Text(),
-		//		}
-		//		tagMsgs = append(tagMsgs, msg)
-		//	}
-		//}
-		_, ok := node.(*ast.BasicLit)
+		fd,ok := node.(*ast.Field)
 		if ok {
+			tagTool := reflect.StructTag(fd.Tag.Value[1 : len(fd.Tag.Value)-1])
+			value, ok := tagTool.Lookup(tagName)
+			if ok {
+				msg := TagMsg{
+					TagValue: value,
+					Comment:  fd.Doc.Text(),
+				}
+				tagMsgs = append(tagMsgs, msg)
+			}
+		}
+
+		if _, ok := node.(*ast.BasicLit); ok {
 			return false
 		}
-		switch node.(type) {
+		switch nodeType := node.(type) {
 		case *ast.Field:
-			FindTagByType(pkg, node.(*ast.Field).Type)
+
+			FindTagByType(pkg, file,nodeType.Type, tagName)
 			//e,ok := node.(*ast.Field).Names[0].Obj.Type.(*ast.Expr)
 			//if ok {
 			//	fmt.Println("期待 obj type ", e)
@@ -78,9 +81,51 @@ func FindTags(pkg *packages.Package, structType *ast.StructType, tagName string)
 		//}
 		return true
 	})
-
 }
-func FindTagByType(pkg *packages.Package, ty ast.Node) {
+func TrimImport(s string) string {
+	s = strings.TrimSuffix(s,`\"`)
+	s = strings.TrimPrefix(s, `\"`)
+	return s
+}
+func FindStructNameByPkg(pkg *packages.Package, structName string) (*ast.File, *ast.StructType) {
+	var f *ast.File
+	var st *ast.StructType
+	for _,file := range pkg.Syntax {
+		has := false
+		ast.Inspect(file, func(node ast.Node) bool {
+			ts,ok := node.(*ast.TypeSpec)
+			if ok {
+				if ts.Name.Name == structName {
+					has = true
+					f = file
+					st = ts.Type.(*ast.StructType)
+					return false
+				}
+			}
+			if has {
+				return false
+			}
+			return true
+		})
+	}
+	return f,st
+}
+
+func FindImportPath(importSpecs []*ast.ImportSpec, target string) string {
+	for _,importSpec := range importSpecs {
+		if importSpec.Name != nil {
+			if importSpec.Name.Name == target {
+				return TrimImport(importSpec.Path.Value)
+			}
+			if target == path.Base(TrimImport(importSpec.Path.Value)) {
+				return TrimImport(importSpec.Path.Value)
+			}
+		}
+	}
+	return ""
+}
+
+func FindTagByType(pkg *packages.Package,file *ast.File, ty ast.Node, tagName string) {
 	ast.Inspect(ty, func(node ast.Node) bool {
 		switch t := node.(type) {
 		case *ast.StructType:
@@ -88,23 +133,23 @@ func FindTagByType(pkg *packages.Package, ty ast.Node) {
 		default:
 			e, ok := node.(ast.Expr)
 			if ok {
-				ts, ok := pkg.TypesInfo.TypeOf(e).Underlying().(*types.Struct)
+				_, ok := pkg.TypesInfo.TypeOf(e).Underlying().(*types.Struct)
 				if ok {
-					if ts.NumFields() > 0 {
-						fileName := pkg.Fset.Position(ts.Field(0).Pos()).Filename
-						depPkg := MatchPath(pkg, fileName)
-						fmt.Println("struct: ", t, ts.String(), depPkg)
-					}
-					//depPkg := MatchPath(pkg, pkg.Fset.Position(e.Pos()).Filename)
-					//fmt.Println("struct", t, ts.String(), depPkg)
-					_, ok := t.(*ast.SelectorExpr)
-					if ok {
-						return false
+					switch structType := t.(type) {
+					// remote pkg
+					case *ast.SelectorExpr:
+						importPath := FindImportPath(file.Imports, structType.X.(*ast.Ident).Name)
+						remotePkg := pkg.Imports[importPath]
+						remoteFile,  st:= FindStructNameByPkg(remotePkg, structType.Sel.Name)
+						FindTags(remotePkg,remoteFile,st,tagName)
+					// local pkg
+					case *ast.Ident:
+						localFile, st := FindStructNameByPkg(pkg, structType.Name)
+						FindTags(pkg, localFile, st, tagName)
 					}
 				}
 			}
 		}
-
 		return true
 	})
 }
