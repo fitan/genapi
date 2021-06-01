@@ -12,7 +12,9 @@ type alia2 struct {
 
 type In struct {
 	St struct {
+		// this is h_1
 		H1 string `json:"h_1"`
+		// 这是h_2
 		H2 string `json:"h_2"`
 	}
 	M  map[string]string
@@ -22,6 +24,7 @@ type In struct {
 	A2 alia2
 	alia2
 	models2.Out
-	Out1  models2.Out
+	Out1 models2.Out
+	// 你好啊
 	Hello string `json:"hello"`
 }

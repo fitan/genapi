@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ast_test/tools"
 	"bytes"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
@@ -32,19 +33,25 @@ type TagMsg struct {
 	Comment  string
 }
 
-func FindTags(pkg *packages.Package,file *ast.File, structType *ast.StructType, tagName string) {
-	tagMsgs := make([]TagMsg, 0,0)
+func (t TagMsg) GetKey() string {
+	return t.TagValue
+}
+
+func FindTags(pkg *packages.Package, file *ast.File, structType *ast.StructType, tagName string) []TagMsg {
+	tagMsgs := make([]TagMsg, 0, 0)
 	ast.Inspect(structType.Fields, func(node ast.Node) bool {
-		fd,ok := node.(*ast.Field)
+		fd, ok := node.(*ast.Field)
 		if ok {
-			tagTool := reflect.StructTag(fd.Tag.Value[1 : len(fd.Tag.Value)-1])
-			value, ok := tagTool.Lookup(tagName)
-			if ok {
-				msg := TagMsg{
-					TagValue: value,
-					Comment:  fd.Doc.Text(),
+			if fd.Tag != nil {
+				tagTool := reflect.StructTag(fd.Tag.Value[1 : len(fd.Tag.Value)-1])
+				value, ok := tagTool.Lookup(tagName)
+				if ok {
+					msg := TagMsg{
+						TagValue: value,
+						Comment:  fd.Doc.Text(),
+					}
+					tagMsgs = append(tagMsgs, msg)
 				}
-				tagMsgs = append(tagMsgs, msg)
 			}
 		}
 
@@ -54,7 +61,7 @@ func FindTags(pkg *packages.Package,file *ast.File, structType *ast.StructType, 
 		switch nodeType := node.(type) {
 		case *ast.Field:
 
-			FindTagByType(pkg, file,nodeType.Type, tagName)
+			tagMsgs = append(tagMsgs, FindTagByType(pkg, file, nodeType.Type, tagName)...)
 			//e,ok := node.(*ast.Field).Names[0].Obj.Type.(*ast.Expr)
 			//if ok {
 			//	fmt.Println("期待 obj type ", e)
@@ -81,19 +88,21 @@ func FindTags(pkg *packages.Package,file *ast.File, structType *ast.StructType, 
 		//}
 		return true
 	})
+	return tagMsgs
 }
 func TrimImport(s string) string {
-	s = strings.TrimSuffix(s,`\"`)
-	s = strings.TrimPrefix(s, `\"`)
+	s = strings.TrimSuffix(s, `"`)
+	s = strings.TrimPrefix(s, `"`)
 	return s
 }
 func FindStructNameByPkg(pkg *packages.Package, structName string) (*ast.File, *ast.StructType) {
+	fmt.Println("pkg and structName: ", pkg, structName)
 	var f *ast.File
 	var st *ast.StructType
-	for _,file := range pkg.Syntax {
+	for _, file := range pkg.Syntax {
 		has := false
 		ast.Inspect(file, func(node ast.Node) bool {
-			ts,ok := node.(*ast.TypeSpec)
+			ts, ok := node.(*ast.TypeSpec)
 			if ok {
 				if ts.Name.Name == structName {
 					has = true
@@ -108,15 +117,16 @@ func FindStructNameByPkg(pkg *packages.Package, structName string) (*ast.File, *
 			return true
 		})
 	}
-	return f,st
+	return f, st
 }
 
 func FindImportPath(importSpecs []*ast.ImportSpec, target string) string {
-	for _,importSpec := range importSpecs {
+	for _, importSpec := range importSpecs {
 		if importSpec.Name != nil {
 			if importSpec.Name.Name == target {
 				return TrimImport(importSpec.Path.Value)
 			}
+		} else {
 			if target == path.Base(TrimImport(importSpec.Path.Value)) {
 				return TrimImport(importSpec.Path.Value)
 			}
@@ -125,7 +135,8 @@ func FindImportPath(importSpecs []*ast.ImportSpec, target string) string {
 	return ""
 }
 
-func FindTagByType(pkg *packages.Package,file *ast.File, ty ast.Node, tagName string) {
+func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName string) []TagMsg {
+	tagMsgs := make([]TagMsg, 0, 0)
 	ast.Inspect(ty, func(node ast.Node) bool {
 		switch t := node.(type) {
 		case *ast.StructType:
@@ -139,19 +150,24 @@ func FindTagByType(pkg *packages.Package,file *ast.File, ty ast.Node, tagName st
 					// remote pkg
 					case *ast.SelectorExpr:
 						importPath := FindImportPath(file.Imports, structType.X.(*ast.Ident).Name)
+						//fmt.Println("find import path : ",file.Imports, structType.X.(*ast.Ident).Name, importPath)
+						//fmt.Println(importPath)
+						//fmt.Println(pkg.Imports[importPath].Imports)
 						remotePkg := pkg.Imports[importPath]
-						remoteFile,  st:= FindStructNameByPkg(remotePkg, structType.Sel.Name)
-						FindTags(remotePkg,remoteFile,st,tagName)
+						remoteFile, st := FindStructNameByPkg(remotePkg, structType.Sel.Name)
+						tagMsgs = append(tagMsgs, FindTags(remotePkg, remoteFile, st, tagName)...)
+						return false
 					// local pkg
 					case *ast.Ident:
 						localFile, st := FindStructNameByPkg(pkg, structType.Name)
-						FindTags(pkg, localFile, st, tagName)
+						tagMsgs = append(tagMsgs, FindTags(pkg, localFile, st, tagName)...)
 					}
 				}
 			}
 		}
 		return true
 	})
+	return tagMsgs
 }
 
 const mode packages.LoadMode = packages.NeedName |
@@ -180,7 +196,12 @@ func main() {
 				ts, ok := node.(*ast.TypeSpec)
 				if ok {
 					if ts.Name.Name == "In" {
-						FindTags(pkg, ts.Type.(*ast.StructType), "")
+						tags := FindTags(pkg, file, ts.Type.(*ast.StructType), "json")
+						set := tools.NewSet()
+						for _, tag := range tags {
+							set.Add(tag)
+						}
+						spew.Dump(set.Get())
 						return false
 					}
 				}
