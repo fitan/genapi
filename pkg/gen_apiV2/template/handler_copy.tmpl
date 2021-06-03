@@ -10,26 +10,24 @@ import (
     {{if (and $fc.Bind.Query.Has (eq $fc.Bind.Query.QuoteType "struct")) }}
         type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
     {{end}}
-    {{if (and $fc.Bind.Header.Has (eq $fc.Bind.Header.QuoteType "struct")) }}
-        type {{$fc.Bind.Header.SwagStructName}} {{$fc.Bind.Header.SwagRaw}}
-    {{end}}    
+
 
     // @Accept  json
     // @Produce  json{{if $fc.Bind.HasBody}}
-        // @Param body body {{$fc.Bind.QuoteBody}} true " "
+    // @Param body body {{$fc.Bind.QuoteBody}} true " "
     {{- end}}{{if $fc.Bind.HasQuery}}
-        // @Param query query {{$fc.Bind.QuoteQuery}} false " "
-    {{- end}}{{if $fc.Bind.HasUri}}
-        {{- range $fieldTag := $fc.Bind.Uri.Param}}
-            // @Param {{$fieldTag.TagName}} path int true " "
-        {{- end}}{{if $fc.Bind.HasHeader}}
-            {{- range $fieldTag := $msg.In.InHas.HeaderMsg.FieldTags}}
-                // @Param {{$fieldTag.TagName}} header string false " "
+    // @Param query query {{$fc.Bind.QuoteQuery}} false " "
+    {{- end}}{{if $fc.Bind.HasUri.Has}}
+        {{- range $tagMsg := $fc.Bind.Uri.TagMsgs}}
+    // @Param {{$tagMsg.TagValue}} path int true {{$tagMsg.Comment}}
+        {{- end}}{{if $fc.Bind.HasHeader.Has}}
+            {{- range $tagMsg := $fc.Bind.Header.TagMsgs}}
+    // @Param {{$tagMsg.TagValue}} header string false {{$tagMsg.Comment}}
             {{- end}}
         {{- end}}
     {{- end}}
-    // @Success 200 {object} Result{data={{$msg.Out.RawName}}}
-    {{$msg.FuncRouter.SwagRouter}}
+    // @Success 200 {object} Result{data={{$fc.ResOut0}}}
+    {{$fc.Comments}}
     func {{$funcName}}(c *gin.Context) (data interface{},err error) {
     {{if $msg.In.ObjectMsg.IsSelector}}
         in := &{{$msg.In.ObjectMsg.SelectorX}}.{{$msg.In.ObjectMsg.SelectorSel}}{}

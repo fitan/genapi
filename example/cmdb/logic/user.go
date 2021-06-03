@@ -31,10 +31,8 @@ type UserCallIn struct {
 	Header public.Header
 }
 
-//type Header struct {
-//	Name string `header:"name"`
-//	Age int `header:"age"`
-//}
+
+
 
 // @GenApi /api/usercall [get]
 func UserCall(c *gin.Context, in *UserCallIn) ([]*ent.User, error) {

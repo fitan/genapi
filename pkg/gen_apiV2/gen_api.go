@@ -28,9 +28,11 @@ func (c *ApiContext)Load(dir string)  {
 func (c *ApiContext)Parse() {
 	files := make(map[string]*FileContext, 0)
 	for _, f := range c.Pkg.Syntax {
-		fc := NewFileContext(c.PkgName,c.Pkg,c.Fset,f)
+		fc := NewFileContext(c.PkgName,c.Pkg,f)
 		fc.Parse()
-		files[f.Name.Name] = fc
+		if len(fc.Funcs) != 0 {
+			files[GetFileNameByPos(c.Pkg.Fset, f.Pos())] = fc
+		}
 	}
 	c.Files = files
 }

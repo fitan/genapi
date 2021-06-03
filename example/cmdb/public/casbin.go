@@ -15,6 +15,13 @@ type Header struct {
 	Name string `header:"name"`
 	// 这是age 的姓名
 	Age int `header:"age"`
+	HeaderSub HeaderSub
+
+}
+
+type HeaderSub struct {
+	// 这是age sub 的姓名
+	AgeSub int `header:"ageSub"`
 }
 
 func newCasbin() (*casbin.Enforcer, error) {

@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/fitan/genapi/pkg/gen_apiV2"
 	"go/ast"
 	"go/build"
 	"go/parser"
@@ -611,6 +612,73 @@ func GenApi(apiMap map[string]map[string]map[string]ApiMsg, dest string) {
 			})
 		}
 	}
+
+	tpl, err := parse.New("register").Parse(register_tmpl)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	b := bytes.NewBuffer(nil)
+	err = tpl.Execute(b, struct {
+		PkgName string
+		ApiMap  map[string]map[string]map[string]ApiMsg
+	}{
+		PkgName: path.Base(dest),
+		ApiMap:  apiMap,
+	})
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	assets.files = append(assets.files, file{
+		path:    filepath.Join(dest, path.Base("register.go")),
+		content: b.Bytes(),
+	})
+
+	if err := assets.write(); err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	err = assets.formatGo()
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+}
+
+func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, dest string) {
+	parse, err := template.New("gen_api").Parse(pkg_name_tmpl)
+	if err != nil {
+		log.Panicln(err.Error())
+	}
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	assets := assets{
+		dirs: []string{
+			filepath.Join(dest),
+		},
+	}
+
+		for fileName, fileContext := range apiMap {
+			tpl, err := parse.Parse(gen_api_tmpl)
+			if err != nil {
+				log.Fatalln(err.Error())
+			}
+			b := bytes.NewBuffer(nil)
+			err = tpl.Execute(b, struct {
+				PkgName string
+				FuncMap map[string]ApiMsg
+			}{
+				PkgName: path.Base(dest),
+				FuncMap: funcMap,
+			})
+
+			if err != nil {
+				log.Fatalln(err.Error())
+			}
+			assets.files = append(assets.files, file{
+				path:    filepath.Join(dest, path.Base(fileName)),
+				content: b.Bytes(),
+			})
+		}
 
 	tpl, err := parse.New("register").Parse(register_tmpl)
 	if err != nil {

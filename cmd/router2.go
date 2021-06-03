@@ -16,8 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/davecgh/go-spew/spew"
+	"fmt"
 	"github.com/fitan/genapi/pkg/gen_apiV2"
+	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
 )
 
@@ -30,8 +31,11 @@ var router2Cmd = &cobra.Command{
 		context := gen_apiV2.NewApiContext()
 		context.Load("./logic")
 		context.Parse()
-		for _, f := range context.Files {
-			spew.Dump(f.Funcs)
+		for fileName, f := range context.Files {
+			fmt.Println("fileName:  ",fileName)
+			pretty.Println(f.Funcs)
+			//fmt.Printf("%# v", pretty.Formatter(f.Funcs))
+			//spew.Dump(f.Funcs)
 		}
 	},
 }

@@ -2,6 +2,7 @@ package gen_apiV2
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"go/ast"
 	"go/build"
@@ -14,7 +15,6 @@ import (
 	"io/fs"
 	"log"
 	"path"
-	"reflect"
 	"regexp"
 	"strings"
 )
@@ -226,64 +226,59 @@ func MatchPathParam(s string) []string {
 	return res
 }
 
-type TagMsg struct {
-	TagValue string
-	Comment string
-}
 
-func FindTagAndComment(structType *ast.StructType, tagName string) []TagMsg {
-	TagMsgs := make([]TagMsg,0,0)
-	ast.Inspect(structType, func(node ast.Node) bool {
-		field,ok := node.(*ast.Field)
-		if ok {
-			if field.Tag == nil {
-				return false
-			}
-			tagTool := reflect.StructTag(field.Tag.Value[1 : len(field.Tag.Value)-1])
-			value, ok := tagTool.Lookup(tagName)
-			if ok {
-				msg := TagMsg{
-					TagValue: value,
-					Comment:  field.Doc.Text(),
-				}
-				TagMsgs = append(TagMsgs, msg)
-			}
-			return false
-		}
-		return true
-	})
-	return TagMsgs
-}
+//func FindTagAndComment(structType *ast.StructType, tagName string) []TagMsg {
+//	TagMsgs := make([]TagMsg,0,0)
+//	ast.Inspect(structType, func(node ast.Node) bool {
+//		field,ok := node.(*ast.Field)
+//		if ok {
+//			if field.Tag == nil {
+//				return false
+//			}
+//			tagTool := reflect.StructTag(field.Tag.Value[1 : len(field.Tag.Value)-1])
+//			value, ok := tagTool.Lookup(tagName)
+//			if ok {
+//				msg := TagMsg{
+//					TagValue: value,
+//					Comment:  field.Doc.Text(),
+//				}
+//				TagMsgs = append(TagMsgs, msg)
+//			}
+//			return false
+//		}
+//		return true
+//	})
+//	return TagMsgs
+//}
 
-func FindTagAndCommentByPkg(pkg *packages.Package, structType *ast.StructType, tagName string) []TagMsg {
-	TagMsgs := make([]TagMsg,0,0)
-	ast.Inspect(structType, func(node ast.Node) bool {
-		switch ty := node.(type) {
-		case *ast.Ident:
-			st,ok := pkg.TypesInfo.TypeOf(ty).Underlying().(*types.Struct)
-			if ok {
-				f pkg.Fset.File(ty.Obj.)
-				st.Field(0).Pkg()
-				if st.NumFields() > 0 {
-
-				}
-			}
-		case *ast.Field:
-			tagTool := reflect.StructTag(ty.Tag.Value[1 : len(ty.Tag.Value)-1])
-			value, ok := tagTool.Lookup(tagName)
-			if ok {
-				msg := TagMsg{
-					TagValue: value,
-					Comment:  ty.Doc.Text(),
-				}
-				TagMsgs = append(TagMsgs, msg)
-			}
-			return true
-		}
-		return true
-	}
-	return TagMsgs
-}
+//func FindTagAndCommentByPkg(pkg *packages.Package, structType *ast.StructType, tagName string) []TagMsg {
+//	TagMsgs := make([]TagMsg,0,0)
+//	ast.Inspect(structType, func(node ast.Node) bool {
+//		switch ty := node.(type) {
+//		case *ast.Ident:
+//			st, ok := pkg.TypesInfo.TypeOf(ty).Underlying().(*types.Struct)
+//			if ok {
+//				st.Field(0).Pkg()
+//				if st.NumFields() > 0 {
+//
+//				}
+//			}
+//		case *ast.Field:
+//			tagTool := reflect.StructTag(ty.Tag.Value[1 : len(ty.Tag.Value)-1])
+//			value, ok := tagTool.Lookup(tagName)
+//			if ok {
+//				msg := TagMsg{
+//					TagValue: value,
+//					Comment:  ty.Doc.Text(),
+//				}
+//				TagMsgs = append(TagMsgs, msg)
+//			}
+//			return true
+//		}
+//		return true
+//	}
+//	return TagMsgs
+//}
 
 type ImportMsg struct {
 	Dir string
@@ -408,3 +403,70 @@ func (l *LoopStruct) FindQuote(t ast.Node) []Quote {
 }
 
 
+
+
+type Seter interface {
+	GetKey() string
+}
+
+type Set struct {
+	hash       map[string]struct{}
+	containers []interface{}
+}
+
+func NewSet() *Set {
+	return &Set{hash: map[string]struct{}{}, containers: []interface{}{}}
+}
+
+func (s *Set) Add(sets ...Seter) {
+	for _, set := range sets {
+		key := set.GetKey()
+
+		_, ok := s.hash[key]
+		if !ok {
+			s.hash[key] = struct{}{}
+			s.containers = append(s.containers, set)
+		}
+	}
+}
+
+func (s *Set) Get() []interface{} {
+	return s.containers
+}
+
+func FindTagAndCommentByField(pkg *packages.Package, file *ast.File, field *ast.Field, TagName string) []TagMsg {
+	_, ok := pkg.TypesInfo.TypeOf(field.Type).Underlying().(*types.Struct)
+	if !ok {
+		fmt.Println("header not struct")
+		return []TagMsg{}
+	}
+	fmt.Println("header is struct")
+
+	var findFile *ast.File
+	var findPkg *packages.Package
+	var findStruct *ast.StructType
+
+	switch t := field.Type.(type) {
+	// local pkg struct
+	case *ast.Ident:
+		findPkg = pkg
+		findFile, findStruct =  FindStructTypeByName(pkg, t.Name)
+	// selector pkg
+	case *ast.SelectorExpr:
+		path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
+		findPkg = pkg.Imports[path]
+		findFile, findStruct = FindStructTypeByName(findPkg, t.Sel.Name)
+	// struct
+	case *ast.StructType:
+		findFile = file
+		findStruct = t
+		findPkg = pkg
+	}
+	return FindTagAndComment(findPkg, findFile, findStruct, TagName)
+}
+
+func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
+	filePath := fset.Position(pos).Filename
+	_, fileName := path.Split(filePath)
+	return fileName
+}

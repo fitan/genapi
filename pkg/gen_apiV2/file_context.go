@@ -13,19 +13,17 @@ import (
 type FileContext struct {
 	PkgName string
 	Pkg *packages.Package
-	Fset *token.FileSet
 	File *ast.File
 	ImportMsgs map[string]ImportMsg
 	Funcs []Func
 }
 
-func NewFileContext(pkgName string, pkg *packages.Package ,fset *token.FileSet, file *ast.File) *FileContext {
-	return &FileContext{PkgName: pkgName, Pkg: pkg,Fset: fset, File: file}
+func NewFileContext(pkgName string, pkg *packages.Package , file *ast.File) *FileContext {
+	return &FileContext{PkgName: pkgName, Pkg: pkg, File: file}
 }
 
 func (c *FileContext) Parse() {
 	c.ImportMsgs = ParseImport(c.File)
-	c.FilterFunc()
 	fs := make([]Func,0,0)
 	for _, fd := range c.FilterFunc() {
 		f := c.ParseFunc(fd)
@@ -39,12 +37,12 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 		ResOut0: "",
 	}
 	inField := f.Type.Params.List[1]
-	fset, inStruct := c.FindStruct(inField)
-	fc.Bind = c.ParseBind(fc.FuncName,fset, inStruct)
+	_, inStruct := c.FindStruct(inField)
+	fc.Bind = c.ParseBind(fc.FuncName, inStruct)
 	c.ParseComment(&fc, f.Doc.List)
-	fc.ParamIn1 = Node2String(c.Fset, Node2SwagType(inField.Type, c.File.Name.Name))
+	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(inField.Type, c.File.Name.Name))
 	outField := f.Type.Results.List[0]
-	fc.ResOut0 = Node2String(c.Fset,Node2SwagType(outField.Type, c.File.Name.Name))
+	fc.ResOut0 = Node2String(c.Pkg.Fset,Node2SwagType(outField.Type, c.File.Name.Name))
 	return fc
 }
 
@@ -82,26 +80,28 @@ func (c *FileContext) FindStruct(field *ast.Field) (*token.FileSet, *ast.StructT
 		if !has {
 			log.Fatalln("not find struct: " + sel)
 		}
-		return c.Fset, structType
+		return c.Pkg.Fset, structType
 	}
 }
 
 
-func (c *FileContext) ParseBind(funcName string,fset *token.FileSet, structType *ast.StructType) Bind {
+func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bind {
 	bind := Bind{}
 	for _, field := range structType.Fields.List {
 		for _, ident := range field.Names {
+			//if _,ok := c.Pkg.TypesInfo.ObjectOf(ident).Type().Underlying().(*types.Struct);!ok {
+			//	continue
+			//}
 			var raw string
 			var quoteType QuoteType
 			st, hasStructType := field.Type.(*ast.StructType)
 			if hasStructType {
 				quoteType = StructType
-				raw = Node2String(c.Fset, st)
+				raw = Node2String(c.Pkg.Fset, st)
 			} else {
 				quoteType = IdentType
-				raw = Node2String(c.Fset,Node2SwagType(field.Type, c.File.Name.Name))
+				raw = Node2String(c.Pkg.Fset,Node2SwagType(field.Type, c.File.Name.Name))
 			}
-			//raw := Node2String(c.Fset,Node2SwagType(field.Type, c.File.Name.Name))
 			switch ident.Name {
 			case "Query":
 				bind.Query.Has = true
@@ -125,25 +125,10 @@ func (c *FileContext) ParseBind(funcName string,fset *token.FileSet, structType 
 				}
 			case "Uri":
 				bind.Uri.Has = true
-				if hasStructType {
-					bind.Uri.TagMsgs = FindTagAndComment(st, "uri")
-				} else {
-					_, findSt := c.FindStruct(field)
-					bind.Uri.TagMsgs = FindTagAndComment(findSt, "uri")
-				}
-				//bind.QuoteUri = raw
+				bind.Uri.TagMsgs = FindTagAndCommentByField(c.Pkg,c.File,field,"uri")
 			case "Header":
 				bind.Header.Has = true
-				bind.Header.QuoteType = quoteType
-				bind.Header.SwagStructName = "Swag" + funcName + "Header"
-				bind.Header.SwagRaw = raw
-				if hasStructType {
-					bind.Header.SwagObj = bind.Header.SwagStructName
-					bind.Header.TagMsgs = FindTagAndComment(st, "header")
-				} else {
-					_, findSt := c.FindStruct(field)
-					bind.Header.TagMsgs = FindTagAndComment(findSt, "header")
-				}
+				bind.Header.TagMsgs = FindTagAndCommentByField(c.Pkg,c.File,field,"header")
 			}
 		}
 	}

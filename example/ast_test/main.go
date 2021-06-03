@@ -95,7 +95,7 @@ func TrimImport(s string) string {
 	s = strings.TrimPrefix(s, `"`)
 	return s
 }
-func FindStructNameByPkg(pkg *packages.Package, structName string) (*ast.File, *ast.StructType) {
+func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, *ast.StructType) {
 	fmt.Println("pkg and structName: ", pkg, structName)
 	var f *ast.File
 	var st *ast.StructType
@@ -154,12 +154,12 @@ func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName s
 						//fmt.Println(importPath)
 						//fmt.Println(pkg.Imports[importPath].Imports)
 						remotePkg := pkg.Imports[importPath]
-						remoteFile, st := FindStructNameByPkg(remotePkg, structType.Sel.Name)
+						remoteFile, st := FindStructTypeByName(remotePkg, structType.Sel.Name)
 						tagMsgs = append(tagMsgs, FindTags(remotePkg, remoteFile, st, tagName)...)
 						return false
 					// local pkg
 					case *ast.Ident:
-						localFile, st := FindStructNameByPkg(pkg, structType.Name)
+						localFile, st := FindStructTypeByName(pkg, structType.Name)
 						tagMsgs = append(tagMsgs, FindTags(pkg, localFile, st, tagName)...)
 					}
 				}

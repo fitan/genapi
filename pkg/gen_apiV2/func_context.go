@@ -42,10 +42,6 @@ type Bind struct {
 	}
 	Header struct {
 		Has       bool
-		QuoteType QuoteType
-		SwagStructName string
-		SwagRaw   string
-		SwagObj string
 		TagMsgs []TagMsg
 	}
 }

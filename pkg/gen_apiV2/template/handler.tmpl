@@ -10,21 +10,18 @@ type {{$fc.Bind.Body.SwagStructName}} {{$fc.Bind.Body.SwagRaw}}
 {{if (and $fc.Bind.Query.Has (eq $fc.Bind.Query.QuoteType "struct")) }}
 type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
 {{end}}
-{{if (and $fc.Bind.Header.Has (eq $fc.Bind.Header.QuoteType "struct")) }}
-type {{$fc.Bind.Header.SwagStructName}} {{$fc.Bind.Header.SwagRaw}}
-{{end}}
 
 // @Accept  json
 // @Produce  json{{if $fc.Bind.Body.Has}}
 // @Param body body {{$fc.Bind.Body.SwagObj}} true " "
 {{- end}}{{if $fc.Bind.Query.Has}}
 // @Param query query {{$fc.Bind.Query.SwagObj}} false " "
-{{- end}}{{if $msg.In.InHas.HasUri}}
-{{- range $fieldTag := $msg.In.InHas.UriMsg.FieldTags}}
-// @Param {{$fieldTag.TagName}} path int true " "
-{{- end}}{{if $msg.In.InHas.HasHeader}}
-{{- range $fieldTag := $msg.In.InHas.HeaderMsg.FieldTags}}
-// @Param {{$fieldTag.TagName}} header string false " "
+{{- end}}{{if $fc.Bind.Uri.Has}}
+{{- range $TagMsg := $fc.Bind.Uri.TagMsgs}}
+// @Param {{$TagMsg.TagValue}} path int true "{{$TagMsg.Comment}}"
+{{- end}}{{if $fc.Bind.Header.Has}}
+{{- range $TagMsg := $fc.Bind.Header.TagMsgs}}
+// @Param {{$TagMsg.TagValue}} header string false "{{$TagMsg.Comment}}"
 {{- end}}
 {{- end}}
 {{- end}}
