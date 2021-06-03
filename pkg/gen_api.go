@@ -23,6 +23,9 @@ import (
 //go:embed internal/templateV2/gen_api.tmpl
 var gen_api_tmpl string
 
+//go:embed gen_apiV2/template/handler.tmpl
+var gen_api_tmplV2 string
+
 //go:embed internal/templateV2/register.tmpl
 var register_tmpl string
 
@@ -204,9 +207,9 @@ func (c *ParseContext) ConformFormat(f *ast.FuncDecl) bool {
 }
 func (c *ParseContext) FindOutObjectMsg(field *ast.Field, file *ast.File, filePath string, msgMap map[string]ObjectImportMsg) ObjectMsg {
 	msg := ObjectMsg{
-		PkgName:     file.Name.Name,
+		PkgName: file.Name.Name,
 		//RawName:     NodeString(c.Fset, field.Type),
-		RawName: "",
+		RawName:     "",
 		SelectorSel: "",
 		SelectorX:   "",
 		IsSelector:  false,
@@ -222,21 +225,21 @@ func (c *ParseContext) FindOutObjectMsg(field *ast.Field, file *ast.File, filePa
 		} else {
 			msg.ObjectImportMsg = fileImportMsg
 		}
-		msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset,field.Type, file.Name.Name))
+		msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset, field.Type, file.Name.Name))
 		return msg
 	}
 	//fmt.Println(NodeString())
 	//msg.SelectorSel = field.Type.(*ast.StarExpr).X.(*ast.Ident).Name
 	msg.ObjectImportMsg = ObjectImportMsg{RawImport: path.Join(c.LocalModuleName, c.ParsePath)}
-	msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset,field.Type, file.Name.Name))
+	msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset, field.Type, file.Name.Name))
 	return msg
 }
 
 func (c *ParseContext) FindInObjectMsg(field *ast.Field, file *ast.File, filePath string, msgMap map[string]ObjectImportMsg) ObjectMsg {
 	msg := ObjectMsg{
-		PkgName:     file.Name.Name,
+		PkgName: file.Name.Name,
 		//RawName:     NodeString(c.Fset, field.Type),
-		RawName: "",
+		RawName:     "",
 		SelectorSel: "",
 		SelectorX:   "",
 		IsSelector:  false,
@@ -252,13 +255,13 @@ func (c *ParseContext) FindInObjectMsg(field *ast.Field, file *ast.File, filePat
 		} else {
 			msg.ObjectImportMsg = fileImportMsg
 		}
-		msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset,field.Type, file.Name.Name))
+		msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset, field.Type, file.Name.Name))
 		return msg
 	}
 	//fmt.Println(NodeString())
 	msg.SelectorSel = field.Type.(*ast.StarExpr).X.(*ast.Ident).Name
 	msg.ObjectImportMsg = ObjectImportMsg{RawImport: path.Join(c.LocalModuleName, c.ParsePath)}
-	msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset,field.Type, file.Name.Name))
+	msg.RawName = NodeString(c.Fset, Res2SwagModel(c.Fset, field.Type, file.Name.Name))
 	return msg
 }
 
@@ -657,48 +660,48 @@ func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, dest string) {
 		},
 	}
 
-		for fileName, fileContext := range apiMap {
-			tpl, err := parse.Parse(gen_api_tmpl)
-			if err != nil {
-				log.Fatalln(err.Error())
-			}
-			b := bytes.NewBuffer(nil)
-			err = tpl.Execute(b, struct {
-				PkgName string
-				FuncMap map[string]ApiMsg
-			}{
-				PkgName: path.Base(dest),
-				FuncMap: funcMap,
-			})
-
-			if err != nil {
-				log.Fatalln(err.Error())
-			}
-			assets.files = append(assets.files, file{
-				path:    filepath.Join(dest, path.Base(fileName)),
-				content: b.Bytes(),
-			})
+	for fileName, fileContext := range apiMap {
+		tpl, err := parse.Parse(gen_api_tmplV2)
+		if err != nil {
+			log.Fatalln(err.Error())
 		}
+		b := bytes.NewBuffer(nil)
+		err = tpl.Execute(b, struct {
+			PkgName string
+			Funcs   []gen_apiV2.Func
+		}{
+			PkgName: path.Base(dest),
+			Funcs:   fileContext.Funcs,
+		})
 
-	tpl, err := parse.New("register").Parse(register_tmpl)
-	if err != nil {
-		log.Fatalln(err.Error())
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		assets.files = append(assets.files, file{
+			path:    filepath.Join(dest, path.Base(fileName)),
+			content: b.Bytes(),
+		})
 	}
-	b := bytes.NewBuffer(nil)
-	err = tpl.Execute(b, struct {
-		PkgName string
-		ApiMap  map[string]map[string]map[string]ApiMsg
-	}{
-		PkgName: path.Base(dest),
-		ApiMap:  apiMap,
-	})
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	assets.files = append(assets.files, file{
-		path:    filepath.Join(dest, path.Base("register.go")),
-		content: b.Bytes(),
-	})
+
+	//tpl, err := parse.New("register").Parse(register_tmpl)
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//b := bytes.NewBuffer(nil)
+	//err = tpl.Execute(b, struct {
+	//	PkgName string
+	//	ApiMap  map[string]*gen_apiV2.FileContext
+	//}{
+	//	PkgName: path.Base(dest),
+	//	ApiMap:  apiMap,
+	//})
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//assets.files = append(assets.files, file{
+	//	path:    filepath.Join(dest, path.Base("register.go")),
+	//	content: b.Bytes(),
+	//})
 
 	if err := assets.write(); err != nil {
 		log.Fatalln(err.Error())

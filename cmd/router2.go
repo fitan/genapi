@@ -16,9 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"github.com/fitan/genapi/pkg"
 	"github.com/fitan/genapi/pkg/gen_apiV2"
-	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
 )
 
@@ -26,17 +25,17 @@ import (
 var router2Cmd = &cobra.Command{
 	Use:   "router2",
 	Short: "",
-	Long: ``,
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		context := gen_apiV2.NewApiContext()
 		context.Load("./logic")
 		context.Parse()
-		for fileName, f := range context.Files {
-			fmt.Println("fileName:  ",fileName)
-			pretty.Println(f.Funcs)
-			//fmt.Printf("%# v", pretty.Formatter(f.Funcs))
-			//spew.Dump(f.Funcs)
-		}
+		pkg.GenApiV2(context.Files, "./gen2/handler")
+		//for fileName, f := range context.Files {
+		//	fmt.Println("fileName:  ",fileName)
+		//	fmt.Printf("%# v", pretty.Formatter(f.Funcs))
+		//	spew.Dump(f.Funcs)
+		//}
 	},
 }
 

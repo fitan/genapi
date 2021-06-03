@@ -220,6 +220,7 @@ func main() {
 	}
 }
 
+// @ui fdsfsd fdsf  sfsdfsd
 func findPkg(pkg *packages.Package) {
 	for _, fileAst := range pkg.Syntax {
 		ast.Inspect(fileAst, func(node ast.Node) bool {

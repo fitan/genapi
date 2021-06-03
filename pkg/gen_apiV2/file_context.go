@@ -9,22 +9,21 @@ import (
 	"strings"
 )
 
-
 type FileContext struct {
 	PkgName string
-	Pkg *packages.Package
-	File *ast.File
-	ImportMsgs map[string]ImportMsg
+	Pkg     *packages.Package
+	File    *ast.File
+	//ImportMsgs map[string]ImportMsg
 	Funcs []Func
 }
 
-func NewFileContext(pkgName string, pkg *packages.Package , file *ast.File) *FileContext {
+func NewFileContext(pkgName string, pkg *packages.Package, file *ast.File) *FileContext {
 	return &FileContext{PkgName: pkgName, Pkg: pkg, File: file}
 }
 
 func (c *FileContext) Parse() {
-	c.ImportMsgs = ParseImport(c.File)
-	fs := make([]Func,0,0)
+	//c.ImportMsgs = ParseImport(c.File)
+	fs := make([]Func, 0, 0)
 	for _, fd := range c.FilterFunc() {
 		f := c.ParseFunc(fd)
 		fs = append(fs, f)
@@ -33,21 +32,24 @@ func (c *FileContext) Parse() {
 }
 func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	fc := Func{
+		PkgName:  c.PkgName,
 		FuncName: f.Name.Name,
-		ResOut0: "",
+		ResOut0:  "",
 	}
 	inField := f.Type.Params.List[1]
-	_, inStruct := c.FindStruct(inField)
+
+	_, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
+	//_, inStruct := c.FindStruct(inField)
 	fc.Bind = c.ParseBind(fc.FuncName, inStruct)
 	c.ParseComment(&fc, f.Doc.List)
 	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(inField.Type, c.File.Name.Name))
 	outField := f.Type.Results.List[0]
-	fc.ResOut0 = Node2String(c.Pkg.Fset,Node2SwagType(outField.Type, c.File.Name.Name))
+	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(outField.Type, c.File.Name.Name))
 	return fc
 }
 
-func (c *FileContext) ParseComment(fc *Func,ms []*ast.Comment)  {
-	comments := make([]string,0,0)
+func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment) {
+	comments := make([]string, 0, 0)
 	for _, m := range ms {
 		fs := strings.Fields(m.Text)
 
@@ -62,28 +64,26 @@ func (c *FileContext) ParseComment(fc *Func,ms []*ast.Comment)  {
 	fc.Comments = comments
 }
 
-
-func (c *FileContext) FindStruct(field *ast.Field) (*token.FileSet, *ast.StructType) {
-	x, sel, has := IsSelector(field)
-	if has {
-		importMsg, ok := c.ImportMsgs[x]
-		if !ok {
-			log.Fatalln("not find import pkg: " + x)
-		}
-		_, fset, _, structType, has := FindStructByDir(importMsg.Dir, sel)
-		if !has {
-			log.Fatalln("not find struct: " + sel)
-		}
-		return fset,structType
-	} else {
-		_, structType, has:= FindStructByPkg(c.Pkg.Syntax, sel)
-		if !has {
-			log.Fatalln("not find struct: " + sel)
-		}
-		return c.Pkg.Fset, structType
-	}
-}
-
+//func (c *FileContext) FindStruct(field *ast.Field) (*token.FileSet, *ast.StructType) {
+//	x, sel, has := IsSelector(field)
+//	if has {
+//		importMsg, ok := c.ImportMsgs[x]
+//		if !ok {
+//			log.Fatalln("not find import pkg: " + x)
+//		}
+//		_, fset, _, structType, has := FindStructByDir(importMsg.Dir, sel)
+//		if !has {
+//			log.Fatalln("not find struct: " + sel)
+//		}
+//		return fset,structType
+//	} else {
+//		_, structType, has:= FindStructByPkg(c.Pkg.Syntax, sel)
+//		if !has {
+//			log.Fatalln("not find struct: " + sel)
+//		}
+//		return c.Pkg.Fset, structType
+//	}
+//}
 
 func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bind {
 	bind := Bind{}
@@ -100,7 +100,7 @@ func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bin
 				raw = Node2String(c.Pkg.Fset, st)
 			} else {
 				quoteType = IdentType
-				raw = Node2String(c.Pkg.Fset,Node2SwagType(field.Type, c.File.Name.Name))
+				raw = Node2String(c.Pkg.Fset, Node2SwagType(field.Type, c.File.Name.Name))
 			}
 			switch ident.Name {
 			case "Query":
@@ -125,10 +125,10 @@ func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bin
 				}
 			case "Uri":
 				bind.Uri.Has = true
-				bind.Uri.TagMsgs = FindTagAndCommentByField(c.Pkg,c.File,field,"uri")
+				bind.Uri.TagMsgs = FindTagAndCommentByField(c.Pkg, c.File, field, "uri")
 			case "Header":
 				bind.Header.Has = true
-				bind.Header.TagMsgs = FindTagAndCommentByField(c.Pkg,c.File,field,"header")
+				bind.Header.TagMsgs = FindTagAndCommentByField(c.Pkg, c.File, field, "header")
 			}
 		}
 	}
@@ -145,7 +145,7 @@ func (c *FileContext) Struct2Quote(fset *token.FileSet, field *ast.Field) string
 }
 
 func (c *FileContext) FilterFunc() []*ast.FuncDecl {
-	fs := make([]*ast.FuncDecl, 0,0)
+	fs := make([]*ast.FuncDecl, 0, 0)
 	ast.Inspect(c.File, func(node ast.Node) bool {
 		if funcDecl, ok := node.(*ast.FuncDecl); ok {
 			if c.HasApiMark(funcDecl.Doc) && c.GinFormat(funcDecl) {
@@ -182,8 +182,8 @@ func (c *FileContext) ApiMark2SwagRouter(fields []string) (Router, string) {
 	ginPath = strings.ReplaceAll(ginPath, "{", ":")
 	ginPath = strings.ReplaceAll(ginPath, "}", "")
 	return Router{
-		Method:     strings.ToUpper(method[1: len(method)-1]),
-		GinPath:    ginPath,
+		Method:  strings.ToUpper(method[1 : len(method)-1]),
+		GinPath: ginPath,
 	}, strings.Join(fields, " ")
 }
 
@@ -214,6 +214,3 @@ func (c *FileContext) GinFormat(f *ast.FuncDecl) bool {
 	}
 	return false
 }
-
-
-

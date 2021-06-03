@@ -12,7 +12,7 @@ import (
 
 type TagMsg struct {
 	TagValue string
-	Comment string
+	Comment  string
 }
 
 func FindTagAndComment(pkg *packages.Package, file *ast.File, structType *ast.StructType, tagName string) []TagMsg {
@@ -26,7 +26,7 @@ func FindTagAndComment(pkg *packages.Package, file *ast.File, structType *ast.St
 				if ok {
 					msg := TagMsg{
 						TagValue: value,
-						Comment:  fd.Doc.Text(),
+						Comment:  strings.ReplaceAll(fd.Doc.Text(), "\n", `\\n`),
 					}
 					tagMsgs = append(tagMsgs, msg)
 				}

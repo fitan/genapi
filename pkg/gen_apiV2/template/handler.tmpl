@@ -27,9 +27,9 @@ type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
 {{- end}}
 // @Success 200 {object} Result{data={{$fc.ResOut0}}}{{range $index, $comment := $fc.Comments}}
 {{$comment}}
-{{-end}}
+{{- end}}
 func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
-	in := &{{$fc.ParamIn1}}
+	in := &{{$fc.ParamIn1}}{}
 	{{if $fc.Bind.Body.Has}}
 	err = c.ShouldBindJSON(&in.Body)
 	if err != nil {
@@ -56,6 +56,6 @@ func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
 	{{end}}
 
 
-	return {{$.PkgName}}.{{$fc.FuncName}}(c, in)
+	return {{$fc.PkgName}}.{{$fc.FuncName}}(c, in)
 }
 {{end}}

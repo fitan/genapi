@@ -75,7 +75,7 @@ func FindStructByPkg(files []*ast.File, structName string) (*ast.File, *ast.Stru
 	var f *ast.File
 	for _, file := range files {
 		ast.Inspect(file, func(node ast.Node) bool {
-			if typeSpec, ok := node.(*ast.TypeSpec);ok {
+			if typeSpec, ok := node.(*ast.TypeSpec); ok {
 				if typeSpec.Name.Name == structName {
 					if st, ok := typeSpec.Type.(*ast.StructType); ok {
 						structType = st
@@ -99,7 +99,7 @@ func FindStructByPkg(files []*ast.File, structName string) (*ast.File, *ast.Stru
 func FindStructByDir(dir string, structName string) (*packages.Package, *token.FileSet, *ast.File, *ast.StructType, bool) {
 	_, pkg, fset := LoadPkgV2(dir)
 	f, structType, has := FindStructByPkg(pkg.Syntax, structName)
-	return pkg,fset,f,structType,has
+	return pkg, fset, f, structType, has
 }
 
 func FindStructByImport(it string, structName string) (*packages.Package, *token.FileSet, *ast.File, *ast.StructType, bool) {
@@ -143,10 +143,9 @@ func Node2String(fset *token.FileSet, node interface{}) string {
 	return buf.String()
 }
 
-
 //type Req struct {
-	//转换部分 xxx.Client
-	//Name Client
+//转换部分 xxx.Client
+//Name Client
 //}
 func Node2SwagType(node ast.Node, selectName string) ast.Node {
 	t := node2SwagType2(node, selectName)
@@ -221,11 +220,10 @@ func MatchPathParam(s string) []string {
 	}
 	res := reg.FindAllString(s, -1)
 	for i, _ := range res {
-		res[i] =  res[i][1:len(res[i])-1]
+		res[i] = res[i][1 : len(res[i])-1]
 	}
 	return res
 }
-
 
 //func FindTagAndComment(structType *ast.StructType, tagName string) []TagMsg {
 //	TagMsgs := make([]TagMsg,0,0)
@@ -281,9 +279,9 @@ func MatchPathParam(s string) []string {
 //}
 
 type ImportMsg struct {
-	Dir string
+	Dir       string
 	AliseName string
-	PkgName string
+	PkgName   string
 }
 
 func ParseImport(file *ast.File) map[string]ImportMsg {
@@ -321,15 +319,15 @@ func ParseImport(file *ast.File) map[string]ImportMsg {
 }
 
 type LoopStruct struct {
-	importMap  map[string]ImportMsg
-	LocalPkg *ast.Package
+	importMap map[string]ImportMsg
+	LocalPkg  *ast.Package
 	LocalFset *token.FileSet
 	LocalFile *ast.File
 }
 
 type Quote struct {
-	X string
-	Sel string
+	X         string
+	Sel       string
 	ImportMsg ImportMsg
 }
 
@@ -346,15 +344,14 @@ func NewLoopStruct(localPkg *ast.Package, localFset *token.FileSet, localFile *a
 	return l
 }
 
-
 func (l *LoopStruct) FindQuote(t ast.Node) []Quote {
-	fieldTypeNodes := make([]ast.Node,0,0)
-	structTypeNodes := make([]ast.Node, 0,0)
-	quotes := make([]Quote,0,0)
+	fieldTypeNodes := make([]ast.Node, 0, 0)
+	structTypeNodes := make([]ast.Node, 0, 0)
+	quotes := make([]Quote, 0, 0)
 	ast.Inspect(t, func(node ast.Node) bool {
-		field,ok := node.(*ast.Field)
+		field, ok := node.(*ast.Field)
 		if ok {
-			structType,ok := field.Type.(*ast.StructType)
+			structType, ok := field.Type.(*ast.StructType)
 			if ok {
 				structTypeNodes = append(structTypeNodes, structType)
 				return false
@@ -365,29 +362,28 @@ func (l *LoopStruct) FindQuote(t ast.Node) []Quote {
 		return true
 	})
 
-
-	for _,fieldTypeNode := range fieldTypeNodes {
+	for _, fieldTypeNode := range fieldTypeNodes {
 		ast.Inspect(fieldTypeNode, func(node ast.Node) bool {
-			structType,ok := node.(*ast.StructType)
+			structType, ok := node.(*ast.StructType)
 			if ok {
 				structTypeNodes = append(structTypeNodes, structType)
 				return false
 			}
 
-			se,ok := node.(*ast.SelectorExpr)
+			se, ok := node.(*ast.SelectorExpr)
 			if ok {
 				x := se.X.(*ast.Ident).Name
 				sel := se.Sel.Name
-				quotes = append(quotes, Quote{x,sel, l.importMap[x]})
+				quotes = append(quotes, Quote{x, sel, l.importMap[x]})
 				return false
 			}
 
-			ident,ok := node.(*ast.Ident)
+			ident, ok := node.(*ast.Ident)
 			if ok {
 				hasBaseType := JudgeBuiltInType(ident.Name)
 				if !hasBaseType {
 					sel := ident.Name
-					quotes = append(quotes, Quote{"",sel, ImportMsg{}})
+					quotes = append(quotes, Quote{"", sel, ImportMsg{}})
 				}
 				return false
 			}
@@ -401,9 +397,6 @@ func (l *LoopStruct) FindQuote(t ast.Node) []Quote {
 
 	return quotes
 }
-
-
-
 
 type Seter interface {
 	GetKey() string
@@ -437,32 +430,55 @@ func (s *Set) Get() []interface{} {
 func FindTagAndCommentByField(pkg *packages.Package, file *ast.File, field *ast.Field, TagName string) []TagMsg {
 	_, ok := pkg.TypesInfo.TypeOf(field.Type).Underlying().(*types.Struct)
 	if !ok {
-		fmt.Println("header not struct")
 		return []TagMsg{}
 	}
-	fmt.Println("header is struct")
 
 	var findFile *ast.File
 	var findPkg *packages.Package
 	var findStruct *ast.StructType
 
-	switch t := field.Type.(type) {
+	//switch t := field.Type.(type) {
+	//// local pkg struct
+	//case *ast.Ident:
+	//	findPkg = pkg
+	//	findFile, findStruct =  FindStructTypeByName(pkg, t.Name)
+	//// selector pkg
+	//case *ast.SelectorExpr:
+	//	path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
+	//	findPkg = pkg.Imports[path]
+	//	findFile, findStruct = FindStructTypeByName(findPkg, t.Sel.Name)
+	//// struct
+	//case *ast.StructType:
+	//	findFile = file
+	//	findStruct = t
+	//	findPkg = pkg
+	//}
+	findPkg, findFile, findStruct = FindStructByExpr(pkg, file, field.Type)
+	return FindTagAndComment(findPkg, findFile, findStruct, TagName)
+}
+
+func FindStructByExpr(pkg *packages.Package, file *ast.File, expr ast.Expr) (*packages.Package, *ast.File, *ast.StructType) {
+	_, ok := pkg.TypesInfo.TypeOf(expr).Underlying().(*types.Struct)
+	if !ok {
+		fmt.Println("field type not nil")
+		return nil, nil, nil
+	}
+	switch t := expr.(type) {
 	// local pkg struct
 	case *ast.Ident:
-		findPkg = pkg
-		findFile, findStruct =  FindStructTypeByName(pkg, t.Name)
+		findFile, findStruct := FindStructTypeByName(pkg, t.Name)
+		return pkg, findFile, findStruct
 	// selector pkg
 	case *ast.SelectorExpr:
 		path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
-		findPkg = pkg.Imports[path]
-		findFile, findStruct = FindStructTypeByName(findPkg, t.Sel.Name)
+		findPkg := pkg.Imports[path]
+		findFile, findStruct := FindStructTypeByName(findPkg, t.Sel.Name)
+		return findPkg, findFile, findStruct
 	// struct
 	case *ast.StructType:
-		findFile = file
-		findStruct = t
-		findPkg = pkg
+		return pkg, file, t
 	}
-	return FindTagAndComment(findPkg, findFile, findStruct, TagName)
+	return nil, nil, nil
 }
 
 func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {

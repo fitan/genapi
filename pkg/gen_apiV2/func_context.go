@@ -1,17 +1,17 @@
 package gen_apiV2
 
-
 type Func struct {
+	PkgName  string
 	Comments []string
-	Router Router
+	Router   Router
 	FuncName string
-	Bind Bind
+	Bind     Bind
 	ParamIn1 string
-	ResOut0 string
+	ResOut0  string
 }
 
-type Router struct{
-	Method string
+type Router struct {
+	Method  string
 	GinPath string
 }
 
@@ -22,26 +22,26 @@ const IdentType QuoteType = "ident"
 
 type Bind struct {
 	Uri struct {
-		Has bool
-		Param []string
+		Has     bool
+		Param   []string
 		TagMsgs []TagMsg
 	}
-	Body struct{
-		Has       bool
-		QuoteType QuoteType
+	Body struct {
+		Has            bool
+		QuoteType      QuoteType
 		SwagStructName string
-		SwagRaw   string
-		SwagObj string
+		SwagRaw        string
+		SwagObj        string
 	}
 	Query struct {
-		Has       bool
-		QuoteType QuoteType
+		Has            bool
+		QuoteType      QuoteType
 		SwagStructName string
-		SwagRaw   string
-		SwagObj string
+		SwagRaw        string
+		SwagObj        string
 	}
 	Header struct {
-		Has       bool
+		Has     bool
 		TagMsgs []TagMsg
 	}
 }
