@@ -1,4 +1,10 @@
-package logic
+package casbin
+
+import (
+	"cmdb/public"
+	"github.com/gin-gonic/gin"
+)
+
 //
 //import (
 //	"cmdb/public"
@@ -26,10 +32,11 @@ package logic
 //	return public.GetCasbin().UpdatePolicies(in.Body.Old.Serialize(), in.Body.New.Serialize())
 //}
 //
-//// @GenApi /policy [delete]
-//func DeletePolicy(c *gin.Context, in *DeleteIn) (bool, error) {
-//	return public.GetCasbin().DeleteUser(in.Query.User)
-//}
+
+// @GenApi /policy [delete]
+func DeletePolicy(c *gin.Context, in *DeleteIn) (bool, error) {
+	return public.GetCasbin().DeleteUser(in.Query.User)
+}
 
 
 

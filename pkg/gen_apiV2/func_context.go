@@ -29,6 +29,7 @@ type Bind struct {
 	Body struct {
 		Has            bool
 		QuoteType      QuoteType
+		Comment string
 		SwagStructName string
 		SwagRaw        string
 		SwagObj        string
@@ -36,6 +37,7 @@ type Bind struct {
 	Query struct {
 		Has            bool
 		QuoteType      QuoteType
+		Comment string
 		SwagStructName string
 		SwagRaw        string
 		SwagObj        string

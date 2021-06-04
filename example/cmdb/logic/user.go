@@ -21,12 +21,15 @@ type UserCallIn struct {
 	//}
 	Uri struct{
 		// 查询id
+		// 多次查询id 的结果
 		Id int `json:"id" uri:"id"`
 	}
+	// 这是body
 	Body struct{
 		Name string `json:"name"`
 		Age int `json:"age"`
 	}
+	// 这是query
 	Query UserCallQuery `json:"query" genapi:"query"`
 	Header public.Header
 }

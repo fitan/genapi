@@ -38,7 +38,7 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	}
 	inField := f.Type.Params.List[1]
 
-	_, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
+	_, _, _,inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
 	//_, inStruct := c.FindStruct(inField)
 	fc.Bind = c.ParseBind(fc.FuncName, inStruct)
 	c.ParseComment(&fc, f.Doc.List)
@@ -64,27 +64,6 @@ func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment) {
 	fc.Comments = comments
 }
 
-//func (c *FileContext) FindStruct(field *ast.Field) (*token.FileSet, *ast.StructType) {
-//	x, sel, has := IsSelector(field)
-//	if has {
-//		importMsg, ok := c.ImportMsgs[x]
-//		if !ok {
-//			log.Fatalln("not find import pkg: " + x)
-//		}
-//		_, fset, _, structType, has := FindStructByDir(importMsg.Dir, sel)
-//		if !has {
-//			log.Fatalln("not find struct: " + sel)
-//		}
-//		return fset,structType
-//	} else {
-//		_, structType, has:= FindStructByPkg(c.Pkg.Syntax, sel)
-//		if !has {
-//			log.Fatalln("not find struct: " + sel)
-//		}
-//		return c.Pkg.Fset, structType
-//	}
-//}
-
 func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bind {
 	bind := Bind{}
 	for _, field := range structType.Fields.List {
@@ -108,16 +87,20 @@ func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bin
 				bind.Query.SwagStructName = "Swag" + funcName + "Query"
 				bind.Query.QuoteType = quoteType
 				bind.Query.SwagRaw = raw
+				bind.Query.Comment = strings.ReplaceAll(field.Doc.Text(),"\n", "\\n")
 				if hasStructType {
 					bind.Query.SwagObj = bind.Query.SwagStructName
 				} else {
 					bind.Query.SwagObj = bind.Query.SwagRaw
+					//_, _, ts, _ := FindStructByExpr(c.Pkg, c.File, field.Type)
+					//_, _,  findStruct := FindTypeByName(c.Pkg,)
 				}
 			case "Body":
 				bind.Body.Has = true
 				bind.Body.QuoteType = quoteType
 				bind.Body.SwagStructName = "Swag" + funcName + "Body"
 				bind.Body.SwagRaw = raw
+				bind.Body.Comment = strings.ReplaceAll(field.Doc.Text(),"\n", "\\n")
 				if hasStructType {
 					bind.Body.SwagObj = bind.Body.SwagStructName
 				} else {

@@ -26,6 +26,9 @@ var gen_api_tmpl string
 //go:embed gen_apiV2/template/handler.tmpl
 var gen_api_tmplV2 string
 
+//go:embed gen_apiV2/template/register.tmpl
+var register_tmplV2 string
+
 //go:embed internal/templateV2/register.tmpl
 var register_tmpl string
 
@@ -683,25 +686,25 @@ func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, dest string) {
 		})
 	}
 
-	//tpl, err := parse.New("register").Parse(register_tmpl)
-	//if err != nil {
-	//	log.Fatalln(err.Error())
-	//}
-	//b := bytes.NewBuffer(nil)
-	//err = tpl.Execute(b, struct {
-	//	PkgName string
-	//	ApiMap  map[string]*gen_apiV2.FileContext
-	//}{
-	//	PkgName: path.Base(dest),
-	//	ApiMap:  apiMap,
-	//})
-	//if err != nil {
-	//	log.Fatalln(err.Error())
-	//}
-	//assets.files = append(assets.files, file{
-	//	path:    filepath.Join(dest, path.Base("register.go")),
-	//	content: b.Bytes(),
-	//})
+	tpl, err := parse.New("register").Parse(register_tmplV2)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	b := bytes.NewBuffer(nil)
+	err = tpl.Execute(b, struct {
+		PkgName string
+		ApiMap  map[string]*gen_apiV2.FileContext
+	}{
+		PkgName: path.Base(dest),
+		ApiMap:  apiMap,
+	})
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	assets.files = append(assets.files, file{
+		path:    filepath.Join(dest, path.Base("register.go")),
+		content: b.Bytes(),
+	})
 
 	if err := assets.write(); err != nil {
 		log.Fatalln(err.Error())

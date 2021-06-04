@@ -18,8 +18,28 @@ package cmd
 import (
 	"github.com/fitan/genapi/pkg"
 	"github.com/fitan/genapi/pkg/gen_apiV2"
+	"github.com/marcinwyszynski/directory_tree"
 	"github.com/spf13/cobra"
+	"path"
 )
+
+func DepthGen(tree *directory_tree.Node, Dir string)  {
+	context := gen_apiV2.NewApiContext()
+	context.Load(tree.FullPath)
+	context.Parse()
+	for _, file := range context.Files {
+		if len(file.Funcs) != 0 {
+			pkg.GenApiV2(context.Files, Dir)
+			break
+		}
+	}
+
+	for _,node := range tree.Children {
+		if node.Info.IsDir {
+			DepthGen(node,path.Join(Dir, node.Info.Name))
+		}
+	}
+}
 
 // router2Cmd represents the router2 command
 var router2Cmd = &cobra.Command{
@@ -27,10 +47,15 @@ var router2Cmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		context := gen_apiV2.NewApiContext()
-		context.Load("./logic")
-		context.Parse()
-		pkg.GenApiV2(context.Files, "./gen2/handler")
+		tree, err := directory_tree.NewTree("./logic")
+		if err != nil {
+			panic(err)
+		}
+
+		DepthGen(tree, "./gen2/handler")
+
+
+
 		//for fileName, f := range context.Files {
 		//	fmt.Println("fileName:  ",fileName)
 		//	fmt.Printf("%# v", pretty.Formatter(f.Funcs))

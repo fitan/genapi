@@ -1,7 +1,6 @@
 package gen_apiV2
 
 import (
-	"fmt"
 	"go/ast"
 	"go/types"
 	"golang.org/x/tools/go/packages"
@@ -26,7 +25,7 @@ func FindTagAndComment(pkg *packages.Package, file *ast.File, structType *ast.St
 				if ok {
 					msg := TagMsg{
 						TagValue: value,
-						Comment:  strings.ReplaceAll(fd.Doc.Text(), "\n", `\\n`),
+						Comment:  strings.ReplaceAll(fd.Doc.Text(), "\n", "\\n"),
 					}
 					tagMsgs = append(tagMsgs, msg)
 				}
@@ -73,7 +72,6 @@ func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName s
 		default:
 			e, ok := node.(ast.Expr)
 			if ok {
-				fmt.Println(e)
 				_, ok := pkg.TypesInfo.TypeOf(e).Underlying().(*types.Struct)
 				if ok {
 					switch structType := t.(type) {
@@ -81,12 +79,12 @@ func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName s
 					case *ast.SelectorExpr:
 						importPath := FindImportPath(file.Imports, structType.X.(*ast.Ident).Name)
 						remotePkg := pkg.Imports[importPath]
-						remoteFile, st := FindStructTypeByName(remotePkg, structType.Sel.Name)
+						remoteFile, _, st := FindStructTypeByName(remotePkg, structType.Sel.Name)
 						tagMsgs = append(tagMsgs, FindTagAndComment(remotePkg, remoteFile, st, tagName)...)
 						return false
 					// local pkg
 					case *ast.Ident:
-						localFile, st := FindStructTypeByName(pkg, structType.Name)
+						localFile, _, st := FindStructTypeByName(pkg, structType.Name)
 						tagMsgs = append(tagMsgs, FindTagAndComment(pkg, localFile, st, tagName)...)
 					}
 				}
@@ -97,8 +95,9 @@ func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName s
 	return tagMsgs
 }
 
-func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, *ast.StructType) {
+func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, *ast.TypeSpec, *ast.StructType) {
 	var f *ast.File
+	var t *ast.TypeSpec
 	var st *ast.StructType
 	for _, file := range pkg.Syntax {
 		has := false
@@ -108,6 +107,7 @@ func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, 
 				if ts.Name.Name == structName {
 					has = true
 					f = file
+					t = ts
 					st = ts.Type.(*ast.StructType)
 					return false
 				}
@@ -118,5 +118,7 @@ func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, 
 			return true
 		})
 	}
-	return f, st
+	return f, t,st
 }
+
+

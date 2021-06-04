@@ -13,12 +13,12 @@ type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
 
 // @Accept  json
 // @Produce  json{{if $fc.Bind.Body.Has}}
-// @Param body body {{$fc.Bind.Body.SwagObj}} true " "
+// @Param body body {{$fc.Bind.Body.SwagObj}} true "{{$fc.Bind.Body.Comment}} "
 {{- end}}{{if $fc.Bind.Query.Has}}
-// @Param query query {{$fc.Bind.Query.SwagObj}} false " "
+// @Param query query {{$fc.Bind.Query.SwagObj}} false "{{$fc.Bind.Query.Comment}}"
 {{- end}}{{if $fc.Bind.Uri.Has}}
 {{- range $TagMsg := $fc.Bind.Uri.TagMsgs}}
-// @Param {{$TagMsg.TagValue}} path int true "{{$TagMsg.Comment}}"
+// @Param {{$TagMsg.TagValue}} path string true "{{$TagMsg.Comment}}"
 {{- end}}{{if $fc.Bind.Header.Has}}
 {{- range $TagMsg := $fc.Bind.Header.TagMsgs}}
 // @Param {{$TagMsg.TagValue}} header string false "{{$TagMsg.Comment}}"

@@ -1,4 +1,4 @@
-package logic
+package casbin
 
 type Policy struct {
 	User   string `json:"user"`

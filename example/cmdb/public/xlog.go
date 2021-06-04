@@ -122,6 +122,7 @@ func HttpResultTmpl(data interface{}, err error) Result {
 	return res
 }
 
-func GinHttpResult(c *gin.Context, data interface{}, err error) {
+func GinResult(c *gin.Context, fc func(c *gin.Context) (data interface{}, err error)) {
+	data, err := fc(c)
 	c.JSON(200, HttpResultTmpl(data, err))
 }

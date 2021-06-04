@@ -1,3 +1,3 @@
-package logic
+package casbin
 
 const RouterPreFix = "/api"
