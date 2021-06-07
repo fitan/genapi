@@ -3,7 +3,6 @@ package casbin
 import (
 	"cmdb/ent"
 	"cmdb/ent/alert"
-	"cmdb/ent/rolebinding"
 	"cmdb/ent/user"
 	"cmdb/gen/entt"
 	"context"
@@ -15,9 +14,8 @@ import (
 type UserCURDV2 struct {
 	Db *ent.Client
 
-	RoleBindingObj *entt.RoleBindingCURD
-
-	AlertObj *entt.AlertCURD
+	RoleBindingObj *RoleCURDV2
+	AlertObj       *entt.AlertCURD
 }
 
 func (curd *UserCURDV2) GetQueryer() *ent.UserQuery {
@@ -59,12 +57,12 @@ func (curd *UserCURDV2) GetListCountQuery(query *entt.UserDefaultQuery) (*ent.Us
 	if err != nil {
 		return nil, err
 	}
-	return queryer.Where(user.And(ps...)),err
+	return queryer.Where(user.And(ps...)), err
 }
 
 func (curd *UserCURDV2) GetList(query *entt.UserDefaultQuery) (*entt.GetUserListData, error) {
 	bg := context.Background()
-	list,err := curd.GetListQuery(query).All(bg)
+	list, err := curd.GetListQuery(query).All(bg)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +70,7 @@ func (curd *UserCURDV2) GetList(query *entt.UserDefaultQuery) (*entt.GetUserList
 	if err != nil {
 		return nil, err
 	}
-	count,err := countQuery.Count(bg)
+	count, err := countQuery.Count(bg)
 	if err != nil {
 		return nil, err
 	}
@@ -96,14 +94,11 @@ func (curd *UserCURDV2) DefaultOrder(queryer *ent.UserQuery) {
 	}...)
 }
 
-
-
 func (curd *UserCURDV2) CreateOne(user *ent.User) (*ent.User, error) {
 	creater := curd.GetCreater()
 	entt.UserCreateMutation(creater.Mutation(), user)
 	return creater.Save(context.Background())
 }
-
 
 func (curd *UserCURDV2) GetBulk(users []*ent.User) []*ent.UserCreate {
 	bulk := make([]*ent.UserCreate, 0, len(users))
@@ -125,29 +120,6 @@ func (curd *UserCURDV2) UpdateOne(user *ent.User) (*ent.User, error) {
 	return updater.Save(context.Background())
 }
 
-func (curd *UserCURDV2) BaseUpdateListUpdater(c *gin.Context) (*ent.Tx, error) {
-	body, err := curd.BindObjs(c)
-	if err != nil {
-		return nil, err
-	}
-	ctx := context.Background()
-	tx, err := curd.Db.Tx(ctx)
-	if err != nil {
-		return nil, err
-	}
-	for _, v := range body {
-		updater := tx.User.UpdateOneID(v.ID)
-		entt.UserUpdateMutation(updater.Mutation(), v)
-		_, err := updater.Save(ctx)
-		if err != nil {
-			if rerr := tx.Rollback(); rerr != nil {
-				return tx, fmt.Errorf("$v: %v", err, rerr)
-			}
-		}
-	}
-	return tx, nil
-}
-
 func (curd *UserCURDV2) UpdateList(users []*ent.User) (string, error) {
 	bg := context.Background()
 	tx, err := curd.Db.Tx(bg)
@@ -167,93 +139,39 @@ func (curd *UserCURDV2) UpdateList(users []*ent.User) (string, error) {
 	return "ok", tx.Commit()
 }
 
-
 func (curd *UserCURDV2) DeleteOne(id int) (int, error) {
 	return curd.GetDeleter().Where(user.IDEQ(id)).Exec(context.Background())
 }
 
-func (curd *UserCURDV2) BaseDeleteListDeleter(c *gin.Context) (*ent.UserDelete, error) {
-	ids, err := entt.BindIds(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return curd.Db.User.Delete().Where(user.IDIn(ids.Ids...)), nil
+func (curd *UserCURDV2) DeleteList(ids []int) (int, error) {
+	return curd.Db.User.Delete().Where(user.IDIn(ids...)).Exec(context.Background())
 }
 
-func (curd *UserCURDV2) DeleteListRoutePath() string {
-	return "/users"
+func (curd *UserCURDV2) GetListRoleBindingsByUserId(id int, query *entt.RoleBindingDefaultQuery) (*entt.GetRoleBindingListData, error) {
+	listQueryer := curd.GetOneQueryer(id).QueryRoleBindings()
+	countQueryer := curd.GetOneQueryer(id).QueryRoleBindings()
+	return curd.RoleBindingObj.GetListByQueryer(listQueryer, countQueryer, query)
 }
 
-func (curd *UserCURDV2) DeleteList(c *gin.Context) (int, error) {
-	deleter, err := curd.BaseDeleteListDeleter(c)
-	if err != nil {
-		return 0, nil
-	}
-	return deleter.Exec(context.Background())
-}
+func (curd *UserCURDV2) CreateListRoleBindingsByUserId(id int, roleBindings ent.RoleBindings) (ent.RoleBindings, error) {
+	bulk := curd.RoleBindingObj.GetBulk(roleBindings)
 
-func (curd *UserCURDV2) GetListRoleBindingsByUserIdRoutePath() string {
-	return "/user/:id/role_bindings"
-}
-
-func (curd *UserCURDV2) GetListRoleBindingsByUserId(c *gin.Context) ([]*ent.RoleBinding, error) {
-	queryer, err := curd.BaseGetOneQueryer(c)
-	if err != nil {
-		return nil, err
-	}
-
-	tmpQueryer := queryer.QueryRoleBindings()
-
-	query, err := curd.RoleBindingObj.BindDefaultQuery(c)
-	if err != nil {
-		return nil, err
-	}
-	err = query.Exec(tmpQueryer)
-	if err != nil {
-		return nil, err
-	}
-	entt.RoleBindingSelete(tmpQueryer)
-	curd.RoleBindingObj.defaultOrder(tmpQueryer)
-
-	return tmpQueryer.All(context.Background())
-
-}
-
-// O2M
-func (curd *UserCURDV2) CreateListRoleBindingsByUserIdRoutePath() string {
-	return "/user/:id/role_bindings"
-}
-
-func (curd *UserCURDV2) CreateListRoleBindingsByUserId(c *gin.Context) ([]*ent.RoleBinding, error) {
-	id, err := entt.BindId(c)
-	if err != nil {
-		return nil, err
-	}
-	bulk, err := curd.RoleBindingObj.BaseCreateListBulk(c)
-	if err != nil {
-		return nil, err
-	}
 	bg := context.Background()
 	tx, err := curd.Db.Tx(bg)
 	if err != nil {
 		return nil, err
 	}
-
-	role_bindings, err := func() ([]*ent.RoleBinding, error) {
-		if err != nil {
-			return nil, err
-		}
-		role_bindings, err := tx.RoleBinding.CreateBulk(bulk...).Save(bg)
-		if err != nil {
-			return nil, err
-		}
-		_, err = tx.User.UpdateOneID(id.ID).AddRoleBindings(role_bindings...).Save(bg)
+	save, err := func() (ent.RoleBindings, error) {
+		save, err := tx.RoleBinding.CreateBulk(bulk...).Save(bg)
 		if err != nil {
 			return nil, err
 		}
 
-		return role_bindings, nil
+		_, err = tx.User.UpdateOneID(id).AddRoleBindings(save...).Save(bg)
+		if err != nil {
+			return nil, err
+		}
+		return save, nil
 	}()
 	if err != nil {
 		if rerr := tx.Rollback(); rerr != nil {
@@ -261,39 +179,20 @@ func (curd *UserCURDV2) CreateListRoleBindingsByUserId(c *gin.Context) ([]*ent.R
 		}
 		return nil, err
 	}
-	return role_bindings, tx.Commit()
+	return save, nil
+
 }
 
-func (curd *UserCURDV2) DeleteListRoleBindingsByUserIdRoutePath() string {
-	return "/user/:id/role_bindings"
-}
+func (curd *UserCURDV2) DeleteListRoleBindingsByUserId(id int, query *entt.RoleBindingDefaultQuery) (int, error) {
+	queryer := curd.GetOneQueryer(id)
 
-func (curd *UserCURDV2) DeleteListRoleBindingsByUserId(c *gin.Context) (int, error) {
-	queryer, err := curd.BaseGetOneQueryer(c)
+	curd.RoleBindingObj.SetListCountQuery(queryer.QueryRoleBindings(), query)
+	bg := context.Background()
+	ids, err := queryer.IDs(bg)
 	if err != nil {
 		return 0, err
 	}
-
-	query, err := curd.RoleBindingObj.BindDefaultQuery(c)
-
-	if err != nil {
-		return 0, err
-	}
-
-	ps, err := query.PredicatesExec()
-	if err != nil {
-		return 0, err
-	}
-	ids, err := queryer.QueryRoleBindings().Where(ps...).IDs(context.Background())
-	if err != nil {
-		return 0, err
-	}
-
-	return curd.Db.RoleBinding.Delete().Where(rolebinding.IDIn(ids...)).Exec(context.Background())
-}
-
-func (curd *UserCURDV2) GetListAlertsByUserIdRoutePath() string {
-	return "/user/:id/alerts"
+	return curd.RoleBindingObj.DeleteList(ids)
 }
 
 func (curd *UserCURDV2) GetListAlertsByUserId(c *gin.Context) ([]*ent.Alert, error) {
