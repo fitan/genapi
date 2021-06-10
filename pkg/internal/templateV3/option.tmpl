@@ -32,6 +32,14 @@ func {{$n.Name}}Selete(queryer *ent.{{$n.Name}}Query)  {
 	)
 }
 
+func GetIDsBy{{$n.Name}}({{snake (plural $n.Name)}} ent.{{plural $n.Name}}) []int {
+	IDs := make([]{{$.IDType}}, 0, len({{snake (plural $n.Name)}}))
+	for i, _ := range {{snake (plural $n.Name)}} {
+		IDs[i] = {{snake (plural $n.Name)}}[i].ID
+	}
+	return IDs
+}
+
 func {{$n.Name}}CreateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{range $f := $n.Fields}}
 	{{if eq (PaseRestFieldOperability $f.Annotations "Create") "true"}}
@@ -43,7 +51,7 @@ func {{$n.Name}}CreateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{if $e.Unique}}
 	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
 	{{else}}
-	m.Add{{$e.Type.Name}}IDs({{$e.Type.Name}}GetIDs(v.Edges.{{plural $e.Type.Name}})...)
+	m.Add{{$e.Type.Name}}IDs(GetIDsBy{{$e.Type.Name}}(v.Edges.{{plural $e.Type.Name}})...)
     {{end}}
 	{{end}}
 	{{end}}
@@ -60,7 +68,7 @@ func {{$n.Name}}UpdateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{if $e.Unique}}
 	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
 	{{else}}
-	m.Add{{$e.Type.Name}}IDs({{$e.Type.Name}}GetIDs(v.Edges.{{plural $e.Type.Name}})...)
+	m.Add{{$e.Type.Name}}IDs(GetIDsBy{{$e.Type.Name}}(v.Edges.{{plural $e.Type.Name}})...)
     {{end}}
 	{{end}}
 	{{end}}
