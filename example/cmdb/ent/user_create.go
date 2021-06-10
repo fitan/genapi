@@ -103,19 +103,23 @@ func (uc *UserCreate) AddRoleBindings(r ...*RoleBinding) *UserCreate {
 	return uc.AddRoleBindingIDs(ids...)
 }
 
-// AddAlertIDs adds the "alerts" edge to the Alert entity by IDs.
-func (uc *UserCreate) AddAlertIDs(ids ...int) *UserCreate {
-	uc.mutation.AddAlertIDs(ids...)
+// SetAlertID sets the "alert" edge to the Alert entity by ID.
+func (uc *UserCreate) SetAlertID(id int) *UserCreate {
+	uc.mutation.SetAlertID(id)
 	return uc
 }
 
-// AddAlerts adds the "alerts" edges to the Alert entity.
-func (uc *UserCreate) AddAlerts(a ...*Alert) *UserCreate {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+// SetNillableAlertID sets the "alert" edge to the Alert entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableAlertID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetAlertID(*id)
 	}
-	return uc.AddAlertIDs(ids...)
+	return uc
+}
+
+// SetAlert sets the "alert" edge to the Alert entity.
+func (uc *UserCreate) SetAlert(a *Alert) *UserCreate {
+	return uc.SetAlertID(a.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -307,12 +311,12 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := uc.mutation.AlertsIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.AlertIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   user.AlertsTable,
-			Columns: []string{user.AlertsColumn},
+			Table:   user.AlertTable,
+			Columns: []string{user.AlertColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -324,6 +328,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.user_alert = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

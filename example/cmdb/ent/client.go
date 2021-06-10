@@ -840,15 +840,15 @@ func (c *UserClient) QueryRoleBindings(u *User) *RoleBindingQuery {
 	return query
 }
 
-// QueryAlerts queries the alerts edge of a User.
-func (c *UserClient) QueryAlerts(u *User) *AlertQuery {
+// QueryAlert queries the alert edge of a User.
+func (c *UserClient) QueryAlert(u *User) *AlertQuery {
 	query := &AlertQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(alert.Table, alert.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.AlertsTable, user.AlertsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, user.AlertTable, user.AlertColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

@@ -23,7 +23,6 @@ type AlertQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Alert
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -303,13 +302,9 @@ func (aq *AlertQuery) prepareQuery(ctx context.Context) error {
 
 func (aq *AlertQuery) sqlAll(ctx context.Context) ([]*Alert, error) {
 	var (
-		nodes   = []*Alert{}
-		withFKs = aq.withFKs
-		_spec   = aq.querySpec()
+		nodes = []*Alert{}
+		_spec = aq.querySpec()
 	)
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, alert.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Alert{config: aq.config}
 		nodes = append(nodes, node)

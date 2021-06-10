@@ -821,25 +821,25 @@ func HasRoleBindingsWith(preds ...predicate.RoleBinding) predicate.User {
 	})
 }
 
-// HasAlerts applies the HasEdge predicate on the "alerts" edge.
-func HasAlerts() predicate.User {
+// HasAlert applies the HasEdge predicate on the "alert" edge.
+func HasAlert() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(AlertsTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, AlertsTable, AlertsColumn),
+			sqlgraph.To(AlertTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, AlertTable, AlertColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasAlertsWith applies the HasEdge predicate on the "alerts" edge with a given conditions (other predicates).
-func HasAlertsWith(preds ...predicate.Alert) predicate.User {
+// HasAlertWith applies the HasEdge predicate on the "alert" edge with a given conditions (other predicates).
+func HasAlertWith(preds ...predicate.Alert) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(AlertsInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, AlertsTable, AlertsColumn),
+			sqlgraph.To(AlertInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, AlertTable, AlertColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

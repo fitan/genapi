@@ -2767,9 +2767,8 @@ type UserMutation struct {
 	role_bindings        map[int]struct{}
 	removedrole_bindings map[int]struct{}
 	clearedrole_bindings bool
-	alerts               map[int]struct{}
-	removedalerts        map[int]struct{}
-	clearedalerts        bool
+	alert                *int
+	clearedalert         bool
 	done                 bool
 	oldValue             func(context.Context) (*User, error)
 	predicates           []predicate.User
@@ -3172,57 +3171,43 @@ func (m *UserMutation) ResetRoleBindings() {
 	m.removedrole_bindings = nil
 }
 
-// AddAlertIDs adds the "alerts" edge to the Alert entity by ids.
-func (m *UserMutation) AddAlertIDs(ids ...int) {
-	if m.alerts == nil {
-		m.alerts = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.alerts[ids[i]] = struct{}{}
-	}
+// SetAlertID sets the "alert" edge to the Alert entity by id.
+func (m *UserMutation) SetAlertID(id int) {
+	m.alert = &id
 }
 
-// ClearAlerts clears the "alerts" edge to the Alert entity.
-func (m *UserMutation) ClearAlerts() {
-	m.clearedalerts = true
+// ClearAlert clears the "alert" edge to the Alert entity.
+func (m *UserMutation) ClearAlert() {
+	m.clearedalert = true
 }
 
-// AlertsCleared returns if the "alerts" edge to the Alert entity was cleared.
-func (m *UserMutation) AlertsCleared() bool {
-	return m.clearedalerts
+// AlertCleared returns if the "alert" edge to the Alert entity was cleared.
+func (m *UserMutation) AlertCleared() bool {
+	return m.clearedalert
 }
 
-// RemoveAlertIDs removes the "alerts" edge to the Alert entity by IDs.
-func (m *UserMutation) RemoveAlertIDs(ids ...int) {
-	if m.removedalerts == nil {
-		m.removedalerts = make(map[int]struct{})
-	}
-	for i := range ids {
-		m.removedalerts[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedAlerts returns the removed IDs of the "alerts" edge to the Alert entity.
-func (m *UserMutation) RemovedAlertsIDs() (ids []int) {
-	for id := range m.removedalerts {
-		ids = append(ids, id)
+// AlertID returns the "alert" edge ID in the mutation.
+func (m *UserMutation) AlertID() (id int, exists bool) {
+	if m.alert != nil {
+		return *m.alert, true
 	}
 	return
 }
 
-// AlertsIDs returns the "alerts" edge IDs in the mutation.
-func (m *UserMutation) AlertsIDs() (ids []int) {
-	for id := range m.alerts {
-		ids = append(ids, id)
+// AlertIDs returns the "alert" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// AlertID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) AlertIDs() (ids []int) {
+	if id := m.alert; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetAlerts resets all changes to the "alerts" edge.
-func (m *UserMutation) ResetAlerts() {
-	m.alerts = nil
-	m.clearedalerts = false
-	m.removedalerts = nil
+// ResetAlert resets all changes to the "alert" edge.
+func (m *UserMutation) ResetAlert() {
+	m.alert = nil
+	m.clearedalert = false
 }
 
 // Op returns the operation name.
@@ -3453,8 +3438,8 @@ func (m *UserMutation) AddedEdges() []string {
 	if m.role_bindings != nil {
 		edges = append(edges, user.EdgeRoleBindings)
 	}
-	if m.alerts != nil {
-		edges = append(edges, user.EdgeAlerts)
+	if m.alert != nil {
+		edges = append(edges, user.EdgeAlert)
 	}
 	return edges
 }
@@ -3469,12 +3454,10 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeAlerts:
-		ids := make([]ent.Value, 0, len(m.alerts))
-		for id := range m.alerts {
-			ids = append(ids, id)
+	case user.EdgeAlert:
+		if id := m.alert; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -3484,9 +3467,6 @@ func (m *UserMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
 	if m.removedrole_bindings != nil {
 		edges = append(edges, user.EdgeRoleBindings)
-	}
-	if m.removedalerts != nil {
-		edges = append(edges, user.EdgeAlerts)
 	}
 	return edges
 }
@@ -3501,12 +3481,6 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeAlerts:
-		ids := make([]ent.Value, 0, len(m.removedalerts))
-		for id := range m.removedalerts {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
@@ -3517,8 +3491,8 @@ func (m *UserMutation) ClearedEdges() []string {
 	if m.clearedrole_bindings {
 		edges = append(edges, user.EdgeRoleBindings)
 	}
-	if m.clearedalerts {
-		edges = append(edges, user.EdgeAlerts)
+	if m.clearedalert {
+		edges = append(edges, user.EdgeAlert)
 	}
 	return edges
 }
@@ -3529,8 +3503,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 	switch name {
 	case user.EdgeRoleBindings:
 		return m.clearedrole_bindings
-	case user.EdgeAlerts:
-		return m.clearedalerts
+	case user.EdgeAlert:
+		return m.clearedalert
 	}
 	return false
 }
@@ -3539,6 +3513,9 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
 	switch name {
+	case user.EdgeAlert:
+		m.ClearAlert()
+		return nil
 	}
 	return fmt.Errorf("unknown User unique edge %s", name)
 }
@@ -3550,8 +3527,8 @@ func (m *UserMutation) ResetEdge(name string) error {
 	case user.EdgeRoleBindings:
 		m.ResetRoleBindings()
 		return nil
-	case user.EdgeAlerts:
-		m.ResetAlerts()
+	case user.EdgeAlert:
+		m.ResetAlert()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

@@ -47,15 +47,11 @@ var router2Cmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		tree, err := directory_tree.NewTree("./logic")
+		tree, err := directory_tree.NewTree(*router2Src)
 		if err != nil {
 			panic(err)
 		}
-
-		DepthGen(tree, "./gen2/handler")
-
-
-
+		DepthGen(tree, *router2Dest)
 		//for fileName, f := range context.Files {
 		//	fmt.Println("fileName:  ",fileName)
 		//	fmt.Printf("%# v", pretty.Formatter(f.Funcs))
@@ -64,8 +60,12 @@ var router2Cmd = &cobra.Command{
 	},
 }
 
+var router2Src *string
+var router2Dest *string
 func init() {
 	rootCmd.AddCommand(router2Cmd)
+	router2Src = router2Cmd.Flags().StringP("rsrc", "s", "./logic", "generate src.")
+	router2Dest = router2Cmd.Flags().StringP("rdest", "d", "./gen2/handler", "generate dest.")
 
 	// Here you will define your flags and configuration settings.
 

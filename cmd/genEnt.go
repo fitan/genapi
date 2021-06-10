@@ -27,17 +27,24 @@ var genEntCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		//pkg.Load(src, dest, nodes)
-		pkg.Load(*genEntSrc, *genEntDest)
+		if *genEntV2 == "2" {
+			pkg.LoadV2(*genEntSrc, "./gen/entt2")
+		} else {
+			pkg.Load(*genEntSrc, *genEntDest)
+		}
+
 	},
 }
 
 var genEntSrc *string
 var genEntDest *string
+var genEntV2 *string
 
 func init() {
 	rootCmd.AddCommand(genEntCmd)
 	genEntSrc = genEntCmd.Flags().StringP("src", "s", "./ent/schema", "ent schema src.")
 	genEntDest = genEntCmd.Flags().StringP("dest", "d", "./gen/entt", "generate dest.")
+	genEntV2 = genEntCmd.Flags().StringP("version", "v", "2", "version")
 
 	// Here you will define your flags and configuration settings.
 

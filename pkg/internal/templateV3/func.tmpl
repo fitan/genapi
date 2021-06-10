@@ -1,0 +1,132 @@
+package entt2
+
+import (
+	"{{$.Config.Package}}"
+	"github.com/gin-gonic/gin"
+)
+
+{{ range $n := $.Nodes }}
+
+type GetOne{{$n.Name}}In struct {
+	Uri {{$n.Name}}ID
+}
+
+// @GenApi /{{lower $n.Name}}/:id [get]
+func GetOne{{$n.Name}}(c *gin.Context, in *GetOne{{$n.Name}}In) (*ent.{{$n.Name}}, error) {
+	return Get{{$n.Name}}CURD().GetOne(in.Uri.ID)
+}
+
+type GetList{{$n.Name}}In struct {
+	Query {{$n.Name}}QueryOption
+}
+
+// @GenApi /{{plural (lower $n.Name)}} [get]
+func GetList{{$n.Name}}(c *gin.Context, in *GetList{{$n.Name}}In) (*Get{{$n.Name}}ListData, error) {
+	return Get{{$n.Name}}CURD().GetList(&in.Query)
+}
+
+type CreateOne{{$n.Name}}In struct {
+	Body ent.{{$n.Name}}
+}
+
+// @GenApi /{{lower $n.Name}} [post]
+func CreateOne{{$n.Name}}(c *gin.Context, in *CreateOne{{$n.Name}}In) (*ent.{{$n.Name}}, error) {
+	return Get{{$n.Name}}CURD().CreateOne(&in.Body)
+}
+
+type CreateList{{$n.Name}}In struct {
+	Body ent.{{$n.Name}}s
+}
+
+// @GenApi /{{plural (lower $n.Name)}} [post]
+func CreateList{{$n.Name}}(c *gin.Context, in *CreateList{{$n.Name}}In) (ent.{{$n.Name}}s, error) {
+	return Get{{$n.Name}}CURD().CreateList(in.Body)
+}
+
+type UpdateOne{{$n.Name}}In struct {
+	Body ent.{{$n.Name}}
+}
+
+// @GenApi /{{lower $n.Name}} [put]
+func UpdateOne{{$n.Name}}(c *gin.Context, in *UpdateOne{{$n.Name}}In) (*ent.{{$n.Name}}, error) {
+	return Get{{$n.Name}}CURD().UpdateOne(&in.Body)
+}
+
+type UpdateList{{$n.Name}}In struct {
+	Body ent.{{$n.Name}}s
+}
+
+// @GenApi /{{plural (lower $n.Name)}} [put]
+func UpdateList{{$n.Name}}(c *gin.Context, in *UpdateList{{$n.Name}}In) (string, error) {
+	return Get{{$n.Name}}CURD().UpdateList(in.Body)
+}
+
+type DeleteOne{{$n.Name}}In struct {
+	Uri {{$n.Name}}ID
+}
+
+// @GenApi /{{lower $n.Name}}/:id [delete]
+func DeleteOne{{$n.Name}}(c *gin.Context, in *DeleteOne{{$n.Name}}In) (int, error) {
+	return Get{{$n.Name}}CURD().DeleteOne(in.Uri.ID)
+}
+
+type DeleteList{{$n.Name}}In struct {
+	Query {{$n.Name}}IDs
+}
+
+// @GenApi /{{plural (lower $n.Name)}} [delete]
+func DeleteList{{$n.Name}}(c *gin.Context, in *DeleteList{{$n.Name}}In) (int, error) {
+	return Get{{$n.Name}}CURD().DeleteList(in.Query.IDs)
+}
+{{ range $e := $n.Edges}}
+{{$rel := PaseRelType $e}}
+// action {{$e.Type.Name}} by {{$n.Name}}
+{{if eq $rel.Dest "O"}}
+
+func GetOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetOne{{$n.Name}}In) (*ent.{{$e.Type.Name}}, error) {
+	return Get{{$n.Name}}CURD().GetOne{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID)
+}
+
+type CreateOne{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
+	Uri {{$n.Name}}ID
+	Body ent.{{$e.Type.Name}}
+}
+
+func CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateOne{{$e.Type.Name}}By{{$n.Name}}IdIn) (*ent.{{$e.Type.Name}}, error) {
+	return Get{{$n.Name}}CURD().CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID, &in.Body)
+}
+
+func DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetOne{{$n.Name}}In) (int, error) {
+	return Get{{$n.Name}}CURD().DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID)
+}
+{{else}}
+type GetList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
+	Uri {{$n.Name}}ID
+	Query {{$e.Type.Name}}QueryOption
+}
+
+func GetList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetList{{$e.Type.Name}}By{{$n.Name}}IdIn) (*Get{{$e.Type.Name}}ListData, error) {
+	return Get{{$n.Name}}CURD().GetList{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID, &in.Query)
+}
+
+type CreateList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
+	Uri {{$n.Name}}ID
+	Body ent.{{$e.Type.Name}}s
+}
+
+func CreateList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateList{{$e.Type.Name}}By{{$n.Name}}IdIn) (ent.{{$e.Type.Name}}s, error) {
+	return Get{{$n.Name}}CURD().CreateList{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID, in.Body)
+}
+
+type DeleteList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
+	Uri {{$n.Name}}ID
+	Query {{$e.Type.Name}}QueryOption
+}
+
+func DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *DeleteList{{$e.Type.Name}}By{{$n.Name}}IdIn) (int, error) {
+	return Get{{$n.Name}}CURD().DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID, &in.Query)
+}
+{{end}}
+{{end}}
+
+{{end}}

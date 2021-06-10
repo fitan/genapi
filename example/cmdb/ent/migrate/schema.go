@@ -12,21 +12,13 @@ var (
 	AlertsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
-		{Name: "user_alerts", Type: field.TypeInt, Nullable: true},
 	}
 	// AlertsTable holds the schema information for the "alerts" table.
 	AlertsTable = &schema.Table{
-		Name:       "alerts",
-		Columns:    AlertsColumns,
-		PrimaryKey: []*schema.Column{AlertsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "alerts_users_alerts",
-				Columns:    []*schema.Column{AlertsColumns[2]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
+		Name:        "alerts",
+		Columns:     AlertsColumns,
+		PrimaryKey:  []*schema.Column{AlertsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
 	}
 	// ProjectsColumns holds the columns for the "projects" table.
 	ProjectsColumns = []*schema.Column{
@@ -127,13 +119,21 @@ var (
 		{Name: "email", Type: field.TypeString},
 		{Name: "phone", Type: field.TypeString},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin", "tourist"}},
+		{Name: "user_alert", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
-		Name:        "users",
-		Columns:     UsersColumns,
-		PrimaryKey:  []*schema.Column{UsersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "users",
+		Columns:    UsersColumns,
+		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_alerts_alert",
+				Columns:    []*schema.Column{UsersColumns[8]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// ServiceServersColumns holds the columns for the "service_servers" table.
 	ServiceServersColumns = []*schema.Column{
@@ -173,11 +173,11 @@ var (
 )
 
 func init() {
-	AlertsTable.ForeignKeys[0].RefTable = UsersTable
 	RoleBindingsTable.ForeignKeys[0].RefTable = ProjectsTable
 	RoleBindingsTable.ForeignKeys[1].RefTable = ServicesTable
 	RoleBindingsTable.ForeignKeys[2].RefTable = UsersTable
 	ServicesTable.ForeignKeys[0].RefTable = ProjectsTable
+	UsersTable.ForeignKeys[0].RefTable = AlertsTable
 	ServiceServersTable.ForeignKeys[0].RefTable = ServicesTable
 	ServiceServersTable.ForeignKeys[1].RefTable = ServersTable
 }

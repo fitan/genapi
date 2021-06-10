@@ -16,8 +16,7 @@ type Alert struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
-	Name        string `json:"name,omitempty"`
-	user_alerts *int
+	Name string `json:"name,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -29,8 +28,6 @@ func (*Alert) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = &sql.NullInt64{}
 		case alert.FieldName:
 			values[i] = &sql.NullString{}
-		case alert.ForeignKeys[0]: // user_alerts
-			values[i] = &sql.NullInt64{}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Alert", columns[i])
 		}
@@ -57,13 +54,6 @@ func (a *Alert) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				a.Name = value.String
-			}
-		case alert.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_alerts", value)
-			} else if value.Valid {
-				a.user_alerts = new(int)
-				*a.user_alerts = int(value.Int64)
 			}
 		}
 	}

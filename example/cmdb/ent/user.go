@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"cmdb/ent/alert"
 	"cmdb/ent/user"
 	"fmt"
 	"strings"
@@ -33,15 +34,16 @@ type User struct {
 	Role user.Role `json:"role,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges UserEdges `json:"edges"`
+	Edges      UserEdges `json:"edges"`
+	user_alert *int
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
 	// RoleBindings holds the value of the role_bindings edge.
 	RoleBindings []*RoleBinding `json:"role_bindings,omitempty"`
-	// Alerts holds the value of the alerts edge.
-	Alerts []*Alert `json:"alerts,omitempty"`
+	// Alert holds the value of the alert edge.
+	Alert *Alert `json:"alert,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
@@ -56,13 +58,18 @@ func (e UserEdges) RoleBindingsOrErr() ([]*RoleBinding, error) {
 	return nil, &NotLoadedError{edge: "role_bindings"}
 }
 
-// AlertsOrErr returns the Alerts value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) AlertsOrErr() ([]*Alert, error) {
+// AlertOrErr returns the Alert value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) AlertOrErr() (*Alert, error) {
 	if e.loadedTypes[1] {
-		return e.Alerts, nil
+		if e.Alert == nil {
+			// The edge alert was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: alert.Label}
+		}
+		return e.Alert, nil
 	}
-	return nil, &NotLoadedError{edge: "alerts"}
+	return nil, &NotLoadedError{edge: "alert"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -76,6 +83,8 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = &sql.NullString{}
 		case user.FieldCreateTime, user.FieldUpdateTime:
 			values[i] = &sql.NullTime{}
+		case user.ForeignKeys[0]: // user_alert
+			values[i] = &sql.NullInt64{}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type User", columns[i])
 		}
@@ -139,6 +148,13 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				u.Role = user.Role(value.String)
 			}
+		case user.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field user_alert", value)
+			} else if value.Valid {
+				u.user_alert = new(int)
+				*u.user_alert = int(value.Int64)
+			}
 		}
 	}
 	return nil
@@ -149,9 +165,9 @@ func (u *User) QueryRoleBindings() *RoleBindingQuery {
 	return (&UserClient{config: u.config}).QueryRoleBindings(u)
 }
 
-// QueryAlerts queries the "alerts" edge of the User entity.
-func (u *User) QueryAlerts() *AlertQuery {
-	return (&UserClient{config: u.config}).QueryAlerts(u)
+// QueryAlert queries the "alert" edge of the User entity.
+func (u *User) QueryAlert() *AlertQuery {
+	return (&UserClient{config: u.config}).QueryAlert(u)
 }
 
 // Update returns a builder for updating this User.

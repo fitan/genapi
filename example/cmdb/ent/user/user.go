@@ -28,8 +28,8 @@ const (
 	FieldRole = "role"
 	// EdgeRoleBindings holds the string denoting the role_bindings edge name in mutations.
 	EdgeRoleBindings = "role_bindings"
-	// EdgeAlerts holds the string denoting the alerts edge name in mutations.
-	EdgeAlerts = "alerts"
+	// EdgeAlert holds the string denoting the alert edge name in mutations.
+	EdgeAlert = "alert"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleBindingsTable is the table the holds the role_bindings relation/edge.
@@ -39,13 +39,13 @@ const (
 	RoleBindingsInverseTable = "role_bindings"
 	// RoleBindingsColumn is the table column denoting the role_bindings relation/edge.
 	RoleBindingsColumn = "user_role_bindings"
-	// AlertsTable is the table the holds the alerts relation/edge.
-	AlertsTable = "alerts"
-	// AlertsInverseTable is the table name for the Alert entity.
+	// AlertTable is the table the holds the alert relation/edge.
+	AlertTable = "users"
+	// AlertInverseTable is the table name for the Alert entity.
 	// It exists in this package in order to avoid circular dependency with the "alert" package.
-	AlertsInverseTable = "alerts"
-	// AlertsColumn is the table column denoting the alerts relation/edge.
-	AlertsColumn = "user_alerts"
+	AlertInverseTable = "alerts"
+	// AlertColumn is the table column denoting the alert relation/edge.
+	AlertColumn = "user_alert"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -60,10 +60,21 @@ var Columns = []string{
 	FieldRole,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "users"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"user_alert",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
