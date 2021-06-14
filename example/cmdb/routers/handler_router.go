@@ -1,9 +1,9 @@
 package routers
 
-import (
-	"cmdb/gen/handler"
-)
-
-func init()  {
-	handler.RegisterAll(GetDefaultRouter())
-}
+//import (
+//	"cmdb/gen/handler"
+//)
+//
+//func init()  {
+//	handler.RegisterAll(GetDefaultRouter())
+//}

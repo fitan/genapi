@@ -6,7 +6,6 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 	"github.com/fitan/genapi/pkg"
 )
 
@@ -39,11 +38,11 @@ func (User) Annotations() []schema.Annotation {
 	}
 }
 
-func (User) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.Time{},
-	}
-}
+//func (User) Mixin() []ent.Mixin {
+//	return []ent.Mixin{
+//		mixin.Time{},
+//	}
+//}
 
 // Fields of the User.
 func (User) Fields() []ent.Field {

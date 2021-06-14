@@ -11,8 +11,9 @@ type Func struct {
 }
 
 type Router struct {
-	Method  string
-	GinPath string
+	Method         string
+	GinPath        string
+	RouterGroupKey string
 }
 
 type QuoteType string
@@ -29,7 +30,7 @@ type Bind struct {
 	Body struct {
 		Has            bool
 		QuoteType      QuoteType
-		Comment string
+		Comment        string
 		SwagStructName string
 		SwagRaw        string
 		SwagObj        string
@@ -37,7 +38,7 @@ type Bind struct {
 	Query struct {
 		Has            bool
 		QuoteType      QuoteType
-		Comment string
+		Comment        string
 		SwagStructName string
 		SwagRaw        string
 		SwagObj        string

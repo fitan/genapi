@@ -15,18 +15,18 @@ type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
 // @Produce  json{{if $fc.Bind.Body.Has}}
 // @Param body body {{$fc.Bind.Body.SwagObj}} true "{{$fc.Bind.Body.Comment}} "
 {{- end}}{{if $fc.Bind.Query.Has}}
-// @Param query query {{$fc.Bind.Query.SwagObj}} false "{{$fc.Bind.Query.Comment}}"
+// @Param query query {{$fc.Bind.Query.SwagObj}} false "{{$fc.Bind.Query.Comment}} "
 {{- end}}{{if $fc.Bind.Uri.Has}}
 {{- range $TagMsg := $fc.Bind.Uri.TagMsgs}}
-// @Param {{$TagMsg.TagValue}} path string true "{{$TagMsg.Comment}}"
+// @Param {{$TagMsg.TagValue}} path string true "{{$TagMsg.Comment}} "
 {{- end}}{{if $fc.Bind.Header.Has}}
 {{- range $TagMsg := $fc.Bind.Header.TagMsgs}}
-// @Param {{$TagMsg.TagValue}} header string false "{{$TagMsg.Comment}}"
+// @Param {{$TagMsg.TagValue}} header string false "{{$TagMsg.Comment}} "
 {{- end}}
 {{- end}}
 {{- end}}
 // @Success 200 {object} Result{data={{$fc.ResOut0}}}{{range $index, $comment := $fc.Comments}}
-{{$comment}}
+{{$comment }}
 {{- end}}
 func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
 	in := &{{$fc.ParamIn1}}{}

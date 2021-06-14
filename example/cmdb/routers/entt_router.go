@@ -1,12 +1,16 @@
 package routers
 
 import (
-	"cmdb/gen/entt"
+	"cmdb/gen/entt2"
+	"cmdb/gen2/ent_handler"
 	"cmdb/public"
 )
 
-func init()  {
+func init() {
 	db := public.GetDB()
-	curdall := entt.NewCURDALL(db)
-	curdall.RegisterRouterALL(GetDefaultRouter())
+	_ = entt2.NewCURDALL(db)
+	ent_handler.RegisterAll(GetDefaultRouter())
+
+	//curdall := entt.NewCURDALL(db)
+	//curdall.RegisterRouterALL(GetDefaultRouter())
 }

@@ -3,16 +3,25 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-func RegisterAll(r gin.IRouter) {
-{{range $fileContext := $.ApiMap}}
-    {{range $func := $fileContext.Funcs}}
-    r.{{$func.Router.Method}}("{{$func.Router.GinPath}}", func(c *gin.Context) {
+{{/*func RegisterAll(r gin.IRouter) {*/}}
+{{/*{{range $fileContext := $.ApiMap}}*/}}
+{{/*    {{range $func := $fileContext.Funcs}}*/}}
+{{/*    r.{{$func.Router.Method}}("{{$func.Router.GinPath}}", func(c *gin.Context) {*/}}
+{{/*        public.GinResult(c, {{$func.FuncName}})*/}}
+{{/*    })*/}}
+{{/*    {{end}}*/}}
+{{/*{{end}}*/}}
+{{/*}*/}}
+
+{{range $key,$funcs := $.ReginsterMap}}
+func Register{{pascal $key}}(r gin.IRouter) {
+	{{range $func := $funcs}}
+	r.{{$func.Router.Method}}("{{$func.Router.GinPath}}", func(c *gin.Context) {
         public.GinResult(c, {{$func.FuncName}})
     })
-    {{end}}
-{{end}}
+	{{end}}
 }
-
+{{end}}
 
 type Result struct {
 	Code int `json:"code"`

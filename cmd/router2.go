@@ -23,20 +23,20 @@ import (
 	"path"
 )
 
-func DepthGen(tree *directory_tree.Node, Dir string)  {
+func DepthGen(tree *directory_tree.Node, Dir string) {
 	context := gen_apiV2.NewApiContext()
 	context.Load(tree.FullPath)
 	context.Parse()
 	for _, file := range context.Files {
 		if len(file.Funcs) != 0 {
-			pkg.GenApiV2(context.Files, Dir)
+			pkg.GenApiV2(context.Files, context.ReginsterMap, Dir)
 			break
 		}
 	}
 
-	for _,node := range tree.Children {
+	for _, node := range tree.Children {
 		if node.Info.IsDir {
-			DepthGen(node,path.Join(Dir, node.Info.Name))
+			DepthGen(node, path.Join(Dir, node.Info.Name))
 		}
 	}
 }
@@ -62,6 +62,7 @@ var router2Cmd = &cobra.Command{
 
 var router2Src *string
 var router2Dest *string
+
 func init() {
 	rootCmd.AddCommand(router2Cmd)
 	router2Src = router2Cmd.Flags().StringP("rsrc", "s", "./logic", "generate src.")

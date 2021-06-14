@@ -68,10 +68,10 @@ func Depth(tree Tree) []interface{} {
 			depthTs := Depth(t)
 			f := func(query *ent.{{$n.Name}}Query) {
 				for _, depthT := range depthTs {
-					switch depthT.(type) {
+					switch depthType := depthT.(type) {
 					{{range $e := $n.Edges}}
 					case func(query *ent.{{$e.Type.Name}}Query):
-						{{$n.Name}}Selete(query.With{{if $e.Unique}}{{$e.Type.Name}}{{else}}{{plural $e.Type.Name}}{{end}}(depthT.(func(query *ent.{{$e.Type.Name}}Query))))
+						{{$n.Name}}Selete(query.With{{if $e.Unique}}{{$e.Type.Name}}{{else}}{{plural $e.Type.Name}}{{end}}(depthType)
 					{{end}}
 					default:
 						{{$n.Name}}Selete(query)
@@ -96,10 +96,10 @@ func QueryerIncludes(queryer interface{}, includes []string)  {
 	{{range $n := $.Nodes}}
 	case *ent.{{$n.Name}}Query:
 		for _,depthT := range depthTs {
-			switch depthT.(type) {
+			switch depthType := depthT.(type) {
 			{{range $e := $n.Edges}}
 			case func(query *ent.{{$e.Type.Name}}Query):
-				queryer.(*ent.{{$n.Name}}Query).With{{if $e.Unique}}{{$e.Type.Name}}{{else}}{{plural $e.Type.Name}}{{end}}(depthT.(func(query *ent.{{$e.Type.Name}}Query)))
+				queryer.(*ent.{{$n.Name}}Query).With{{if $e.Unique}}{{$e.Type.Name}}{{else}}{{plural $e.Type.Name}}{{end}}(depthType)
 			{{end}}
 			}
 		}

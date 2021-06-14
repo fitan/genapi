@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"golang.org/x/tools/go/packages"
 	"log"
+	"path"
 	"strings"
 )
 
@@ -38,7 +39,7 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	}
 	inField := f.Type.Params.List[1]
 
-	_, _, _,inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
+	_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
 	//_, inStruct := c.FindStruct(inField)
 	fc.Bind = c.ParseBind(fc.FuncName, inStruct)
 	c.ParseComment(&fc, f.Doc.List)
@@ -59,6 +60,8 @@ func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment) {
 			router, swagRouter := c.ApiMark2SwagRouter(fs)
 			fc.Router = router
 			comments = append(comments, swagRouter)
+		} else {
+			comments = append(comments, m.Text)
 		}
 	}
 	fc.Comments = comments
@@ -87,7 +90,7 @@ func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bin
 				bind.Query.SwagStructName = "Swag" + funcName + "Query"
 				bind.Query.QuoteType = quoteType
 				bind.Query.SwagRaw = raw
-				bind.Query.Comment = strings.ReplaceAll(field.Doc.Text(),"\n", "\\n")
+				bind.Query.Comment = strings.ReplaceAll(field.Doc.Text(), "\n", "\\n")
 				if hasStructType {
 					bind.Query.SwagObj = bind.Query.SwagStructName
 				} else {
@@ -100,7 +103,7 @@ func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bin
 				bind.Body.QuoteType = quoteType
 				bind.Body.SwagStructName = "Swag" + funcName + "Body"
 				bind.Body.SwagRaw = raw
-				bind.Body.Comment = strings.ReplaceAll(field.Doc.Text(),"\n", "\\n")
+				bind.Body.Comment = strings.ReplaceAll(field.Doc.Text(), "\n", "\\n")
 				if hasStructType {
 					bind.Body.SwagObj = bind.Body.SwagStructName
 				} else {
@@ -164,10 +167,16 @@ func (c *FileContext) ApiMark2SwagRouter(fields []string) (Router, string) {
 	ginPath := fields[2]
 	ginPath = strings.ReplaceAll(ginPath, "{", ":")
 	ginPath = strings.ReplaceAll(ginPath, "}", "")
+	routerGroupKey := ""
+	if len(fields) >= 5 {
+		routerGroupKey = fields[4]
+		fields[2] = path.Join("/"+routerGroupKey, fields[2])
+	}
 	return Router{
-		Method:  strings.ToUpper(method[1 : len(method)-1]),
-		GinPath: ginPath,
-	}, strings.Join(fields, " ")
+		Method:         strings.ToUpper(method[1 : len(method)-1]),
+		GinPath:        ginPath,
+		RouterGroupKey: routerGroupKey,
+	}, strings.Join(fields[:4], " ")
 }
 
 // GinFormat 符合 func Name(c *gin.context, in object) (out object, err error)

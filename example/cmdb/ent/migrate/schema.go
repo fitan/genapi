@@ -51,20 +51,23 @@ var (
 		PrimaryKey: []*schema.Column{RoleBindingsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "role_bindings_projects_role_bindings",
-				Columns:    []*schema.Column{RoleBindingsColumns[4]},
+				Symbol:  "role_bindings_projects_role_bindings",
+				Columns: []*schema.Column{RoleBindingsColumns[4]},
+
 				RefColumns: []*schema.Column{ProjectsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "role_bindings_services_role_bindings",
-				Columns:    []*schema.Column{RoleBindingsColumns[5]},
+				Symbol:  "role_bindings_services_role_bindings",
+				Columns: []*schema.Column{RoleBindingsColumns[5]},
+
 				RefColumns: []*schema.Column{ServicesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "role_bindings_users_role_bindings",
-				Columns:    []*schema.Column{RoleBindingsColumns[6]},
+				Symbol:  "role_bindings_users_role_bindings",
+				Columns: []*schema.Column{RoleBindingsColumns[6]},
+
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -102,8 +105,9 @@ var (
 		PrimaryKey: []*schema.Column{ServicesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "services_projects_services",
-				Columns:    []*schema.Column{ServicesColumns[4]},
+				Symbol:  "services_projects_services",
+				Columns: []*schema.Column{ServicesColumns[4]},
+
 				RefColumns: []*schema.Column{ProjectsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -112,8 +116,6 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString},
 		{Name: "password", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString},
@@ -128,8 +130,9 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "users_alerts_alert",
-				Columns:    []*schema.Column{UsersColumns[8]},
+				Symbol:  "users_alerts_alert",
+				Columns: []*schema.Column{UsersColumns[6]},
+
 				RefColumns: []*schema.Column{AlertsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -147,14 +150,16 @@ var (
 		PrimaryKey: []*schema.Column{ServiceServersColumns[0], ServiceServersColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "service_servers_service_id",
-				Columns:    []*schema.Column{ServiceServersColumns[0]},
+				Symbol:  "service_servers_service_id",
+				Columns: []*schema.Column{ServiceServersColumns[0]},
+
 				RefColumns: []*schema.Column{ServicesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "service_servers_server_id",
-				Columns:    []*schema.Column{ServiceServersColumns[1]},
+				Symbol:  "service_servers_server_id",
+				Columns: []*schema.Column{ServiceServersColumns[1]},
+
 				RefColumns: []*schema.Column{ServersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

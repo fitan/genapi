@@ -3,6 +3,7 @@ package pkg
 import (
 	"bytes"
 	_ "embed"
+	"entgo.io/ent/entc/gen"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/fitan/genapi/pkg/gen_apiV2"
@@ -649,8 +650,8 @@ func GenApi(apiMap map[string]map[string]map[string]ApiMsg, dest string) {
 	}
 }
 
-func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, dest string) {
-	parse, err := template.New("gen_api").Parse(pkg_name_tmpl)
+func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string][]gen_apiV2.Func, dest string) {
+	parse, err := template.New("gen_api").Funcs(gen.Funcs).Parse(pkg_name_tmpl)
 	if err != nil {
 		log.Panicln(err.Error())
 	}
@@ -692,11 +693,13 @@ func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, dest string) {
 	}
 	b := bytes.NewBuffer(nil)
 	err = tpl.Execute(b, struct {
-		PkgName string
-		ApiMap  map[string]*gen_apiV2.FileContext
+		PkgName      string
+		ApiMap       map[string]*gen_apiV2.FileContext
+		ReginsterMap map[string][]gen_apiV2.Func
 	}{
-		PkgName: path.Base(dest),
-		ApiMap:  apiMap,
+		PkgName:      path.Base(dest),
+		ApiMap:       apiMap,
+		ReginsterMap: ReginsterMap,
 	})
 	if err != nil {
 		log.Fatalln(err.Error())

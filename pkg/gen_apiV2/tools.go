@@ -452,35 +452,39 @@ func FindTagAndCommentByField(pkg *packages.Package, file *ast.File, field *ast.
 	//	findStruct = t
 	//	findPkg = pkg
 	//}
-	findPkg, findFile, _,findStruct = FindStructByExpr(pkg, file, field.Type)
+	findPkg, findFile, _, findStruct = FindStructByExpr(pkg, file, field.Type)
 	return FindTagAndComment(findPkg, findFile, findStruct, TagName)
 }
 
-func FindStructByExpr(pkg *packages.Package, file *ast.File, expr ast.Expr) (*packages.Package, *ast.File, *ast.TypeSpec,*ast.StructType) {
+func FindStructByExpr(pkg *packages.Package, file *ast.File, expr ast.Expr) (*packages.Package, *ast.File, *ast.TypeSpec, *ast.StructType) {
 	_, ok := pkg.TypesInfo.TypeOf(expr).Underlying().(*types.Struct)
 	if !ok {
-		return nil, nil, nil,nil
+		return nil, nil, nil, nil
 	}
 	switch t := expr.(type) {
 	// local pkg struct
 	case *ast.Ident:
 		findFile, findType, findStruct := FindStructTypeByName(pkg, t.Name)
-		return pkg, findFile,findType, findStruct
+		return pkg, findFile, findType, findStruct
 	// selector pkg
 	case *ast.SelectorExpr:
 		path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
 		findPkg := pkg.Imports[path]
 		findFile, findType, findStruct := FindStructTypeByName(findPkg, t.Sel.Name)
-		return findPkg, findFile,findType, findStruct
+		return findPkg, findFile, findType, findStruct
 	// struct
 	case *ast.StructType:
-		return pkg, file, nil,t
+		return pkg, file, nil, t
 	}
-	return nil, nil, nil,nil
+	return nil, nil, nil, nil
 }
 
 func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
 	filePath := fset.Position(pos).Filename
 	_, fileName := path.Split(filePath)
 	return fileName
+}
+
+func FuncsToMapByRouterGroupKey() {
+
 }
