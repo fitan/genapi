@@ -15,6 +15,7 @@ var FM = template.FuncMap{
 	"PaseRestFieldOperability": PaseRestFieldOperability,
 	"PaseRestNodePaging":       PaseRestNodePaging,
 	"PaseRestNodeMethod":       PaseRestNodeMethod,
+	"CheckMethodHasSwitch": 	CheckMethodHasSwitch,
 	"PaseRestEdgeMethod":       PaseRestEdgeMethod,
 	"PaseFieldIsEnum":          PaseFieldIsEnum,
 	"PaseRestEdgeInclude":      PaseRestEdgeInclude,
@@ -59,9 +60,14 @@ type RestEdgeOp struct {
 }
 
 type EdgeMethod struct {
-	Get    GenRestSwitch `json:"get"`
-	Create GenRestSwitch `json:"create"`
-	Delete GenRestSwitch `json:"delete"`
+	Get   EdgeMethodOp
+	Create EdgeMethodOp
+	Delete EdgeMethodOp
+}
+type EdgeMethodOp struct {
+	Has GenRestSwitch `json:"has"`
+	RouterTag string `json:"router_tag"`
+	Comments []string `json:"comments"`
 }
 
 type GenRestSwitch int
@@ -70,35 +76,13 @@ const GenRestDefault GenRestSwitch = 0
 const GenRestTrue GenRestSwitch = 1
 const GenRestFalse GenRestSwitch = 2
 
-type RestNodeOp struct {
-	Paging Paging     `json:"paging"`
-	Order  Order      `json:"order"`
-	Method NodeMethod `json:"method"`
-}
 
-type NodeMethod struct {
-	Get    GenRestSwitch `json:"get"`
-	Create GenRestSwitch `json:"create"`
-	Update GenRestSwitch `json:"update"`
-	Delete GenRestSwitch `json:"delete"`
-}
 
-type Order struct {
-	DefaultAcsOrder   []string `json:"default_acs_order"`
-	DefaultDescOrder  []string `json:"default_desc_order"`
-	OpenOptionalOrder bool     `json:"open_optional_order"`
-	OptionalOrder     []string `json:"optional_order"`
-}
 
-type Paging struct {
-	Open     bool    `json:"open"`
-	Must     bool    `json:"must"`
-	MaxLimit float64 `json:"max_limit"`
-}
 
-func (r RestNodeOp) Name() string {
-	return RestNodeType
-}
+
+
+
 
 type RestFieldOp struct {
 	FieldQueryable   FieldQueryable   `json:"field_queryable"`
@@ -257,61 +241,6 @@ func PaseRestFieldOperability(m map[string]interface{}, o string) string {
 	return "true"
 }
 
-func PaseRestNodePaging(m map[string]interface{}) Paging {
-	if _, ok := m[RestNodeType]; ok {
-		b, err := json.Marshal(m[RestNodeType])
-		if err != nil {
-			panic(err.Error())
-		}
-		op := RestNodeOp{}
-		err = json.Unmarshal(b, &op)
-		if err != nil {
-			panic(err.Error())
-		}
-		return op.Paging
-	}
-	return Paging{}
-}
-
-func PaseRestNodeMethod(m map[string]interface{}) map[string]string {
-	if _, ok := m[RestNodeType]; ok {
-		b, err := json.Marshal(m[RestNodeType])
-		if err != nil {
-			panic(err.Error())
-		}
-
-		op := RestNodeOp{}
-
-		err = json.Unmarshal(b, &op)
-		if err != nil {
-			panic(err.Error())
-		}
-		res := map[string]string{}
-
-		if op.Method.Get == GenRestDefault || op.Method.Get == GenRestTrue {
-			res["Get"] = "GET"
-		}
-
-		if op.Method.Create == GenRestDefault || op.Method.Create == GenRestTrue {
-			res["Create"] = "POST"
-		}
-
-		if op.Method.Update == GenRestDefault || op.Method.Update == GenRestTrue {
-			res["Update"] = "PUT"
-		}
-
-		if op.Method.Delete == GenRestDefault || op.Method.Delete == GenRestTrue {
-			res["Delete"] = "DELETE"
-		}
-		return res
-	}
-	return map[string]string{
-		"Get":    "GET",
-		"Create": "POST",
-		"Update": "PUT",
-		"Delete": "DELETE",
-	}
-}
 
 func SliceContains(l []string, s string) bool {
 	for _, t := range l {
@@ -411,7 +340,10 @@ func PaseRestEdgeInclude(m map[string]interface{}) bool {
 	return true
 }
 
-func PaseRestEdgeMethod(m map[string]interface{}) map[string]string {
+
+
+func PaseRestEdgeMethod(m map[string]interface{}) EdgeMethod {
+	op := RestEdgeOp{}
 	if _, ok := m[RestEdgeType]; ok {
 		b, err := json.Marshal(m[RestEdgeType])
 		if err != nil {
@@ -424,26 +356,9 @@ func PaseRestEdgeMethod(m map[string]interface{}) map[string]string {
 		if err != nil {
 			panic(err.Error())
 		}
-		res := map[string]string{}
-
-		if op.Method.Get == GenRestDefault || op.Method.Get == GenRestTrue {
-			res["Get"] = "GET"
-		}
-
-		if op.Method.Create == GenRestDefault || op.Method.Create == GenRestTrue {
-			res["Create"] = "POST"
-		}
-
-		if op.Method.Delete == GenRestDefault || op.Method.Delete == GenRestTrue {
-			res["Delete"] = "DELETE"
-		}
-		return res
+		return op.Method
 	}
-	return map[string]string{
-		"Get":    "GET",
-		"Create": "POST",
-		"Delete": "DELETE",
-	}
+	return op.Method
 }
 
 type EnumData struct {

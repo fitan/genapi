@@ -29,10 +29,24 @@ func (User) Annotations() []schema.Annotation {
 				OptionalOrder:     nil,
 			},
 			Method: pkg.NodeMethod{
-				Get:    pkg.GenRestTrue,
-				Create: pkg.GenRestTrue,
-				Update: pkg.GenRestFalse,
-				Delete: pkg.GenRestFalse,
+				GetOne:     pkg.NodeMethodOp{
+					Has:       pkg.GenRestFalse,
+					RouterTag: "auth",
+					Comments: []string{
+						"this is ",
+					},
+				},
+				GetList:    pkg.NodeMethodOp{
+					Has:       pkg.GenRestFalse,
+					RouterTag: "",
+					Comments:  nil,
+				},
+				CreateOne:  pkg.NodeMethodOp{},
+				CreateList: pkg.NodeMethodOp{},
+				UpdateOne:  pkg.NodeMethodOp{},
+				UpdateList: pkg.NodeMethodOp{},
+				DeleteOne:  pkg.NodeMethodOp{},
+				DeleteList: pkg.NodeMethodOp{},
 			},
 		},
 	}
