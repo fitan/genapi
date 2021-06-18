@@ -25,6 +25,7 @@ func (a AdminAuthorizator) Authorizator(data interface{}, c *gin.Context) bool {
 	//	public.GetXLog().Error().Err(err).Msg("")
 	//	return false
 	//}
+	c.Set("role",data)
 	has, err := public.GetCasbin().Enforce(role, path, method)
 	if err != nil {
 		public.GetXLog().Error().Err(err).Msg("")

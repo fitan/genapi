@@ -15,7 +15,7 @@ var authRouterLock sync.Mutex
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(func(c *gin.Context) {
-		public.GetXLog().Info().Msg(c.FullPath())
+		public.GetXLog().Info().Str("handlername", c.HandlerName()).Strs("handlernames", c.HandlerNames()).Msg(c.FullPath())
 	})
 	return r
 }
@@ -27,6 +27,15 @@ func GetDefaultRouter() *gin.Engine {
 		defaultRouter = NewRouter()
 	}
 	return defaultRouter
+}
+
+var apiRouter *gin.RouterGroup
+
+func GetApiRouter() *gin.RouterGroup {
+	if apiRouter == nil {
+		return GetDefaultRouter().Group("/api")
+	}
+	return apiRouter
 }
 
 func GetAuthRouter() *gin.RouterGroup {

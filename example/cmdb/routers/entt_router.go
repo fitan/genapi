@@ -9,7 +9,7 @@ import (
 func init() {
 	db := public.GetDB()
 	_ = entt2.NewCURDALL(db)
-	ent_handler.RegisterAll(GetDefaultRouter())
+	ent_handler.Register(GetApiRouter())
 
 	//curdall := entt.NewCURDALL(db)
 	//curdall.RegisterRouterALL(GetDefaultRouter())

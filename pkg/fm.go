@@ -22,6 +22,18 @@ var FM = template.FuncMap{
 	"PaseGraphInclude":         PaseGraphInclude,
 	"IncludesTo":               IncludesTo,
 	"PaseRelType":              PaseRelType,
+	"SliceHasKey": SliceHasKey,
+	"PaseFieldsOrderOp": PaseFieldsOrderOp,
+	"Join": strings.Join,
+}
+
+func SliceHasKey(l []string, k string) bool {
+	for _, v := range l {
+		if v == k {
+			return true
+		}
+	}
+	return false
 }
 
 func OpsString(ops []gen.Op) []string {
@@ -109,12 +121,35 @@ type FieldQueryable struct {
 	HasSuffix    GenRestSwitch `json:"HasSuffix"`
 	In           GenRestSwitch `json:"In"`
 	NotIn        GenRestSwitch `json:"NotIn"`
+	Order 		 GenRestSwitch `json:"Order"`
 }
 
 type FieldOperability struct {
 	Selete GenRestSwitch
 	Create GenRestSwitch
 	Update GenRestSwitch
+}
+
+type OrderOp struct {
+	OrderField []string
+	Has bool
+}
+
+func PaseFieldsOrderOp(fs []*gen.Field) OrderOp {
+	orderField := make([]string,0,0)
+	has := false
+	for _, f := range fs {
+		a := PaseRestFieldQueryOp(f.Annotations)
+
+		if SliceHasKey(a, "Order") {
+			orderField = append(orderField, f.Name)
+			has = true
+		}
+	}
+	return OrderOp{
+		OrderField: orderField,
+		Has:        has,
+	}
 }
 
 func PaseRestNodeOrderOp(m map[string]interface{}) Order {
@@ -204,6 +239,10 @@ func PaseRestFieldQueryOp(m map[string]interface{}) []string {
 
 		if op.FieldQueryable.NotIn == GenRestTrue {
 			res = append(res, "NotIn")
+		}
+
+		if op.FieldQueryable.Order == GenRestTrue {
+			res = append(res, "Order")
 		}
 		return res
 	}

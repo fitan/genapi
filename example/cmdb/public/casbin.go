@@ -1,8 +1,10 @@
 package public
 
 import (
+	"errors"
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
+	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"sync"
 )
@@ -51,4 +53,26 @@ func GetCasbin() *casbin.Enforcer {
 		enforcer = e
 	}
 	return enforcer
+}
+
+func CheckCasbin(c *gin.Context, casbinKey string,values []interface{}) (bool,error) {
+	role,has := c.Get("role")
+	if !has {
+		return has, errors.New("not found role")
+	}
+	v := []interface{}{role, casbinKey}
+	v = append(v, values)
+	has, err := GetCasbin().Enforce(v...)
+	if err != nil {
+		return false, err
+	}
+
+	if !has {
+		return false, errors.New("no permission")
+	}
+	return true, nil
+}
+
+type GetCasbinKeyser interface {
+	GetCasbinKeys() []interface{}
 }

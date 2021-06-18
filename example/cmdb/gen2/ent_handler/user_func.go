@@ -2,9 +2,28 @@ package ent_handler
 
 import (
 	"cmdb/gen/entt2"
+	"cmdb/public"
 
 	"github.com/gin-gonic/gin"
 )
+
+func GetUser(c *gin.Context) interface{} {
+
+}
+
+func GetId(c *gin.Context) interface{} {
+
+}
+
+func GetFullPath(c *gin.Context) interface{} {
+	return c.FullPath()
+}
+
+func GetMehod(c *gin.Context) interface{} {
+	return c.Request.Method
+}
+
+
 
 // @Accept  json
 // @Produce  json
@@ -13,6 +32,15 @@ import (
 // @Router /auth/user/:id [get]
 func GetOneUser(c *gin.Context) (data interface{}, err error) {
 	in := &entt2.GetOneUserIn{}
+
+	has, err := public.CheckCasbin(c, "GetOneUser", in.GetCasbinKeys())
+	if err != nil {
+		return has, err
+	}
+
+
+
+
 
 	err = c.ShouldBindUri(&in.Uri)
 	if err != nil {

@@ -34,10 +34,17 @@ type UserCallIn struct {
 	Header public.Header
 }
 
+func GetId()  {
+	
+}
 
 
 
+
+// @Tag fsdf
 // @GenApi /api/usercall [get]
+// @Casbin UserCall "呼叫User"
+// @Redis
 func UserCall(c *gin.Context, in *UserCallIn) ([]*ent.User, error) {
 	db := public.GetDB()
 	query := db.User.Query()

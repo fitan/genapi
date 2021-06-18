@@ -78,6 +78,7 @@ func (User) Fields() []ent.Field {
 				HasSuffix:    0,
 				In:           0,
 				NotIn:        0,
+				Order: pkg.GenRestTrue,
 			},
 			FieldOperability: pkg.FieldOperability{
 				Selete: 0,
@@ -92,7 +93,24 @@ func (User) Fields() []ent.Field {
 			},
 		}),
 		field.String("email").Annotations(pkg.RestFieldOp{
-			FieldQueryable: pkg.FieldQueryable{},
+			FieldQueryable: pkg.FieldQueryable{
+				EQ:           0,
+				NEQ:          0,
+				GT:           0,
+				GTE:          0,
+				LT:           0,
+				LTE:          0,
+				IsNil:        0,
+				NotNil:       0,
+				EqualFold:    0,
+				Contains:     0,
+				ContainsFold: 0,
+				HasPrefix:    0,
+				HasSuffix:    0,
+				In:           0,
+				NotIn:        0,
+				Order:        pkg.GenRestTrue,
+			},
 			FieldOperability: pkg.FieldOperability{
 				Selete: pkg.GenRestFalse,
 			},

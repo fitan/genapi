@@ -47,7 +47,36 @@ func {{$n.Name}}PredicatesExec(fs ...func() (predicate.{{$n.Name}}, error)) ([]p
     return ps, nil
 }
 
+{{$orderOp := PaseFieldsOrderOp $n.Fields}}
+{{if $orderOp.Has}}
+type UserOrder struct {
+    // Association query Multiple choice:
+    {{- range $field := $orderOp.OrderField}}
+    // {{$field}}
+    {{- end}}
+	Sort *string `form:"sort" json:"sort" binding:"oneof={{Join $orderOp.OrderField " "}}"`
+	// Association query Multiple choice:
+	// asc
+	// desc
+	Order *string `form:"order" json:"order" binding:"oneof=asc desc"`
+}
+
+func (o *UserOrder)BindOrderUser(queryer *ent.UserQuery)  {
+	if o.Sort != nil && o.Order != nil {
+		switch *o.Order {
+		case "asc":
+			queryer.Order(ent.Asc(*o.Sort))
+		case "desc":
+			queryer.Order(ent.Desc(*o.Sort))
+		}
+	}
+}
+{{end}}
+
+
 {{$page := (PaseRestNodePaging $n.Annotations)}}
+
+
 type {{$n.Name}}Paging struct {
 	{{if eq (toString $page.MaxLimit) "0"}}
     Limit int `form:"limit" json:"limit"`
