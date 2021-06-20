@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterAll(r gin.IRouter) {
+func Register(r gin.IRouter) {
 
 	r.GET("/api/usercall", func(c *gin.Context) {
 		public.GinResult(c, UserCall)

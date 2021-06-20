@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"go/types"
 	"golang.org/x/tools/go/packages"
 	"log"
 	"path"
@@ -11,9 +12,11 @@ import (
 )
 
 type FileContext struct {
-	PkgName string
-	Pkg     *packages.Package
-	File    *ast.File
+	PkgName              string
+	Pkg                  *packages.Package
+	File                 *ast.File
+	CasbinInterfaceType1 *types.Interface
+	CasbinInterfaceType2 *types.Interface
 	//ImportMsgs map[string]ImportMsg
 	Funcs []Func
 }
@@ -22,8 +25,45 @@ func NewFileContext(pkgName string, pkg *packages.Package, file *ast.File) *File
 	return &FileContext{PkgName: pkgName, Pkg: pkg, File: file}
 }
 
+func (c *FileContext) ParseCasbinPluginer() {
+	var casbinInterface1 *ast.InterfaceType
+	var casbinType1 *ast.TypeSpec
+	var casbinInterface2 *ast.InterfaceType
+	var casbinType2 *ast.TypeSpec
+	var hasCasbinInterface1 bool
+	var hasCasbinInterface2 bool
+	ast.Inspect(c.File, func(node ast.Node) bool {
+		if typeSpec, ok := node.(*ast.TypeSpec); ok {
+			if interfaceType, ok := typeSpec.Type.(*ast.InterfaceType); ok {
+				if typeSpec.Name.Name == "CasbinPluginer1" {
+					casbinInterface1 = interfaceType
+					casbinType1 = typeSpec
+					hasCasbinInterface1 = true
+				}
+
+				if typeSpec.Name.Name == "CasbinPluginer2" {
+					casbinInterface2 = interfaceType
+					casbinType2 = typeSpec
+					hasCasbinInterface2 = true
+				}
+			}
+		}
+		if hasCasbinInterface1 && hasCasbinInterface2 {
+			return false
+		}
+		return true
+	})
+	if hasCasbinInterface1 && hasCasbinInterface2 {
+		c.CasbinInterfaceType1 = c.Pkg.TypesInfo.TypeOf(casbinInterface1).Underlying().(*types.Interface)
+		c.CasbinInterfaceType2 = c.Pkg.TypesInfo.TypeOf(casbinInterface2).Underlying().(*types.Interface)
+		return
+	}
+	log.Println("not found casbin interface")
+}
+
 func (c *FileContext) Parse() {
 	//c.ImportMsgs = ParseImport(c.File)
+	c.ParseCasbinPluginer()
 	fs := make([]Func, 0, 0)
 	for _, fd := range c.FilterFunc() {
 		f := c.ParseFunc(fd)
@@ -46,6 +86,12 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(inField.Type, c.File.Name.Name))
 	outField := f.Type.Results.List[0]
 	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(outField.Type, c.File.Name.Name))
+	if fc.Plugins.Casbin.Has {
+		vT := c.Pkg.TypesInfo.TypeOf(f.Type.Params.List[1].Type)
+		if types.Implements(vT, c.CasbinInterfaceType1) {
+			log.Println("hasCasbinInterface")
+		}
+	}
 	return fc
 }
 
@@ -53,14 +99,30 @@ func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment) {
 	comments := make([]string, 0, 0)
 	for _, m := range ms {
 		fs := strings.Fields(m.Text)
-
-		if fs[1] == GenMark {
+		if len(fs) < 2 {
+			continue
+		}
+		switch fs[1] {
+		case GenMark:
 			param := MatchPathParam(fs[2])
 			fc.Bind.Uri.Param = param
 			router, swagRouter := c.ApiMark2SwagRouter(fs)
 			fc.Router = router
 			comments = append(comments, swagRouter)
-		} else {
+		case CasbinMark:
+			if len(fs) < 4 {
+				log.Println("@CasbinMark need 3 parse")
+				panic(nil)
+			}
+			key := fs[2]
+			annotation := fs[3]
+			casbinPlugin := CasbinPlugin{
+				Has:        true,
+				Key:        key,
+				Annotation: annotation,
+			}
+			fc.Plugins.Casbin = casbinPlugin
+		default:
 			comments = append(comments, m.Text)
 		}
 	}

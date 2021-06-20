@@ -8,6 +8,15 @@ type Func struct {
 	Bind     Bind
 	ParamIn1 string
 	ResOut0  string
+	Plugins  struct {
+		Casbin CasbinPlugin
+	}
+}
+
+type CasbinPlugin struct {
+	Has        bool
+	Key        string
+	Annotation string
 }
 
 type Router struct {

@@ -6,6 +6,7 @@ import (
 )
 
 const GenMark string = "@GenApi"
+const CasbinMark string = "@Casbin"
 
 type ApiContext struct {
 	PkgName      string

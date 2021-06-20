@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @ui button
 func Register(r gin.IRouter) {
 
 	r.GET("/alert/:id", func(c *gin.Context) {

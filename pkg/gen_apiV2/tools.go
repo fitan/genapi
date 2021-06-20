@@ -484,7 +484,3 @@ func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
 	_, fileName := path.Split(filePath)
 	return fileName
 }
-
-func FuncsToMapByRouterGroupKey() {
-
-}
