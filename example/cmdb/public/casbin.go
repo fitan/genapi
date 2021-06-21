@@ -55,12 +55,12 @@ func GetCasbin() *casbin.Enforcer {
 	return enforcer
 }
 
-func CheckCasbin(c *gin.Context, casbinKey string,values []interface{}) (bool,error) {
+func CheckKeysCasbin(c *gin.Context, casbinMark string,values []interface{}) (bool, error) {
 	role,has := c.Get("role")
 	if !has {
 		return has, errors.New("not found role")
 	}
-	v := []interface{}{role, casbinKey}
+	v := []interface{}{role, casbinMark}
 	v = append(v, values)
 	has, err := GetCasbin().Enforce(v...)
 	if err != nil {
@@ -70,6 +70,10 @@ func CheckCasbin(c *gin.Context, casbinKey string,values []interface{}) (bool,er
 	if !has {
 		return false, errors.New("no permission")
 	}
+	return true, nil
+}
+
+func CheckListKeysCasbin(c *gin.Context, casbinMark string, values [][]interface{}) (bool, error)  {
 	return true, nil
 }
 

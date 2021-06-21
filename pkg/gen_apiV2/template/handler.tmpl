@@ -55,6 +55,10 @@ func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
 	}
 	{{end}}
 
+	{{if $fc.Plugins.Casbin.Has}}
+	{{$fc.Plugins.Casbin.Raw}}
+	{{end}}
+
 
 	return {{$fc.PkgName}}.{{$fc.FuncName}}(c, in)
 }

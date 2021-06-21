@@ -15,13 +15,6 @@ func (UserCallIn) GetCasbinKeys() []interface{} {
 	return []interface{}{}
 }
 
-type CasbinPluginer1 interface {
-	GetCasbinKeys() []interface{}
-}
-
-type CasbinPluginer2 interface {
-	GetCasbinKeys() [][]interface{}
-}
 
 // @GenApi /api/usercall [get]
 // @Casbin UserCall "呼叫User"

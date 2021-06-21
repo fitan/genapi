@@ -15,8 +15,10 @@ type Func struct {
 
 type CasbinPlugin struct {
 	Has        bool
-	Key        string
+	CasbinMark string
 	Annotation string
+	ImportPath string
+	Raw        string
 }
 
 type Router struct {

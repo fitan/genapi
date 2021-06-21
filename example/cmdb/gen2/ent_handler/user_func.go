@@ -33,7 +33,7 @@ func GetMehod(c *gin.Context) interface{} {
 func GetOneUser(c *gin.Context) (data interface{}, err error) {
 	in := &entt2.GetOneUserIn{}
 
-	has, err := public.CheckCasbin(c, "GetOneUser", in.GetCasbinKeys())
+	has, err := public.CheckKeysCasbin(c, "GetOneUser", in.GetCasbinKeys())
 	if err != nil {
 		return has, err
 	}
