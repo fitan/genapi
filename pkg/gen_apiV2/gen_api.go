@@ -16,10 +16,6 @@ type ApiContext struct {
 	ReginsterMap map[string][]Func
 }
 
-
-
-
-
 func NewApiContext() *ApiContext {
 	return &ApiContext{}
 }
