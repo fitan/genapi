@@ -11,13 +11,16 @@ type UserCallIn struct {
 	}
 }
 
-func (UserCallIn) GetCasbinKeys() []interface{} {
-	return []interface{}{}
+func (i UserCallIn) GetCasbinKeys() [][]interface{} {
+	return [][]interface{}{}
 }
+
+
 
 
 // @GenApi /api/usercall [get]
 // @Casbin UserCall "呼叫User"
+// @Redis
 func UserCall(c *gin.Context, in *UserCallIn) ([]*ent.User, error) {
 	return nil, nil
 }

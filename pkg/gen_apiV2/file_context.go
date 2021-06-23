@@ -47,38 +47,37 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
 	//_, inStruct := c.FindStruct(inField)
 	fc.Bind = c.ParseBind(fc.FuncName, inStruct)
-	c.ParseComment(&fc, f.Doc.List)
-	c.ParseCasbin(&fc, inField)
+	c.ParseComment(&fc, f.Doc.List, inField)
 	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(inField.Type, c.File.Name.Name))
 	outField := f.Type.Results.List[0]
 	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(outField.Type, c.File.Name.Name))
 	return fc
 }
 
-func (c *FileContext) ParseCasbin(fc *Func, inField *ast.Field) {
-	if fc.Plugins.Casbin.Has {
-		casbinKeyser,ok := plugins.FindPluginInterfaceMap[plugins.CasbinKeyserName]
-		if !ok {
-			log.Fatalln("not found casbinKeyser")
-		}
-		casbinListKeyser,ok := plugins.FindPluginInterfaceMap[plugins.CasbinListKeyserName]
-		if !ok {
-			log.Fatalln("not found casbinListKeyser")
-		}
+//func (c *FileContext) ParseCasbin(fc *Func, inField *ast.Field) {
+//	if fc.Plugins.Casbin.Has {
+//		casbinKeyser,ok := plugins.FindPluginInterfaceMap[plugins.CasbinKeyserName]
+//		if !ok {
+//			log.Fatalln("not found casbinKeyser")
+//		}
+//		casbinListKeyser,ok := plugins.FindPluginInterfaceMap[plugins.CasbinListKeyserName]
+//		if !ok {
+//			log.Fatalln("not found casbinListKeyser")
+//		}
+//
+//		if types.Implements(c.Pkg.TypesInfo.TypeOf(inField.Type), casbinKeyser) {
+//			fc.Plugins.Casbin.ImportPath = plugins.FuncTemplates[plugins.CasbinKeyserName].ImportPath
+//			fc.Plugins.Casbin.Raw = fmt.Sprintf(plugins.FuncTemplates[plugins.CasbinKeyserName].Template,fc.Plugins.Casbin.CasbinMark)
+//		}
+//
+//		if types.Implements(c.Pkg.TypesInfo.TypeOf(inField.Type), casbinListKeyser) {
+//			fc.Plugins.Casbin.ImportPath = plugins.FuncTemplates[plugins.CasbinListKeyserName].ImportPath
+//			fc.Plugins.Casbin.Raw = fmt.Sprintf(plugins.FuncTemplates[plugins.CasbinListKeyserName].Template,fc.Plugins.Casbin.CasbinMark)
+//		}
+//	}
+//}
 
-		if types.Implements(c.Pkg.TypesInfo.TypeOf(inField.Type), casbinKeyser) {
-			fc.Plugins.Casbin.ImportPath = plugins.FuncTemplates[plugins.CasbinKeyserName].ImportPath
-			fc.Plugins.Casbin.Raw = fmt.Sprintf(plugins.FuncTemplates[plugins.CasbinKeyserName].Template,fc.Plugins.Casbin.CasbinMark)
-		}
-
-		if types.Implements(c.Pkg.TypesInfo.TypeOf(inField.Type), casbinListKeyser) {
-			fc.Plugins.Casbin.ImportPath = plugins.FuncTemplates[plugins.CasbinListKeyserName].ImportPath
-			fc.Plugins.Casbin.Raw = fmt.Sprintf(plugins.FuncTemplates[plugins.CasbinListKeyserName].Template,fc.Plugins.Casbin.CasbinMark)
-		}
-	}
-}
-
-func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment) {
+func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment, inField *ast.Field) {
 	comments := make([]string, 0, 0)
 	for _, m := range ms {
 		fs := strings.Fields(m.Text)
@@ -93,18 +92,8 @@ func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment) {
 			fc.Router = router
 			comments = append(comments, swagRouter)
 		case CasbinMark:
-			if len(fs) < 4 {
-				log.Println("@CasbinMark need 3 parse")
-				panic(nil)
-			}
-			key := fs[2]
-			annotation := fs[3]
-			casbinPlugin := CasbinPlugin{
-				Has:        true,
-				CasbinMark: key,
-				Annotation: annotation,
-			}
-			fc.Plugins.Casbin = casbinPlugin
+			temp := plugins.GetCasbinPluginTemplate(fs, c.Pkg.TypesInfo.TypeOf(inField.Type))
+			fc.Plugins = append(fc.Plugins, temp)
 		default:
 			comments = append(comments, m.Text)
 		}

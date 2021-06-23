@@ -9,58 +9,78 @@ import (
 	"log"
 )
 
-const (
-	CasbinKeyserName     = "CasbinKeyser"
-	CasbinListKeyserName = "CasbinListKeyser"
-)
 
 //go:embed interfacepkg/casbin.go
 var casbinFile string
-var casbinAstFile *ast.File
-var casbinInfo *types.Info
+
+type FileMsg struct {
+	Name string
+	Src string
+}
+
+var interfaceFiles = []FileMsg{{
+	Name: "casbin.go",
+	Src:  casbinFile,
+}}
 
 var FindPluginInterfaceMap = make(map[string]*types.Interface)
 
 func init() {
-	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "casbin.go", casbinFile, parser.AllErrors)
-	if err != nil {
-		log.Panic(err)
-	}
-	casbinAstFile = f
-	casbinInfo = &types.Info{
-		Types:      make(map[ast.Expr]types.TypeAndValue, 0),
-		Defs:       make(map[*ast.Ident]types.Object, 0),
-		Uses:       make(map[*ast.Ident]types.Object, 0),
-		Implicits:  make(map[ast.Node]types.Object, 0),
-		Selections: make(map[*ast.SelectorExpr]*types.Selection, 0),
-		Scopes:     make(map[ast.Node]*types.Scope, 0),
-		InitOrder:  make([]*types.Initializer, 0, 0),
-	}
-	_, err = new(types.Config).Check("casbin.go", fset, []*ast.File{casbinAstFile}, casbinInfo)
-	if err != nil {
-		log.Panic(err)
-	}
+	for _, interfaceFile := range interfaceFiles {
 
-	log.Println(FindPluginInterfaceMap)
-	FindInterface()
-	log.Println("find plugin interface map", FindPluginInterfaceMap)
+		fset := token.NewFileSet()
+		f, err := parser.ParseFile(fset, interfaceFile.Name, interfaceFile.Src, parser.AllErrors)
+		if err != nil {
+			log.Panic(err)
+		}
+		info := &types.Info{
+			Types:      make(map[ast.Expr]types.TypeAndValue, 0),
+			Defs:       make(map[*ast.Ident]types.Object, 0),
+			Uses:       make(map[*ast.Ident]types.Object, 0),
+			Implicits:  make(map[ast.Node]types.Object, 0),
+			Selections: make(map[*ast.SelectorExpr]*types.Selection, 0),
+			Scopes:     make(map[ast.Node]*types.Scope, 0),
+			InitOrder:  make([]*types.Initializer, 0, 0),
+		}
+		_, err = new(types.Config).Check(interfaceFile.Name, fset, []*ast.File{f}, info)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		log.Println(FindPluginInterfaceMap)
+		findInterface(f, info)
+		log.Println("find plugin interface map", FindPluginInterfaceMap)
+	}
 }
 
-func FindInterface() {
-	ast.Inspect(casbinAstFile, func(node ast.Node) bool {
+func findInterface(f *ast.File, info *types.Info) {
+	ast.Inspect(f, func(node ast.Node) bool {
 		if typeSpec, ok := node.(*ast.TypeSpec); ok {
 			if interfaceType, ok := typeSpec.Type.(*ast.InterfaceType); ok {
-				//t,ok := casbinInfo.TypeOf(interfaceType).(*types.Interface)
-				//if ok {
-				//	log.Println(t)
-				//} else {
-				//	log.Println("false")
-				//}
-				FindPluginInterfaceMap[typeSpec.Name.Name] = casbinInfo.TypeOf(interfaceType).(*types.Interface)
+				FindPluginInterfaceMap[typeSpec.Name.Name] = info.TypeOf(interfaceType).(*types.Interface)
 				return false
 			}
 		}
 		return true
 	})
+}
+
+func CheckHasInterface(t types.Type, interfaceName string) bool {
+	if i,ok := FindPluginInterfaceMap[interfaceName]; ok {
+		return types.Implements(t, i)
+	}
+	log.Fatalln("not found " + interfaceName)
+	return false
+}
+
+type PluginTemplate struct {
+	Has bool
+	Keys map[string]string
+	BindBefor HandlerTemplate
+	BindAfter HandlerTemplate
+}
+
+type HandlerTemplate struct {
+	ImportPath string
+	Template   string
 }

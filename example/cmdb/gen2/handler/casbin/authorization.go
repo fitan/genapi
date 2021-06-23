@@ -12,6 +12,7 @@ import (
 // @Success 200 {object} Result{data=bool}
 // @Router /policy [delete]
 func DeletePolicy(c *gin.Context) (data interface{}, err error) {
+
 	in := &casbin.DeleteIn{}
 
 	err = c.ShouldBindQuery(&in.Query)

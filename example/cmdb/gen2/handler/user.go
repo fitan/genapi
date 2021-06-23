@@ -1,10 +1,10 @@
 package handler
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"cmdb/logic"
 	"cmdb/public"
-
-	"github.com/gin-gonic/gin"
 )
 
 type SwagUserCallQuery struct {
@@ -17,6 +17,7 @@ type SwagUserCallQuery struct {
 // @Success 200 {object} Result{data=[]ent.User}
 // @Router /api/usercall [get]
 func UserCall(c *gin.Context) (data interface{}, err error) {
+
 	in := &logic.UserCallIn{}
 
 	err = c.ShouldBindQuery(&in.Query)
@@ -24,7 +25,7 @@ func UserCall(c *gin.Context) (data interface{}, err error) {
 		return nil, err
 	}
 
-	data, err = public.CheckKeysCasbin(c, "UserCall", in.GetCasbinKeys())
+	data, err = public.CheckListKeysCasbin(c, "UserCall", in.GetCasbinKeys())
 	if err != nil {
 		return data, err
 	}

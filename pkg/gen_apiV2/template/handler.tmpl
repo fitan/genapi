@@ -1,6 +1,14 @@
 {{template "pkg_name" $.PkgName}}
 import (
 	"github.com/gin-gonic/gin"
+	{{range $index, $fc := $.Funcs}}
+	{{range $tmp := $fc.Plugins}}
+	{{if $tmp.Has}}
+	{{$tmp.BindAfter.ImportPath}}
+	{{$tmp.BindBefor.ImportPath}}
+	{{end}}
+	{{end}}
+	{{end}}
 )
 
 {{range $index, $fc := $.Funcs}}
@@ -29,6 +37,12 @@ type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
 {{$comment }}
 {{- end}}
 func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
+	{{range $tmp := $fc.Plugins}}
+	{{if $tmp.Has}}
+	{{$tmp.BindBefor.Template}}
+	{{end}}
+	{{end}}
+
 	in := &{{$fc.ParamIn1}}{}
 	{{if $fc.Bind.Body.Has}}
 	err = c.ShouldBindJSON(&in.Body)
@@ -55,10 +69,11 @@ func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
 	}
 	{{end}}
 
-	{{if $fc.Plugins.Casbin.Has}}
-	{{$fc.Plugins.Casbin.Raw}}
+	{{range $tmp := $fc.Plugins}}
+	{{if $tmp.Has}}
+	{{$tmp.BindAfter.Template}}
 	{{end}}
-
+	{{end}}
 
 	return {{$fc.PkgName}}.{{$fc.FuncName}}(c, in)
 }

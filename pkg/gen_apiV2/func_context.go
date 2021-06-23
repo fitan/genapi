@@ -1,5 +1,7 @@
 package gen_apiV2
 
+import "github.com/fitan/genapi/pkg/gen_apiV2/plugins"
+
 type Func struct {
 	PkgName  string
 	Comments []string
@@ -8,18 +10,9 @@ type Func struct {
 	Bind     Bind
 	ParamIn1 string
 	ResOut0  string
-	Plugins  struct {
-		Casbin CasbinPlugin
-	}
+	Plugins  []plugins.PluginTemplate
 }
 
-type CasbinPlugin struct {
-	Has        bool
-	CasbinMark string
-	Annotation string
-	ImportPath string
-	Raw        string
-}
 
 type Router struct {
 	Method         string
