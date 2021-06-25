@@ -15,6 +15,10 @@ func (i UserCallIn) GetCasbinKeys() [][]interface{} {
 	return [][]interface{}{}
 }
 
+func (i UserCallIn) GetRedisKey() string {
+	return i.Query.Id
+}
+
 
 
 

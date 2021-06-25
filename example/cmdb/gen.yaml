@@ -1,0 +1,40 @@
+plugin:
+  -
+    name: "casbin"
+    interfaceName:
+      -
+        name: "CasbinKeyser"
+        bindBefor:
+          importPath: ""
+          template: ""
+        bindAfter:
+          importPath: '"cmdb/public"'
+          template: |
+            data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
+            if err != nil {return data, err}
+      -
+        name: "CasbinListKeyser"
+        bindBefor:
+          importPath: ""
+          template: ""
+        bindAfter:
+          importPath: '"cmdb/public"'
+          template: |
+            data,err = public.CheckListKeysCasbin(c,"%s",in.GetCasbinKeys())
+            if err != nil {return data, err}
+
+gen:
+  ent:
+    -
+      name: "ent"
+      src: "./ent/schema"
+      dest: "./gen/entrest"
+  api:
+    -
+      name: "logicapi"
+      src: "./logic"
+      dest: "./gen/handler/logic"
+    -
+      name: "entapi"
+      src: "./gen/entrest"
+      dest: "./gen/handler/ent"

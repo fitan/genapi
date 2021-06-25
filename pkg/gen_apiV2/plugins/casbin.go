@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	public2 "github.com/fitan/genapi/public"
 	"go/types"
 	"log"
 )
@@ -38,12 +39,16 @@ func GetCasbinPluginTemplate(DocFields []string, inFieldType types.Type) PluginT
 	pt.Keys = map[string]string{"key": DocFields[2], "annotation": DocFields[3]}
 	i1 := CheckHasInterface(inFieldType,CasbinKeyserName)
 	if i1{
-		pt.BindAfter = HandlerTemplate{HandlerTemplateMap[CasbinKeyserName].ImportPath, fmt.Sprintf(HandlerTemplateMap[CasbinKeyserName].Template, pt.Keys["key"])}
+		importPath := public2.GetConfKey().GetPlugin("casbin").GetInterface(CasbinKeyserName).BindAfter.ImportPath
+		template := public2.GetConfKey().GetPlugin("casbin").GetInterface(CasbinKeyserName).BindAfter.Template
+		pt.BindAfter = HandlerTemplate{importPath,fmt.Sprintf(template, pt.Keys["key"])}
 	}
 
 	i2 := CheckHasInterface(inFieldType,CasbinListKeyserName)
 	if i2 {
-		pt.BindAfter = HandlerTemplate{HandlerTemplateMap[CasbinListKeyserName].ImportPath, fmt.Sprintf(HandlerTemplateMap[CasbinListKeyserName].Template, pt.Keys["key"])}
+		importPath := public2.GetConfKey().GetPlugin("casbin").GetInterface(CasbinListKeyserName).BindAfter.ImportPath
+		template := public2.GetConfKey().GetPlugin("casbin").GetInterface(CasbinListKeyserName).BindAfter.Template
+		pt.BindAfter = HandlerTemplate{importPath, fmt.Sprintf(template, pt.Keys["key"])}
 	}
 
 	if i1 == false && i2 == false {

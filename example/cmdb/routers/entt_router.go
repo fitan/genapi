@@ -1,8 +1,6 @@
 package routers
 
 import (
-	"cmdb/gen/entt2"
-	"cmdb/gen2/ent_handler"
 	"cmdb/public"
 )
 

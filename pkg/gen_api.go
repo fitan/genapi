@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/fitan/genapi/pkg/gen_apiV2"
+	"github.com/marcinwyszynski/directory_tree"
 	"go/ast"
 	"go/build"
 	"go/parser"
@@ -716,5 +717,33 @@ func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 	err = assets.formatGo()
 	if err != nil {
 		log.Fatalln(err.Error())
+	}
+}
+
+
+func DepthGen(src, dir string)  {
+	tree, err := directory_tree.NewTree(src)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	depthGen(tree, dir)
+}
+
+func depthGen(tree *directory_tree.Node, Dir string) {
+	context := gen_apiV2.NewApiContext()
+	context.Load(tree.FullPath)
+	context.Parse()
+	for _, file := range context.Files {
+		if len(file.Funcs) != 0 {
+			GenApiV2(context.Files, context.ReginsterMap, Dir)
+			break
+		}
+	}
+
+	for _, node := range tree.Children {
+		if node.Info.IsDir {
+			depthGen(node, path.Join(Dir, node.Info.Name))
+		}
 	}
 }

@@ -16,8 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/fitan/genapi/pkg"
 	"github.com/fitan/genapi/pkg/gen_apiV2"
+	public2 "github.com/fitan/genapi/public"
 	"github.com/marcinwyszynski/directory_tree"
 	"github.com/spf13/cobra"
 	"path"
@@ -47,6 +49,7 @@ var router2Cmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		spew.Dump(public2.GetGenConf())
 		tree, err := directory_tree.NewTree(*router2Src)
 		if err != nil {
 			panic(err)
