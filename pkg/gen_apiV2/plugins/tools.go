@@ -9,13 +9,12 @@ import (
 	"log"
 )
 
-
 //go:embed interfacepkg/casbin.go
 var casbinFile string
 
 type FileMsg struct {
 	Name string
-	Src string
+	Src  string
 }
 
 var interfaceFiles = []FileMsg{{
@@ -66,7 +65,7 @@ func findInterface(f *ast.File, info *types.Info) {
 }
 
 func CheckHasInterface(t types.Type, interfaceName string) bool {
-	if i,ok := FindPluginInterfaceMap[interfaceName]; ok {
+	if i, ok := FindPluginInterfaceMap[interfaceName]; ok {
 		return types.Implements(t, i)
 	}
 	log.Fatalln("not found " + interfaceName)
@@ -74,10 +73,12 @@ func CheckHasInterface(t types.Type, interfaceName string) bool {
 }
 
 type PluginTemplate struct {
-	Has bool
-	Keys map[string]string
-	BindBefor HandlerTemplate
-	BindAfter HandlerTemplate
+	Has          bool
+	Keys         map[string]string
+	InBindBefor  HandlerTemplate
+	InBindAfter  HandlerTemplate
+	OutBindBefor HandlerTemplate
+	OutBindAfter HandlerTemplate
 }
 
 type HandlerTemplate struct {

@@ -39,8 +39,8 @@ type plugin struct {
 	conf Plugin
 }
 
-func (p *plugin) GetInterface(key string) *InterfaceName {
-	for _, v := range p.conf.InterfaceName {
+func (p *plugin) GetInInterface(key string) *InBindInterfaceName {
+	for _, v := range p.conf.InBindInterfaceName {
 		if v.Name == key {
 			return &v
 		}
@@ -48,3 +48,11 @@ func (p *plugin) GetInterface(key string) *InterfaceName {
 	return nil
 }
 
+func (p *plugin) GetOutInterface(key string) *OutBindInterfaceName {
+	for _, v := range p.conf.OutBindInterfaceName {
+		if v.Name == key {
+			return &v
+		}
+	}
+	return nil
+}

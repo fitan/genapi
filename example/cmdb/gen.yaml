@@ -6,27 +6,42 @@ baseConf:
 plugin:
   -
     name: "casbin"
-    interfaceName:
+    inBindInterfaceName:
       -
         name: "CasbinKeyser"
-        bindBefor:
+        Befor:
           importPath: ""
           template: ""
-        bindAfter:
+        After:
           importPath: '"cmdb/public"'
           template: |
             data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
             if err != nil {return data, err}
       -
         name: "CasbinListKeyser"
-        bindBefor:
+        Befor:
           importPath: ""
           template: ""
-        bindAfter:
+        After:
           importPath: '"cmdb/public"'
           template: |
             data,err = public.CheckListKeysCasbin(c,"%s",in.GetCasbinKeys())
             if err != nil {return data, err}
+  -
+    name: "redis"
+    inBindInterfaceName:
+      -
+        name: "GetRedisKeyer"
+        After:
+          importPath: ""
+          template:
+    outBindInterfaceName:
+      -
+        name: "GetRedisKeyer"
+        After:
+          importPath: ""
+          template:
+
 
 gen:
   ent:
