@@ -16,8 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"encoding/json"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/fitan/genapi/pkg"
 	public2 "github.com/fitan/genapi/public"
 	"github.com/spf13/cobra"
@@ -45,8 +43,8 @@ var genCmd = &cobra.Command{
 			}
 			pkg.LoadV2(ent.Src,ent.Dest)
 		case "api":
-			b , _ := json.Marshal(public2.GetGenConf())
-			spew.Dump(string(b))
+			//b , _ := json.Marshal(public2.GetGenConf())
+			//spew.Dump(string(b))
 			if *genName == "" {
 				for _, api := range public2.GetGenConf().Gen.API {
 					pkg.DepthGen(api.Src,api.Dest)
@@ -69,7 +67,7 @@ var genType *string
 var genName *string
 func init() {
 	rootCmd.AddCommand(genCmd)
-	genType = genCmd.Flags().StringP("type", "t", "", "gen type")
+	genType = genCmd.Flags().StringP("type", "t", "", "gen type: ent,api")
 	genCmd.MarkFlagRequired("type")
 	genName = genCmd.Flags().StringP("name", "n", "", "gen name")
 

@@ -31,7 +31,7 @@ func DepthGen(tree *directory_tree.Node, Dir string) {
 	context.Parse()
 	for _, file := range context.Files {
 		if len(file.Funcs) != 0 {
-			pkg.GenApiV2(context.Files, context.ReginsterMap, Dir)
+			pkg.GenApiV2(context.Files, context.ReginsterMap, public2.GetGenConf().BaseConf, Dir)
 			break
 		}
 	}

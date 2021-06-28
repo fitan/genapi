@@ -8,6 +8,7 @@ import (
 type GenConf struct {
 	Plugin []Plugin `json:"plugin"`
 	Gen    Gen      `json:"gen"`
+	BaseConf BaseConf `json:"baseConf"`
 }
 type BindBefor struct {
 	ImportPath string `json:"importPath"`
@@ -39,6 +40,14 @@ type API struct {
 type Gen struct {
 	Ent []Ent `json:"ent"`
 	API []API `json:"api"`
+}
+
+type BaseConf struct {
+	Wrap struct {
+		ImportPath string `json:"importPath"`
+		WrapFunc   string `json:"wrapFunc"`
+		WrapRes string `json:"wrapRes"`
+	} `json:"wrap"`
 }
 
 

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/fitan/genapi/pkg/gen_apiV2"
+	"github.com/fitan/genapi/public"
 	"github.com/marcinwyszynski/directory_tree"
 	"go/ast"
 	"go/build"
@@ -651,7 +652,7 @@ func GenApi(apiMap map[string]map[string]map[string]ApiMsg, dest string) {
 	}
 }
 
-func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string][]gen_apiV2.Func, dest string) {
+func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string][]gen_apiV2.Func, baseConf public.BaseConf, dest string) {
 	parse, err := template.New("gen_api").Funcs(gen.Funcs).Parse(pkg_name_tmpl)
 	if err != nil {
 		log.Panicln(err.Error())
@@ -674,9 +675,12 @@ func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 		err = tpl.Execute(b, struct {
 			PkgName string
 			Funcs   []gen_apiV2.Func
+			BaseConf public.BaseConf
+
 		}{
 			PkgName: path.Base(dest),
 			Funcs:   fileContext.Funcs,
+			BaseConf: baseConf,
 		})
 
 		if err != nil {
@@ -697,10 +701,12 @@ func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 		PkgName      string
 		ApiMap       map[string]*gen_apiV2.FileContext
 		ReginsterMap map[string][]gen_apiV2.Func
+		BaseConf public.BaseConf
 	}{
 		PkgName:      path.Base(dest),
 		ApiMap:       apiMap,
 		ReginsterMap: ReginsterMap,
+		BaseConf: baseConf,
 	})
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -736,7 +742,7 @@ func depthGen(tree *directory_tree.Node, Dir string) {
 	context.Parse()
 	for _, file := range context.Files {
 		if len(file.Funcs) != 0 {
-			GenApiV2(context.Files, context.ReginsterMap, Dir)
+			GenApiV2(context.Files, context.ReginsterMap, public.GetGenConf().BaseConf,Dir)
 			break
 		}
 	}

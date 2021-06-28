@@ -133,7 +133,7 @@ func CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateOne{{$e.
 {{range $comment := $methodOp.Delete.Comments}}
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.Delete.Has}}
-// @GenApi /{{snake $n.Name}}/:id/{{snake $e.Type.Name}} [post] {{$methodOp.Delete.RouterTag}} {{end}}
+// @GenApi /{{snake $n.Name}}/:id/{{snake $e.Type.Name}} [delete] {{$methodOp.Delete.RouterTag}} {{end}}
 func DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetOne{{$n.Name}}In) (int, error) {
 	return Get{{$n.Name}}CURD().DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID)
 }

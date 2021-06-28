@@ -1,3 +1,8 @@
+baseConf:
+  wrap:
+    importPath: '"cmdb/public"'
+    wrapFunc: "public.GinResult"
+    wrapRes: "public.Result"
 plugin:
   -
     name: "casbin"

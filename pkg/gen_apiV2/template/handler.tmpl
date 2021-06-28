@@ -33,7 +33,7 @@ type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
 {{- end}}
 {{- end}}
 {{- end}}
-// @Success 200 {object} Result{data={{$fc.ResOut0}}}{{range $index, $comment := $fc.Comments}}
+// @Success 200 {object} {{$.BaseConf.Wrap.WrapRes}}{data={{$fc.ResOut0}}}{{range $index, $comment := $fc.Comments}}
 {{$comment }}
 {{- end}}
 func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
