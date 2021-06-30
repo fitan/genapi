@@ -9,8 +9,9 @@ require (
 	github.com/casbin/casbin/v2 v2.28.1
 	github.com/casbin/gorm-adapter/v3 v3.2.6
 	github.com/fitan/genapi v0.0.0
-	github.com/gin-gonic/gin v1.7.1
+	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/validator/v10 v10.5.0 // indirect
+	github.com/go-redis/redis/v8 v8.10.0
 	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/rs/zerolog v1.21.0

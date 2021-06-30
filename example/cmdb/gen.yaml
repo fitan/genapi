@@ -1,8 +1,33 @@
 baseConf:
-  wrap:
-    importPath: '"cmdb/public"'
-    wrapFunc: "public.GinResult"
-    wrapRes: "public.Result"
+  WrapResult:
+    ImportPath: |
+      "cmdb/public"
+    WrapFunc: "public.GinResult"
+    WrapResultType: "public.Result"
+pluginV1:
+  -
+    MarkName: "casbin"
+    Match:
+      -
+        Type: InBindInterface
+        Name:
+    BindBefor:
+      InterfaceName: "CasbinKeyser"
+      ImportPath: |
+        "cmdb/public"
+       Template: |
+        data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
+        if err != nil {return data, err}
+    BindAfter:
+      ImportPath: |
+    ExecFunc:
+      ImportPath: |
+        "cmdb/pubic"
+      Template: |
+        return
+
+
+
 plugin:
   -
     name: "casbin"
@@ -15,7 +40,7 @@ plugin:
         bindAfter:
           importPath: '"cmdb/public"'
           template: |
-            data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
+            data,err = public.CheckKeysCasbin(c,"{{$.}}",in.GetCasbinKeys())
             if err != nil {return data, err}
       -
         name: "CasbinListKeyser"

@@ -3,6 +3,7 @@ package pkg
 import (
 	"encoding/json"
 	"entgo.io/ent/entc/gen"
+	"github.com/fitan/genapi/public"
 	"log"
 	"strings"
 	"text/template"
@@ -25,6 +26,7 @@ var FM = template.FuncMap{
 	"SliceHasKey": SliceHasKey,
 	"PaseFieldsOrderOp": PaseFieldsOrderOp,
 	"Join": strings.Join,
+	"ForMat": public.GenForMat,
 }
 
 func SliceHasKey(l []string, k string) bool {
