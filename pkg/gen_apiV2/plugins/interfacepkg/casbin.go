@@ -7,3 +7,11 @@ type CasbinKeyser interface {
 type CasbinListKeyser interface {
 	GetCasbinKeys() [][]interface{}
 }
+
+type RedisKeyer interface {
+	GetRedisKey() string
+}
+
+type RedisKeyser interface {
+	GetRedisKeys() []string
+}

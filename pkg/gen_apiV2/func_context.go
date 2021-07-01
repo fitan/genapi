@@ -10,7 +10,7 @@ type Func struct {
 	Bind     Bind
 	ParamIn1 string
 	ResOut0  string
-	Plugins  []plugins.PluginTemplate
+	Plugins  []plugins.PointTemplate
 }
 
 

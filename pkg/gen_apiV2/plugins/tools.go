@@ -2,11 +2,14 @@ package plugins
 
 import (
 	_ "embed"
+	"github.com/fitan/genapi/public"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"go/types"
 	"log"
+	"strconv"
+	"strings"
 )
 
 
@@ -65,19 +68,56 @@ func findInterface(f *ast.File, info *types.Info) {
 	})
 }
 
-func CheckHasInterface(t types.Type, interfaceName string) bool {
-	if i,ok := FindPluginInterfaceMap[interfaceName]; ok {
-		return types.Implements(t, i)
+func CheckMatch(match public.Match, docFields []string, inFieldType types.Type, outFieldType types.Type) bool {
+	if CheckHasInterface(outFieldType, match.OutInterfaceName) && CheckHasInterface(inFieldType, match.InInterfaceName) && CheckParamMatch(match.Param, docFields) {
+		return true
 	}
-	log.Fatalln("not found " + interfaceName)
 	return false
 }
 
-type PluginTemplate struct {
+func CheckParamMatch(matchParam []string, docFields []string) bool {
+	for _, syntax := range matchParam {
+		parseSyntax := strings.Split(syntax, "=")
+		if len(parseSyntax) != 2 {
+			log.Fatalln("syntax " + syntax +  " not x=x")
+		}
+		index,err :=  strconv.Atoi(parseSyntax[0])
+		if err != nil {
+			log.Fatalln("synctx " + syntax + " " + parseSyntax[0] + " inconvertible int")
+		}
+		key := parseSyntax[1]
+
+		if docFields[index + 2] == key {
+			return true
+		}
+	}
+	return false
+}
+
+func CheckHasInterface(t types.Type, interfaceNames []string) bool {
+	for _, name := range interfaceNames {
+		if i, ok := FindPluginInterfaceMap[name]; ok {
+			has := types.Implements(t,i)
+			if !has {
+				return false
+			}
+		}
+		log.Fatalln("not found " + name)
+	}
+	return true
+}
+
+type PointTemplate struct {
 	Has bool
 	Keys map[string]string
 	BindBefor HandlerTemplate
 	BindAfter HandlerTemplate
+}
+
+type CallBackTemplate struct {
+	Has bool
+	Keys map[string]string
+	Template HandlerTemplate
 }
 
 type HandlerTemplate struct {

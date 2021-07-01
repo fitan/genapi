@@ -6,84 +6,78 @@ import (
 )
 
 type GenConf struct {
-	Plugin []Plugin `json:"plugin"`
-	Gen    Gen      `json:"gen"`
-	BaseConf BaseConf `json:"baseConf"`
+	BaseConf BaseConf `json:"BaseConf"`
+	Plugin Plugin `json:"Plugin"`
+	Gen Gen `json:"Gen"`
 }
-type BindBefor struct {
-	ImportPath string `json:"importPath"`
-	Template   string `json:"template"`
+type WrapResult struct {
+	ImportPath string `json:"ImportPath"`
+	WrapFunc string `json:"WrapFunc"`
+	WrapResultType string `json:"WrapResultType"`
 }
-type BindAfter struct {
-	ImportPath string `json:"importPath"`
-	Template   string `json:"template"`
+type BaseConf struct {
+	WrapResult WrapResult `json:"WrapResult"`
 }
-type InterfaceName struct {
-	Name      string    `json:"name"`
-	BindBefor BindBefor `json:"bindBefor"`
-	BindAfter BindAfter `json:"bindAfter"`
+type Match struct {
+	Param []string `json:"Param"`
+	OutInterfaceName []string `json:"OutInterfaceName"`
+	InInterfaceName []string `json:"InInterfaceName"`
+}
+type Cover struct {
+	Match Match `json:"Match"`
+	ImportPath string `json:"ImportPath"`
+	Template string `json:"Template"`
+}
+type CallBack struct {
+	TagName string `json:"TagName"`
+	Cover []Cover `json:"Cover"`
+}
+type MountBindBefor struct {
+	ImportPath string `json:"ImportPath"`
+	Template string `json:"Template"`
+}
+type MountBindAfter struct {
+	ImportPath string `json:"ImportPath"`
+	Template string `json:"Template"`
+}
+type Mount struct {
+	Match Match `json:"Match"`
+	MountBindBefor MountBindBefor `json:"MountBindBefor"`
+	MountBindAfter MountBindAfter `json:"MountBindAfter"`
+}
+type Point struct {
+	TagName string `json:"TagName"`
+	Mount []Mount `json:"Mount"`
 }
 type Plugin struct {
-	Name          string          `json:"name"`
-	InterfaceName []InterfaceName `json:"interfaceName"`
+	CallBack []CallBack `json:"CallBack"`
+	Point []Point `json:"Point"`
 }
 type Ent struct {
-	Name string `json:"name"`
-	Src  string `json:"src"`
-	Dest string `json:"dest"`
+	Name string `json:"Name"`
+	Src string `json:"Src"`
+	Dest string `json:"Dest"`
 }
 type API struct {
-	Name string `json:"name"`
-	Src  string `json:"src"`
-	Dest string `json:"dest"`
+	Name string `json:"Name"`
+	Src string `json:"Src"`
+	Dest string `json:"Dest"`
 }
 type Gen struct {
-	Ent []Ent `json:"ent"`
-	API []API `json:"api"`
+	Ent []Ent `json:"Ent"`
+	API []API `json:"Api"`
 }
 
-type BaseConf struct {
-	Wrap struct {
-		ImportPath string `json:"importPath"`
-		WrapFunc   string `json:"wrapFunc"`
-		WrapRes string `json:"wrapRes"`
-	} `json:"wrap"`
-}
-
-
-
-//
-//type Ent struct {
-//	Name string
-//	Src string
-//	Dest string
-//}
-//
-//
-//type Api struct {
-//	Name string
-//	Src string
-//	Dest string
-//}
-
-var v *viper.Viper
 var genConf *GenConf
+var viperConf *viper.Viper
 
-func init() {
-	v, genConf = ReadConf()
-}
-
-
-func GetViper() *viper.Viper {
-	return v
+func init()  {
+	viperConf, genConf = ReadConf()
 }
 
 func GetGenConf() *GenConf {
 	return genConf
 }
-
-
-
 
 func ReadConf() (*viper.Viper, *GenConf) {
 	v := viper.New()

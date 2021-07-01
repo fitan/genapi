@@ -26,25 +26,29 @@ func (g *getConfKey) GetEnt(key string) *Ent {
 	return nil
 }
 
-func (g *getConfKey) GetPlugin(key string) *plugin {
-	for _, v := range g.conf.Plugin {
-		if v.Name == key {
-			return &plugin{conf: v}
+func (g *getConfKey) GetCallBack(Name string) *CallBackConf {
+	for _, v := range g.conf.Plugin.CallBack {
+		if v.TagName == Name {
+			return &CallBackConf{CallBack: v}
 		}
 	}
 	return nil
 }
 
-type plugin struct {
-	conf Plugin
+type CallBackConf struct {
+	CallBack CallBack
 }
 
-func (p *plugin) GetInterface(key string) *InterfaceName {
-	for _, v := range p.conf.InterfaceName {
-		if v.Name == key {
-			return &v
+func (g *getConfKey) GetPoint(Name string) *PointConf {
+	for _,v := range g.conf.Plugin.Point {
+		if v.TagName == Name {
+			return &PointConf{Point: v}
 		}
 	}
 	return nil
+}
+
+type PointConf struct {
+	Point Point
 }
 

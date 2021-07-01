@@ -1,70 +1,69 @@
-baseConf:
+BaseConf:
   WrapResult:
     ImportPath: |
       "cmdb/public"
     WrapFunc: "public.GinResult"
     WrapResultType: "public.Result"
-pluginV1:
-  -
-    MarkName: "casbin"
-    Match:
-      -
-        Type: InBindInterface
-        Name:
-    BindBefor:
-      InterfaceName: "CasbinKeyser"
-      ImportPath: |
-        "cmdb/public"
-       Template: |
-        data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
-        if err != nil {return data, err}
-    BindAfter:
-      ImportPath: |
-    ExecFunc:
-      ImportPath: |
-        "cmdb/pubic"
-      Template: |
-        return
-
-
-
-plugin:
-  -
-    name: "casbin"
-    interfaceName:
-      -
-        name: "CasbinKeyser"
-        bindBefor:
-          importPath: ""
-          template: ""
-        bindAfter:
-          importPath: '"cmdb/public"'
-          template: |
-            data,err = public.CheckKeysCasbin(c,"{{$.}}",in.GetCasbinKeys())
-            if err != nil {return data, err}
-      -
-        name: "CasbinListKeyser"
-        bindBefor:
-          importPath: ""
-          template: ""
-        bindAfter:
-          importPath: '"cmdb/public"'
-          template: |
-            data,err = public.CheckListKeysCasbin(c,"%s",in.GetCasbinKeys())
-            if err != nil {return data, err}
-
-gen:
-  ent:
+Plugin:
+  CallBack:
     -
-      name: "ent"
-      src: "./ent/schema"
-      dest: "./gen/entrest"
-  api:
+      TagName: "Redis"
+      Cover:
+        -
+          Match:
+            Param:
+              - "1=fdsfsf"
+            OutInterfaceName:
+            InInterfaceName:
+          ImportPath:
+          Template:
+  Point:
     -
-      name: "logicapi"
-      src: "./logic"
-      dest: "./gen/handler/logic"
+      TagName: "Casbin"
+      Mount:
+        -
+          Match:
+            InInterfaceName: ["CasbinListKeyser"]
+            OutInterfaceName: []
+          MountBindBefor:
+            ImportPath: |
+              "cmdb/public"
+            Template: |
+              data,err = public.CheckListKeysCasbin(c,"%s",in.GetCasbinKeys())
+              if err != nil {return data, err}
+          MountBindAfter:
+            ImportPath:
+            Template:
+        -
+          Match:
+            InInterfaceName: ["CasbinKeyser"]
+            OutInterfaceName: []
+          MountBindBefor:
+            ImportPath: |
+              "cmdb/public"
+            Template: |
+              data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
+              if err != nil {return data, err}
+          MountBindAfter:
+            ImportPath:
+            Template:
+
+
+
+
+
+Gen:
+  Ent:
     -
-      name: "entapi"
-      src: "./gen/entrest"
-      dest: "./gen/handler/ent"
+      Name: "ent"
+      Src: "./ent/schema"
+      Dest: "./gen/entrest"
+  Api:
+    -
+      Name: "logicapi"
+      Src: "./logic"
+      Dest: "./gen/handler/logic"
+    -
+      Name: "entapi"
+      Src: "./gen/entrest"
+      Dest: "./gen/handler/ent"
