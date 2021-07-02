@@ -5,7 +5,14 @@ import (
 	"log"
 )
 
-var callBackMap map[string]func(DocFields []string, inFieldType types.Type, outFieldType types.Type) CallBackTemplate
+func init() {
+	callBackMap = make(map[string]func(DocFields []string, inFieldType types.Type, outFieldType types.Type) CallBackTemplate)
+	RegisterCallBack("redis", GetRedisCallBackTemplate)
+}
+
+const CallBackMark = "@CallBack"
+
+var callBackMap  map[string]func(DocFields []string, inFieldType types.Type, outFieldType types.Type) CallBackTemplate
 
 
 func RegisterCallBack(name string,fc func(DocFields []string, inFieldType types.Type, outFieldType types.Type) CallBackTemplate)  {

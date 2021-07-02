@@ -101,8 +101,9 @@ func CheckHasInterface(t types.Type, interfaceNames []string) bool {
 			if !has {
 				return false
 			}
+		} else {
+			log.Fatalln("not found " + name)
 		}
-		log.Fatalln("not found " + name)
 	}
 	return true
 }

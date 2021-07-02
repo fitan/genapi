@@ -7,16 +7,38 @@ BaseConf:
 Plugin:
   CallBack:
     -
-      TagName: "Redis"
+      TagName: "redis"
       Cover:
         -
           Match:
             Param:
-              - "1=fdsfsf"
+              - "1=get"
             OutInterfaceName:
-            InInterfaceName:
-          ImportPath:
-          Template:
+            InInterfaceName: ["RedisKeyer"]
+          ImportPath: |
+            "cmdb/public"
+          Template: |
+            return public.GetRedisAdapter().GetValue(func() (interface{}, error) {return {{$.PkgName}}.{{$.FuncName}}(c,in)},in.GetRedisKey())
+        -
+          Match:
+            Param:
+              - "1=update"
+            OutInterfaceName:
+            InInterfaceName: ["RedisKeyer"]
+          ImportPath: |
+            "cmdb/public"
+          Template: |
+            return public.GetRedisAdapter().UpdateValue(func() (interface{}, error) {return {{$.PkgName}}.{{$.FuncName}}(c, in)}, in.GetRedisKey())
+        -
+          Match:
+            Param:
+              - "1=delete"
+            OutInterfaceName:
+            InInterfaceName: ["RedisKeyer"]
+          ImportPath: |
+            "cmdb/public"
+          Template: |
+            return public.GetRedisAdapter().DeleteValue(func() (interface{}, error) {return {{$.PkgName}}.{{$.FuncName}}(c, in)}, in.GetRedisKey())
   Point:
     -
       TagName: "Casbin"

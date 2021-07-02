@@ -34,6 +34,7 @@ import (
 //
 
 // @GenApi /policy [delete]
+// @CallBack redis delete
 func DeletePolicy(c *gin.Context, in *DeleteIn) (bool, error) {
 	return public.GetCasbin().DeleteUser(in.Query.User)
 }

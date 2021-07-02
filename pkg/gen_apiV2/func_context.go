@@ -10,7 +10,12 @@ type Func struct {
 	Bind     Bind
 	ParamIn1 string
 	ResOut0  string
-	Plugins  []plugins.PointTemplate
+	Plugins  Plugins
+}
+
+type Plugins struct {
+	Point []plugins.PointTemplate
+	CallBack plugins.CallBackTemplate
 }
 
 

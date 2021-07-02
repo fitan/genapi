@@ -16,6 +16,8 @@ func init()  {
 	})}
 }
 
+type RedisCallBackFn func() (interface{}, error)
+
 func GetRedisAdapter() *RedisAdapter {
 	return redisAdapter
 }
@@ -26,21 +28,51 @@ type RedisAdapter struct {
 
 
 
-func (r *RedisAdapter) GetValueByKey(key string, fc func() (interface{}, error)) (interface{},error) {
+func (r *RedisAdapter) GetValue(fn RedisCallBackFn, key string) (interface{}, error) {
 	var ctx = context.Background()
-	res, err  := r.cli.Get(ctx, key).Result()
+	res, err := r.cli.Get(ctx, key).Result()
 	if err == redis.Nil {
-		return fc()
+		return fn()
 	} else if err != nil {
-		return fc()
+		log.Error().Err(err)
+		return fn()
 	} else {
-		return  res, err
+		return res, err
 	}
 }
 
-func (r *RedisAdapter) DeleteValueByKey(key string) error  {
+func (r *RedisAdapter) UpdateValue(fn RedisCallBackFn, key string) (interface{}, error) {
+	res, err := fn()
+	if err != nil {
+		return res, err
+	}
+	var  ctx = context.Background()
+	_, err = r.cli.Del(ctx, key).Result()
+	if err == redis.Nil {
+		return res, err
+	} else if err != nil {
+		log.Error().Err(err)
+		return res, err
+	} else {
+		return res, err
+	}
+}
+
+
+
+func (r *RedisAdapter) DeleteValue(fn RedisCallBackFn,key string) (interface{}, error)  {
+	res, err := fn()
+	if err != nil {
+		return res, err
+	}
 	var ctx = context.Background()
-	del := r.cli.Del(ctx, key)
-	_, err := del.Result()
-	return err
+	_, err = r.cli.Del(ctx, key).Result()
+	if err == redis.Nil {
+		return res, err
+	} else if err != nil {
+		log.Error().Err(err)
+		return res, err
+	} else {
+		return res, err
+	}
 }

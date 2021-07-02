@@ -41,15 +41,18 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 		PkgName:  c.PkgName,
 		FuncName: f.Name.Name,
 		ResOut0:  "",
+		Plugins: Plugins{
+			Point:    []plugins.PointTemplate{},
+		},
 	}
 	inField := f.Type.Params.List[1]
+	outField := f.Type.Results.List[0]
 
 	_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
 	//_, inStruct := c.FindStruct(inField)
 	fc.Bind = c.ParseBind(fc.FuncName, inStruct)
-	c.ParseComment(&fc, f.Doc.List, inField)
+	c.ParseComment(&fc, f.Doc.List, inField, outField)
 	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(inField.Type, c.File.Name.Name))
-	outField := f.Type.Results.List[0]
 	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(outField.Type, c.File.Name.Name))
 	return fc
 }
@@ -77,7 +80,7 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 //	}
 //}
 
-func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment, inField *ast.Field) {
+func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment, inField *ast.Field, outField *ast.Field) {
 	comments := make([]string, 0, 0)
 	for _, m := range ms {
 		fs := strings.Fields(m.Text)
@@ -92,8 +95,10 @@ func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment, inField *ast.Fie
 			fc.Router = router
 			comments = append(comments, swagRouter)
 		case CasbinMark:
-			temp := plugins.GetCasbinPluginTemplate(fs, c.Pkg.TypesInfo.TypeOf(inField.Type))
-			fc.Plugins = append(fc.Plugins, temp)
+			temp := plugins.GetCasbinPluginTemplate(fs, c.Pkg.TypesInfo.TypeOf(inField.Type), c.Pkg.TypesInfo.TypeOf(outField.Type))
+			fc.Plugins.Point = append(fc.Plugins.Point, temp)
+		case plugins.CallBackMark:
+			fc.Plugins.CallBack = plugins.GetCallBackTemplate(fs, c.Pkg.TypesInfo.TypeOf(inField.Type), c.Pkg.TypesInfo.TypeOf(outField.Type))
 		default:
 			comments = append(comments, m.Text)
 		}

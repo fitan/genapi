@@ -1,7 +1,7 @@
 {{template "pkg_name" $.PkgName}}
 import (
     "github.com/gin-gonic/gin"
-	{{$.BaseConf.Wrap.ImportPath}}
+	{{$.BaseConf.WrapResult.ImportPath}}
 )
 
 
@@ -9,7 +9,7 @@ import (
 func Register{{pascal $key}}(r gin.IRouter) {
 	{{range $func := $funcs}}
 	r.{{$func.Router.Method}}("{{$func.Router.GinPath}}", func(c *gin.Context) {
-        {{$.BaseConf.Wrap.WrapFunc}}(c, {{$func.FuncName}})
+        {{$.BaseConf.WrapResult.WrapFunc}}(c, {{$func.FuncName}})
     })
 	{{end}}
 }

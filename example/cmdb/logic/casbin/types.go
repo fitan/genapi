@@ -1,5 +1,7 @@
 package casbin
 
+import "strconv"
+
 type Policy struct {
 	User   string `json:"user"`
 	Path   string `json:"path"`
@@ -51,5 +53,13 @@ type UpdateIn struct {
 }
 
 type DeleteIn struct {
+	Uri Uri
 	Query Query
 }
+
+func (d DeleteIn) GetRedisKey() string {
+	key := strconv.Itoa(d.Uri.Id)
+	return key
+}
+
+

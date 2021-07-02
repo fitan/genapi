@@ -6,9 +6,6 @@ import (
 	"log"
 )
 
-func init()  {
-	RegisterCallBack("redis", GetRedisCallBackTemplate)
-}
 
 
 func GetRedisCallBackTemplate(docFields []string, inFieldType types.Type, outFieldType types.Type) CallBackTemplate {

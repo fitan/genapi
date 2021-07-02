@@ -653,7 +653,7 @@ func GenApi(apiMap map[string]map[string]map[string]ApiMsg, dest string) {
 }
 
 func GenApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string][]gen_apiV2.Func, baseConf public.BaseConf, dest string) {
-	parse, err := template.New("gen_api").Funcs(gen.Funcs).Parse(pkg_name_tmpl)
+	parse, err := template.New("gen_api").Funcs(gen.Funcs).Funcs(FM).Parse(pkg_name_tmpl)
 	if err != nil {
 		log.Panicln(err.Error())
 	}

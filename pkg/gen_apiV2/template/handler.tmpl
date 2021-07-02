@@ -2,7 +2,10 @@
 import (
 	"github.com/gin-gonic/gin"
 	{{range $index, $fc := $.Funcs}}
-	{{range $tmp := $fc.Plugins}}
+	{{if $fc.Plugins.CallBack.Has}}
+	{{$fc.Plugins.CallBack.Template.ImportPath}}
+	{{end}}
+	{{range $tmp := $fc.Plugins.Point}}
 	{{if $tmp.Has}}
 	{{$tmp.BindAfter.ImportPath}}
 	{{$tmp.BindBefor.ImportPath}}
@@ -33,11 +36,11 @@ type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
 {{- end}}
 {{- end}}
 {{- end}}
-// @Success 200 {object} {{$.BaseConf.Wrap.WrapRes}}{data={{$fc.ResOut0}}}{{range $index, $comment := $fc.Comments}}
+// @Success 200 {object} {{$.BaseConf.WrapResult.WrapResultType}}{data={{$fc.ResOut0}}}{{range $index, $comment := $fc.Comments}}
 {{$comment }}
 {{- end}}
 func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
-	{{range $tmp := $fc.Plugins}}
+	{{range $tmp := $fc.Plugins.Point}}
 	{{if $tmp.Has}}
 	{{$tmp.BindBefor.Template}}
 	{{end}}
@@ -69,12 +72,16 @@ func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
 	}
 	{{end}}
 
-	{{range $tmp := $fc.Plugins}}
+	{{range $tmp := $fc.Plugins.Point}}
 	{{if $tmp.Has}}
 	{{$tmp.BindAfter.Template}}
 	{{end}}
 	{{end}}
 
+	{{if $fc.Plugins.CallBack.Has}}
+	{{ForMat $fc.Plugins.CallBack.Template.Template $fc}}
+	{{else}}
 	return {{$fc.PkgName}}.{{$fc.FuncName}}(c, in)
+	{{end}}
 }
 {{end}}
