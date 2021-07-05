@@ -14,10 +14,9 @@ type Func struct {
 }
 
 type Plugins struct {
-	Point []plugins.PointTemplate
+	Point    []plugins.PointTemplate
 	CallBack plugins.CallBackTemplate
 }
-
 
 type Router struct {
 	Method         string

@@ -14,8 +14,6 @@ import (
 	"regexp"
 )
 
-
-
 const mode packages.LoadMode = packages.NeedName |
 	packages.NeedTypes |
 	packages.NeedSyntax |
@@ -163,15 +161,11 @@ func MatchPathParam(s string) []string {
 	return res
 }
 
-
-
 type ImportMsg struct {
 	Dir       string
 	AliseName string
 	PkgName   string
 }
-
-
 
 //type LoopStruct struct {
 //	importMap map[string]ImportMsg
@@ -192,8 +186,6 @@ type ImportMsg struct {
 //	}
 //	return true
 //}
-
-
 
 //func (l *LoopStruct) FindQuote(t ast.Node) []Quote {
 //	fieldTypeNodes := make([]ast.Node, 0, 0)
@@ -288,7 +280,6 @@ func FindTagAndCommentByField(pkg *packages.Package, file *ast.File, field *ast.
 	var findPkg *packages.Package
 	var findStruct *ast.StructType
 
-
 	findPkg, findFile, _, findStruct = FindStructByExpr(pkg, file, field.Type)
 	return FindTagAndCommentByStruct(findPkg, findFile, findStruct, TagName)
 }
@@ -321,4 +312,30 @@ func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
 	filePath := fset.Position(pos).Filename
 	_, fileName := path.Split(filePath)
 	return fileName
+}
+
+func SpliceStruct(pkgs *packages.Package, file *ast.File, st *ast.StructType) {
+	astutil.Apply(st, func(c *astutil.Cursor) bool {
+		switch t := c.Node().(type) {
+		case *ast.SelectorExpr:
+			path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
+			findPkg := pkgs.Imports[path]
+			_, findTs := FindTypeByName(findPkg, t.Sel.Name)
+			c.Replace(findTs.Type)
+		}
+		return true
+	}, func(c *astutil.Cursor) bool {
+		return true
+	})
+	//astutil.Apply(st, func(cursor *astutil.Cursor) bool {
+	//	switch t := cursor.Node().(type) {
+	//	case *ast.SelectorExpr:
+	//		path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
+	//		findPkg := pkgs.Imports[path]
+	//		findPkg.
+	//
+	//
+	//	}
+	//	return  true
+	//})
 }

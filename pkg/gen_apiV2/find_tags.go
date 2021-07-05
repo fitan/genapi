@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/types"
 	"golang.org/x/tools/go/packages"
+	"log"
 	"path"
 	"reflect"
 	"strings"
@@ -96,19 +97,50 @@ func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName s
 }
 
 func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, *ast.TypeSpec, *ast.StructType) {
+	f, t := FindTypeByName(pkg, structName)
+	st, ok := t.Type.(*ast.StructType)
+	if ok {
+		return f, t, st
+	}
+	log.Fatal("node found " + structName)
+	return nil, nil, nil
+	//var f *ast.File
+	//var t *ast.TypeSpec
+	//var st *ast.StructType
+	//for _, file := range pkg.Syntax {
+	//	has := false
+	//	ast.Inspect(file, func(node ast.Node) bool {
+	//		ts, ok := node.(*ast.TypeSpec)
+	//		if ok {
+	//			if ts.Name.Name == structName {
+	//				has = true
+	//				f = file
+	//				t = ts
+	//				st = ts.Type.(*ast.StructType)
+	//				return false
+	//			}
+	//		}
+	//		if has {
+	//			return false
+	//		}
+	//		return true
+	//	})
+	//}
+	//return f, t,st
+}
+
+func FindTypeByName(pkg *packages.Package, TypeName string) (*ast.File, *ast.TypeSpec) {
 	var f *ast.File
 	var t *ast.TypeSpec
-	var st *ast.StructType
 	for _, file := range pkg.Syntax {
 		has := false
 		ast.Inspect(file, func(node ast.Node) bool {
 			ts, ok := node.(*ast.TypeSpec)
 			if ok {
-				if ts.Name.Name == structName {
+				if ts.Name.Name == TypeName {
 					has = true
 					f = file
 					t = ts
-					st = ts.Type.(*ast.StructType)
 					return false
 				}
 			}
@@ -118,7 +150,5 @@ func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, 
 			return true
 		})
 	}
-	return f, t,st
+	return f, t
 }
-
-
