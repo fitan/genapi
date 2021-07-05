@@ -14,7 +14,7 @@ type TagMsg struct {
 	Comment  string
 }
 
-func FindTagAndComment(pkg *packages.Package, file *ast.File, structType *ast.StructType, tagName string) []TagMsg {
+func FindTagAndCommentByStruct(pkg *packages.Package, file *ast.File, structType *ast.StructType, tagName string) []TagMsg {
 	tagMsgs := make([]TagMsg, 0, 0)
 	ast.Inspect(structType.Fields, func(node ast.Node) bool {
 		fd, ok := node.(*ast.Field)
@@ -80,12 +80,12 @@ func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName s
 						importPath := FindImportPath(file.Imports, structType.X.(*ast.Ident).Name)
 						remotePkg := pkg.Imports[importPath]
 						remoteFile, _, st := FindStructTypeByName(remotePkg, structType.Sel.Name)
-						tagMsgs = append(tagMsgs, FindTagAndComment(remotePkg, remoteFile, st, tagName)...)
+						tagMsgs = append(tagMsgs, FindTagAndCommentByStruct(remotePkg, remoteFile, st, tagName)...)
 						return false
 					// local pkg
 					case *ast.Ident:
 						localFile, _, st := FindStructTypeByName(pkg, structType.Name)
-						tagMsgs = append(tagMsgs, FindTagAndComment(pkg, localFile, st, tagName)...)
+						tagMsgs = append(tagMsgs, FindTagAndCommentByStruct(pkg, localFile, st, tagName)...)
 					}
 				}
 			}

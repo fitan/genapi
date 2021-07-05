@@ -88,10 +88,12 @@ func CheckParamMatch(matchParam []string, docFields []string) bool {
 		key := parseSyntax[1]
 
 		if docFields[index + 2] == key {
-			return true
+			continue
+		} else {
+			return false
 		}
 	}
-	return false
+	return true
 }
 
 func CheckHasInterface(t types.Type, interfaceNames []string) bool {

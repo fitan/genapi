@@ -1,6 +1,8 @@
 package ui
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 type FormType string
 
@@ -44,6 +46,13 @@ type FormField struct {
 	Suffix string
 	ChangeEvent string
 	HelpMessage string
+	Tests []TestData
+	TestMap map[string]TestData
+}
+
+type TestData struct {
+	Name string
+	Hello string
 }
 
 func (f *FormField)SetField(value string) *FormField {
@@ -77,4 +86,9 @@ func (f *FormField) SetHandleSubmit(fc func(c *gin.Context) (data interface{}, e
 func (f *FormField) SetHandleReset() {
 
 }
+
+
+
+
+
 

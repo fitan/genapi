@@ -21,7 +21,7 @@ func NewApiContext() *ApiContext {
 }
 
 func (c *ApiContext) Load(dir string) {
-	pkgName, pkg, fset := LoadPkgV2(dir)
+	pkgName, pkg, fset := LoadPackages(dir)
 	c.PkgName = pkgName
 	c.Fset = fset
 	c.Pkg = pkg

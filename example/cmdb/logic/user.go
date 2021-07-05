@@ -24,6 +24,7 @@ func (i UserCallIn) GetRedisKey() string {
 
 // @GenApi /api/usercall [get]
 // @CallBack redis get
+// @Casbin UserCall 呼叫usercall
 func UserCall(c *gin.Context, in *UserCallIn) ([]*ent.User, error) {
 	return nil, nil
 }

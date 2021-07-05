@@ -47,26 +47,26 @@ Plugin:
           Match:
             InInterfaceName: ["CasbinListKeyser"]
             OutInterfaceName: []
-          MountBindBefor:
+          MountBindAfter:
             ImportPath: |
               "cmdb/public"
             Template: |
               data,err = public.CheckListKeysCasbin(c,"%s",in.GetCasbinKeys())
               if err != nil {return data, err}
-          MountBindAfter:
+          MountBindBefor:
             ImportPath:
             Template:
         -
           Match:
             InInterfaceName: ["CasbinKeyser"]
             OutInterfaceName: []
-          MountBindBefor:
+          MountBindAfter:
             ImportPath: |
               "cmdb/public"
             Template: |
               data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
               if err != nil {return data, err}
-          MountBindAfter:
+          MountBindBefor:
             ImportPath:
             Template:
 

@@ -7,26 +7,6 @@ import (
 )
 
 
-const (
-	CasbinKeyserName     = "CasbinKeyser"
-	CasbinListKeyserName = "CasbinListKeyser"
-)
-
-var HandlerTemplateMap = map[string]HandlerTemplate{CasbinKeyserName: {
-	ImportPath: `"cmdb/public"`,
-	Template: `
-	data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
-	if err != nil {
-		return data, err
-	}`,
-}, CasbinListKeyserName: {
-	ImportPath: `"cmdb/public"`,
-	Template: `
-	data,err = public.CheckListKeysCasbin(c,"%s",in.GetCasbinKeys())
-	if err != nil {
-		return data, err
-	}`,
-}}
 
 func GetCasbinPluginTemplate(docFields []string, inFieldType types.Type, outFieldType types.Type) PointTemplate {
 	if len(docFields) < 4 {
@@ -36,7 +16,7 @@ func GetCasbinPluginTemplate(docFields []string, inFieldType types.Type, outFiel
 
 	pt := PointTemplate{Has: true, BindBefor: HandlerTemplate{}, BindAfter: HandlerTemplate{}}
 	pt.Keys = map[string]string{"key": docFields[2], "annotation": docFields[3]}
-	pointConf := public2.GetConfKey().GetPoint("casbin")
+	pointConf := public2.GetConfKey().GetPoint("Casbin")
 
 	for _, mount := range pointConf.Point.Mount {
 		if CheckMatch(mount.Match, docFields, inFieldType, outFieldType) {
