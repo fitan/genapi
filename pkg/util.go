@@ -2,10 +2,7 @@ package pkg
 
 import (
 	"fmt"
-	"go/ast"
-	"go/token"
 	"golang.org/x/mod/modfile"
-	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/imports"
 	"io/ioutil"
 	"log"
@@ -75,69 +72,4 @@ func (a assets) formatGo() error {
 		}
 	}
 	return nil
-}
-
-
-func Res2SwagModel(fset *token.FileSet, node ast.Node, selectName string) ast.Node {
-	t := res2SwagModel2(node, selectName)
-	t = res2SwagModel1(t)
-	return t
-}
-
-func res2SwagModel1(node ast.Node) ast.Node {
-	return astutil.Apply(node, func(c *astutil.Cursor) bool {
-		switch c.Node().(type) {
-		case *ast.StarExpr:
-			tmp := c.Node().(*ast.StarExpr).X
-			c.Replace(tmp)
-		}
-		return true
-	}, func(c *astutil.Cursor) bool {
-		return true
-	})
-}
-
-func res2SwagModel2(node ast.Node, selectName string) ast.Node {
-	return astutil.Apply(node, func(c *astutil.Cursor) bool {
-		switch c.Node().(type) {
-		case *ast.SelectorExpr:
-			return false
-
-		case *ast.Ident:
-			if ok := JudgeBuiltInType(c.Node().(*ast.Ident).Name); !ok {
-				tmp := ast.SelectorExpr{X: ast.NewIdent(selectName), Sel: ast.NewIdent(c.Node().(*ast.Ident).Name)}
-				c.Replace(&tmp)
-			}
-		}
-		return true
-	}, func(c *astutil.Cursor) bool {
-		return true
-	})
-}
-
-func JudgeBuiltInType(t string) bool {
-	m := map[string]int{
-		"uint8":      0,
-		"uint16":     0,
-		"uint32":     0,
-		"uint64":     0,
-		"int8":       0,
-		"int16":      0,
-		"int32":      0,
-		"int64":      0,
-		"float32":    0,
-		"float64":    0,
-		"complex64":  0,
-		"complex128": 0,
-		"byte":       0,
-		"rune":       0,
-		"uint":       0,
-		"int":        0,
-		"uintptr":    0,
-		"string":     0,
-		"bool":       0,
-		"error":      0,
-	}
-	_, ok := m[t]
-	return ok
 }

@@ -1,9 +1,5 @@
 package ui
 
-import (
-	"github.com/gin-gonic/gin"
-)
-
 type FormType string
 
 const (
@@ -37,7 +33,12 @@ const (
 	RateFormType             FormType = "Rate"
 )
 
-type FormField struct {
+func CreateFormField(point interface{}) *PointField {
+	return &PointField{}
+}
+
+
+type PointField struct {
 	Field string
 	Component string
 	Lable string
@@ -46,46 +47,48 @@ type FormField struct {
 	Suffix string
 	ChangeEvent string
 	HelpMessage string
-	Tests []TestData
-	TestMap map[string]TestData
 }
 
-type TestData struct {
-	Name string
-	Hello string
-}
 
-func (f *FormField)SetField(value string) *FormField {
+func (f *PointField)SetField(value string) *PointField {
 	return f
 }
 
-func (f *FormField) SetComponent(value string) *FormField {
+func (f *PointField) SetComponent(value string) *PointField {
 	return f
 }
 
-func (f *FormField) SetLable(value string) *FormField {
+func (f *PointField) SetLable(value string) *PointField {
 	return f
 }
 
-func (f *FormField) SetSubLabel(value string) *FormField {
+func (f *PointField) SetSubLabel(value string) *PointField {
 	return f
 }
 
-func (f *FormField) SetChangeEvent(value string) *FormField {
+func (f *PointField) SetColProps(value string) *PointField {
 	return f
 }
 
-func (f *FormField) SetHelpMessge(value string) *FormField {
+func (f *PointField) SetSuffix(value string) *PointField {
 	return f
 }
 
-func (f *FormField) SetHandleSubmit(fc func(c *gin.Context) (data interface{}, err error)) *FormField {
+func (f *PointField) SetChangeEvent(value string) *PointField {
 	return f
 }
 
-func (f *FormField) SetHandleReset() {
-
+func (f *PointField) SetHelpMessge(value string) *PointField {
+	return f
 }
+
+//func (f *PointField) SetHandleSubmit(fc func(c *gin.Context) (data interface{}, err error)) *PointField {
+//	return f
+//}
+//
+//func (f *PointField) SetHandleReset() {
+//
+//}
 
 
 

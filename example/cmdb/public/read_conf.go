@@ -1,6 +1,7 @@
 package public
 
 import (
+	"github.com/spf13/viper"
 	"gopkg.in/ini.v1"
 	"sync"
 )
@@ -67,4 +68,25 @@ func GetConf() *Conf {
 		readConf = conf
 	}
 	return readConf
+}
+
+func ReadYamlConf(confName string, obj interface{},paths ...string) error {
+	v := viper.New()
+	v.SetConfigName(confName)
+	v.SetConfigType("yaml")
+	for _, path := range paths {
+		v.AddConfigPath(path)
+	}
+	err := v.ReadInConfig()
+	if err != nil {
+		GetXLog().Error().Err(err)
+		return err
+	}
+
+	if err = v.Unmarshal(obj); err != nil {
+		GetXLog().Error().Err(err)
+		return err
+	}
+
+	return nil
 }

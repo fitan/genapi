@@ -21,7 +21,7 @@ var curd_tmplV2 string
 //go:embed internal/templateV3/func.tmpl
 var func_tmpl string
 
-//go:embed internal/templateV3/includes.tmpl
+//go:embed internal/templateV2/includes.tmpl
 var includesV2_tmpl string
 
 //go:embed internal/templateV3/option.tmpl
@@ -29,6 +29,13 @@ var option_tmpl string
 
 //go:embed internal/templateV3/new_obj.tmpl
 var new_obj string
+
+//go:embed internal/templateV3/router.tmpl
+var router_tmpl string
+
+//go:embed internal/templateV3/swagger_obj.tmpl
+var swagger_obj_tmpl string
+
 
 //var Templates []*gen.Template
 //
@@ -91,7 +98,7 @@ func LoadV2(schemaPath string, dest string) {
 		//},
 		{
 			Name: "includes",
-			Text: includes_tmpl,
+			Text: includesV2_tmpl,
 		},
 	}
 

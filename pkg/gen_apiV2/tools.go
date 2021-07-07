@@ -11,6 +11,7 @@ import (
 	"golang.org/x/tools/go/packages"
 	"log"
 	"path"
+	"reflect"
 	"regexp"
 )
 
@@ -317,6 +318,18 @@ func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
 func SpliceStruct(pkgs *packages.Package, file *ast.File, st *ast.StructType) {
 	astutil.Apply(st, func(c *astutil.Cursor) bool {
 		switch t := c.Node().(type) {
+		case *ast.Field:
+			if Node2String(pkgs.Fset,t.Type) == "time.Time" {
+				return false
+			}
+			if t.Tag == nil {
+				c.Delete()
+			} else {
+				_, ok := reflect.StructTag(t.Tag.Value[1 : len(t.Tag.Value)-1]).Lookup("json")
+				if !ok {
+					c.Delete()
+				}
+			}
 		case *ast.SelectorExpr:
 			path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
 			findPkg := pkgs.Imports[path]
@@ -327,15 +340,11 @@ func SpliceStruct(pkgs *packages.Package, file *ast.File, st *ast.StructType) {
 	}, func(c *astutil.Cursor) bool {
 		return true
 	})
-	//astutil.Apply(st, func(cursor *astutil.Cursor) bool {
-	//	switch t := cursor.Node().(type) {
-	//	case *ast.SelectorExpr:
-	//		path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
-	//		findPkg := pkgs.Imports[path]
-	//		findPkg.
-	//
-	//
-	//	}
-	//	return  true
-	//})
 }
+
+func Struct2Ts(pkgs *packages.Package, file *ast.File, st *ast.StructType) string {
+	SpliceStruct(pkgs, file, st)
+	s := Node2String(pkgs.Fset, st)
+	return Convert(s)
+}
+

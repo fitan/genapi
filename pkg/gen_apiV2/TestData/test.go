@@ -1,11 +1,15 @@
 package TestData
 
-import "github.com/fitan/genapi/pkg/gen_apiV2/TestData/nest"
+import (
+	"github.com/fitan/genapi/pkg/gen_apiV2/TestData/nest"
+	"time"
+)
 
 type User struct {
-	ID    int
-	Age   int
+	ID    int `json:"id"`
+	Age   int `json:"age"`
 	Name  string
-	Nest  nest.Nest
-	Fater nest.Fater
+	Nest  nest.Nest `json:"nest"`
+	Fater nest.Fater `json:"fater"`
+	Time time.Time `json:"time"`
 }

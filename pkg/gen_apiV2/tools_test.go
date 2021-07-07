@@ -1,8 +1,6 @@
 package gen_apiV2
 
 import (
-	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"go/ast"
 	"golang.org/x/tools/go/packages"
 	"testing"
@@ -29,10 +27,8 @@ func TestSpliceStruct(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			SpliceStruct(tt.args.pkgs, tt.args.file, tt.args.st)
-			t.Log(Node2String(tt.args.pkgs.Fset, tt.args.st))
-			fmt.Println("fsdfsdf")
-			spew.Dump(tt.args.st)
+			t.Log(Struct2Ts(tt.args.pkgs, tt.args.file, tt.args.st))
+			//spew.Dump(tt.args.st)
 		})
 	}
 }

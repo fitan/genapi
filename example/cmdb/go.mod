@@ -15,6 +15,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/rs/zerolog v1.21.0
+	github.com/spf13/viper v1.8.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0

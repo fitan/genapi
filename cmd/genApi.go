@@ -15,43 +15,43 @@ limitations under the License.
 */
 package cmd
 
-import (
-	"github.com/fitan/genapi/pkg"
-	"log"
-
-	"github.com/spf13/cobra"
-)
-
-var genApiSrc *string
-var genApiDest *string
-
-// genApiCmd represents the genApi command
-var genApiCmd = &cobra.Command{
-	Use:   "router",
-	Short: "gen gin router",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		if *genApiSrc == "" {
-			log.Fatalln("src is nil")
-		}
-		pkg.ParseFuncApi(*genApiSrc, *genApiDest)
-
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(genApiCmd)
-
-	genApiSrc = genApiCmd.Flags().StringP("src", "s", "./logic", "generate src.")
-	genApiDest = genApiCmd.Flags().StringP("dest", "d", "./gen/handler", "generate dest.")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// genApiCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// genApiCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
+//import (
+//	"github.com/fitan/genapi/pkg"
+//	"log"
+//
+//	"github.com/spf13/cobra"
+//)
+//
+//var genApiSrc *string
+//var genApiDest *string
+//
+//// genApiCmd represents the genApi command
+//var genApiCmd = &cobra.Command{
+//	Use:   "router",
+//	Short: "gen gin router",
+//	Long:  ``,
+//	Run: func(cmd *cobra.Command, args []string) {
+//		if *genApiSrc == "" {
+//			log.Fatalln("src is nil")
+//		}
+//		pkg.ParseFuncApi(*genApiSrc, *genApiDest)
+//
+//	},
+//}
+//
+//func init() {
+//	rootCmd.AddCommand(genApiCmd)
+//
+//	genApiSrc = genApiCmd.Flags().StringP("src", "s", "./logic", "generate src.")
+//	genApiDest = genApiCmd.Flags().StringP("dest", "d", "./gen/handler", "generate dest.")
+//
+//	// Here you will define your flags and configuration settings.
+//
+//	// Cobra supports Persistent Flags which will work for this command
+//	// and all subcommands, e.g.:
+//	// genApiCmd.PersistentFlags().String("foo", "", "A help for foo")
+//
+//	// Cobra supports local flags which will only run when this command
+//	// is called directly, e.g.:
+//	// genApiCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+//}
