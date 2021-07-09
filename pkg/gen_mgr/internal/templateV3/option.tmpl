@@ -1,0 +1,142 @@
+{{template "pkg_name" $.PkgName}}
+
+import (
+	"{{$.Config.Package}}"
+{{- range $n := $.Nodes }}
+	"{{$.Config.Package}}/{{lower $n.Name}}"
+{{- end }}
+    "{{$.Config.Package}}/predicate"
+    "github.com/gin-gonic/gin"
+)
+
+{{ range $n := $.Nodes }}
+
+type {{$n.Name}}Includes struct {
+    // Association query Multiple choice:
+    // {{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v "\n    // "}}{{end}}{{end}}
+    Includes []string `form:"includes" json:"includes" binding:"dive,oneof={{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v " "}}{{end}}{{end}}"`
+}
+
+type Get{{$n.Name}}ListData struct {
+	Count int
+	Result []*ent.{{$n.Name}}
+}
+
+func {{$n.Name}}Selete(queryer *ent.{{$n.Name}}Query)  {
+	queryer.Select(
+	{{range $f := $n.Fields}}
+	{{if eq (PaseRestFieldOperability $f.Annotations "Selete") "true"}}
+		{{lower $n.Name}}.Field{{$f.StructField}},
+	{{end}}
+	{{end}}
+	)
+}
+
+func GetIDsBy{{$n.Name}}({{snake (plural $n.Name)}} ent.{{plural $n.Name}}) []int {
+	IDs := make([]{{$.IDType}}, 0, len({{snake (plural $n.Name)}}))
+	for i, _ := range {{snake (plural $n.Name)}} {
+		IDs[i] = {{snake (plural $n.Name)}}[i].ID
+	}
+	return IDs
+}
+
+func {{$n.Name}}CreateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
+	{{range $f := $n.Fields}}
+	{{if eq (PaseRestFieldOperability $f.Annotations "Create") "true"}}
+	m.Set{{$f.StructField}}(v.{{$f.StructField}})
+	{{end}}
+	{{end}}
+	{{range $e := $n.Edges}}
+    {{if $e.Inverse}}
+	{{if $e.Unique}}
+	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
+	{{else}}
+	m.Add{{$e.Type.Name}}IDs(GetIDsBy{{$e.Type.Name}}(v.Edges.{{plural $e.Type.Name}})...)
+    {{end}}
+	{{end}}
+	{{end}}
+}
+
+func {{$n.Name}}UpdateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
+	{{range $f := $n.Fields}}
+	{{if eq (PaseRestFieldOperability $f.Annotations "Create") "true"}}
+	m.Set{{$f.StructField}}(v.{{$f.StructField}})
+	{{end}}
+	{{end}}
+	{{range $e := $n.Edges}}
+    {{if $e.Inverse}}
+	{{if $e.Unique}}
+	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
+	{{else}}
+	m.Add{{$e.Type.Name}}IDs(GetIDsBy{{$e.Type.Name}}(v.Edges.{{plural $e.Type.Name}})...)
+    {{end}}
+	{{end}}
+	{{end}}
+}
+
+type {{$n.Name}}QueryOption struct {
+    {{$n.Name}}Includes
+    {{range $f := $n.Fields}}
+    {{$a := (PaseRestFieldQueryOp $f.Annotations)}}
+    {{range $method := $a}}
+    {{if (ne $method "Order")}}
+    {{$n.Name}}{{$f.StructField}}{{$method}}
+    {{end}}
+    {{end}}
+    {{end}}
+    {{$orderOp := PaseFieldsOrderOp $n.Fields}}
+    {{if $orderOp.Has}}
+    {{$n.Name}}Order
+    {{end}}
+    {{$page := (PaseRestNodePaging $n.Annotations)}}
+    {{if $page}}
+    {{$n.Name}}Paging
+    {{end}}
+}
+
+{{$receiver := (receiver $n.Name)}}
+{{/*{{if eq (toString $order.OpenOptionalOrder) "true"}}*/}}
+{{/*func ({{$receiver}} *{{$n.Name}}DefaultQuery) GetExpectOrder() map[string]int {*/}}
+{{/*    return map[string]int {*/}}
+{{/*        {{range $k := $order.OptionalOrder}}*/}}
+{{/*        "{{$k}}": 0,*/}}
+{{/*        {{end}}*/}}
+{{/*    }*/}}
+{{/*}*/}}
+{{/*{{end}}*/}}
+
+func ({{$receiver}} *{{$n.Name}}QueryOption) PredicatesExec() ([]predicate.{{$n.Name}}, error) {
+    return {{$n.Name}}PredicatesExec(
+    {{range $f := $n.Fields}}
+    {{$a := (PaseRestFieldQueryOp $f.Annotations)}}
+    {{range $method := $a}}
+        {{if (ne $method "Order")}}
+        {{$receiver}}.Bind{{$n.Name}}{{$f.StructField}}{{$method}},
+        {{end}}
+    {{end}}
+    {{end}}
+    )
+}
+
+func ({{$receiver}} *{{$n.Name}}QueryOption) Exec(queryer *ent.{{$n.Name}}Query) error {
+    ps, err := {{$receiver}}.PredicatesExec()
+    if err != nil {
+        return err
+    }
+    QueryerIncludes(queryer, {{$receiver}}.Includes)
+
+    queryer.Where({{lower $n.Name}}.And(ps...))
+
+    {{if $page.Open}}
+    {{$receiver}}.BindPaging{{$n.Name}}(queryer)
+    {{end}}
+
+    {{if $orderOp.Has}}
+    {{$receiver}}.BindOrder{{$n.Name}}(queryer)
+    {{end}}
+
+    return nil
+}
+
+
+{{end}}

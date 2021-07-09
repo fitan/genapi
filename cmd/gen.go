@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/fitan/genapi/pkg"
+	"github.com/fitan/genapi/pkg/gen_mgr"
 	public2 "github.com/fitan/genapi/public"
 	"github.com/spf13/cobra"
 	"log"
@@ -32,7 +32,7 @@ var genCmd = &cobra.Command{
 		case "ent":
 			if *genName == "" {
 				for _, ent := range public2.GetGenConf().Gen.Ent {
-					pkg.LoadV2(ent.Src, ent.Dest)
+					gen_mgr.LoadV2(ent.Src, ent.Dest)
 				}
 				return
 			}
@@ -41,13 +41,13 @@ var genCmd = &cobra.Command{
 			if ent == nil {
 				log.Panicln("Unknown ent name" + *genName)
 			}
-			pkg.LoadV2(ent.Src,ent.Dest)
+			gen_mgr.LoadV2(ent.Src,ent.Dest)
 		case "api":
 			//b , _ := json.Marshal(public2.GetGenConf())
 			//spew.Dump(string(b))
 			if *genName == "" {
 				for _, api := range public2.GetGenConf().Gen.API {
-					pkg.DepthGen(api.Src,api.Dest)
+					gen_mgr.DepthGen(api.Src,api.Dest, gen_mgr.GenApi)
 				}
 				return
 			}
@@ -56,7 +56,21 @@ var genCmd = &cobra.Command{
 				log.Panicln("Unknown api name" + *genName)
 			}
 
-			pkg.DepthGen(api.Src, api.Dest)
+			gen_mgr.DepthGen(api.Src, api.Dest, gen_mgr.GenApi)
+		case "ts":
+			if *genName == "" {
+				for _, ts := range public2.GetGenConf().Gen.Ts {
+					gen_mgr.DepthGen(ts.Src, ts.Dest, gen_mgr.GenTs)
+				}
+				return
+			}
+			ts := public2.GetConfKey().GetTs(*genName)
+			if ts == nil {
+				log.Panicln("Unknown ts name" + *genName)
+			}
+
+			gen_mgr.DepthGen(ts.Src, ts.Dest, gen_mgr.GenTs)
+
 		default:
 		}
 

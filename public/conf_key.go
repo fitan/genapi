@@ -17,6 +17,15 @@ func (g *getConfKey) GetApi(key string) *API {
 	return nil
 }
 
+func (g *getConfKey) GetTs(key string) *Ts {
+	for _, v:= range g.conf.Gen.Ts {
+		if v.Name == key {
+			return &v
+		}
+	}
+	return nil
+}
+
 func (g *getConfKey) GetEnt(key string) *Ent {
 	for _, v := range g.conf.Gen.Ent {
 		if v.Name == key {

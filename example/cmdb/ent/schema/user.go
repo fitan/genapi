@@ -6,7 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"github.com/fitan/genapi/pkg"
+	"github.com/fitan/genapi/pkg/gen_mgr"
 )
 
 // User holds the schema definition for the User entity.
@@ -16,37 +16,37 @@ type User struct {
 
 func (User) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		pkg.RestNodeOp{
-			Paging: pkg.Paging{
+		gen_mgr.RestNodeOp{
+			Paging: gen_mgr.Paging{
 				Open:     true,
 				Must:     false,
 				MaxLimit: 10,
 			},
-			Order: pkg.Order{
+			Order: gen_mgr.Order{
 				DefaultAcsOrder:   nil,
 				DefaultDescOrder:  nil,
 				OpenOptionalOrder: false,
 				OptionalOrder:     nil,
 			},
-			Method: pkg.NodeMethod{
-				GetOne:     pkg.NodeMethodOp{
-					Has:       pkg.GenRestFalse,
+			Method: gen_mgr.NodeMethod{
+				GetOne:     gen_mgr.NodeMethodOp{
+					Has:       gen_mgr.GenRestFalse,
 					RouterTag: "auth",
 					Comments: []string{
 						"this is ",
 					},
 				},
-				GetList:    pkg.NodeMethodOp{
-					Has:       pkg.GenRestFalse,
+				GetList:    gen_mgr.NodeMethodOp{
+					Has:       gen_mgr.GenRestFalse,
 					RouterTag: "",
 					Comments:  nil,
 				},
-				CreateOne:  pkg.NodeMethodOp{},
-				CreateList: pkg.NodeMethodOp{},
-				UpdateOne:  pkg.NodeMethodOp{},
-				UpdateList: pkg.NodeMethodOp{},
-				DeleteOne:  pkg.NodeMethodOp{},
-				DeleteList: pkg.NodeMethodOp{},
+				CreateOne:  gen_mgr.NodeMethodOp{},
+				CreateList: gen_mgr.NodeMethodOp{},
+				UpdateOne:  gen_mgr.NodeMethodOp{},
+				UpdateList: gen_mgr.NodeMethodOp{},
+				DeleteOne:  gen_mgr.NodeMethodOp{},
+				DeleteList: gen_mgr.NodeMethodOp{},
 			},
 		},
 	}
@@ -61,12 +61,12 @@ func (User) Annotations() []schema.Annotation {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").Annotations(pkg.RestFieldOp{
-			FieldQueryable: pkg.FieldQueryable{
-				EQ:           pkg.GenRestTrue,
-				NEQ:          pkg.GenRestTrue,
-				GT:           pkg.GenRestTrue,
-				GTE:          pkg.GenRestTrue,
+		field.String("name").Annotations(gen_mgr.RestFieldOp{
+			FieldQueryable: gen_mgr.FieldQueryable{
+				EQ:           gen_mgr.GenRestTrue,
+				NEQ:          gen_mgr.GenRestTrue,
+				GT:           gen_mgr.GenRestTrue,
+				GTE:          gen_mgr.GenRestTrue,
 				LT:           0,
 				LTE:          0,
 				IsNil:        0,
@@ -78,22 +78,22 @@ func (User) Fields() []ent.Field {
 				HasSuffix:    0,
 				In:           0,
 				NotIn:        0,
-				Order: pkg.GenRestTrue,
+				Order:        gen_mgr.GenRestTrue,
 			},
-			FieldOperability: pkg.FieldOperability{
+			FieldOperability: gen_mgr.FieldOperability{
 				Selete: 0,
 				Create: 0,
 				Update: 0,
 			},
 		}),
-		field.String("password").Optional().Sensitive().Annotations(pkg.RestFieldOp{
-			FieldQueryable: pkg.FieldQueryable{},
-			FieldOperability: pkg.FieldOperability{
-				Selete: pkg.GenRestFalse,
+		field.String("password").Optional().Sensitive().Annotations(gen_mgr.RestFieldOp{
+			FieldQueryable: gen_mgr.FieldQueryable{},
+			FieldOperability: gen_mgr.FieldOperability{
+				Selete: gen_mgr.GenRestFalse,
 			},
 		}),
-		field.String("email").Annotations(pkg.RestFieldOp{
-			FieldQueryable: pkg.FieldQueryable{
+		field.String("email").Annotations(gen_mgr.RestFieldOp{
+			FieldQueryable: gen_mgr.FieldQueryable{
 				EQ:           0,
 				NEQ:          0,
 				GT:           0,
@@ -109,10 +109,10 @@ func (User) Fields() []ent.Field {
 				HasSuffix:    0,
 				In:           0,
 				NotIn:        0,
-				Order:        pkg.GenRestTrue,
+				Order:        gen_mgr.GenRestTrue,
 			},
-			FieldOperability: pkg.FieldOperability{
-				Selete: pkg.GenRestFalse,
+			FieldOperability: gen_mgr.FieldOperability{
+				Selete: gen_mgr.GenRestFalse,
 			},
 		}),
 		field.String("phone").Comment("这是我的电话"),

@@ -5,7 +5,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"github.com/fitan/genapi/pkg"
+	"github.com/fitan/genapi/pkg/gen_mgr"
 )
 
 // User holds the schema definition for the User entity.
@@ -15,19 +15,19 @@ type User struct {
 
 func (User)Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		pkg.RestNodeOp{
-			Paging: pkg.Paging{
+		gen_mgr.RestNodeOp{
+			Paging: gen_mgr.Paging{
 				Open:     true,
 				Must:     false,
 				MaxLimit: 100,
 			},
-			Order:  pkg.Order{
+			Order:  gen_mgr.Order{
 				DefaultAcsOrder:   nil,
 				DefaultDescOrder:  nil,
 				OpenOptionalOrder: false,
 				OptionalOrder:     nil,
 			},
-			Method: pkg.NodeMethod{},
+			Method: gen_mgr.NodeMethod{},
 		},
 	}
 
@@ -37,9 +37,9 @@ func (User)Annotations() []schema.Annotation {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
-		field.Int("age1").Optional().Annotations(pkg.RestFieldOp{
-			FieldQueryable:   pkg.FieldQueryable{
-				EQ: pkg.GenRestTrue,
+		field.Int("age1").Optional().Annotations(gen_mgr.RestFieldOp{
+			FieldQueryable:   gen_mgr.FieldQueryable{
+				EQ: gen_mgr.GenRestTrue,
 			},
 		}),
 		field.Enum("en").Values("1", "2", "3").Optional(),

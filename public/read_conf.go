@@ -58,6 +58,12 @@ type Ent struct {
 	Src string `json:"Src"`
 	Dest string `json:"Dest"`
 }
+
+type Ts struct {
+	Name string `json:"Name"`
+	Src string `json:"Src"`
+	Dest string `json:"Dest"`
+}
 type API struct {
 	Name string `json:"Name"`
 	Src string `json:"Src"`
@@ -66,6 +72,7 @@ type API struct {
 type Gen struct {
 	Ent []Ent `json:"Ent"`
 	API []API `json:"Api"`
+	Ts []Ts `json:"Ts"`
 }
 
 var genConf *GenConf

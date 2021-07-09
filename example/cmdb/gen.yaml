@@ -89,3 +89,8 @@ Gen:
       Name: "entapi"
       Src: "./gen/entrest"
       Dest: "./gen/handler/ent"
+  Ts:
+    -
+      Name: "logic"
+      Src: "./logic"
+      Dest: "./gen/ts/logic"

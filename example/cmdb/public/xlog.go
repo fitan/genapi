@@ -105,11 +105,10 @@ func (x *xLog) Fatal() *zerolog.Event {
 }
 
 type Result struct {
-	Code int
-	Data interface{}
-	Err  string
+	Code int `json:"code"`
+	Data interface{} `json:"data"`
+	Err  string `json:"err"`
 }
-
 func HttpResultTmpl(data interface{}, err error) Result {
 	res := Result{Data: data}
 	if err != nil {
