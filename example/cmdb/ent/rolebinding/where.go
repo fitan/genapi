@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -304,90 +303,6 @@ func RoleNotIn(vs ...Role) predicate.RoleBinding {
 			return
 		}
 		s.Where(sql.NotIn(s.C(FieldRole), v...))
-	})
-}
-
-// HasProject applies the HasEdge predicate on the "project" edge.
-func HasProject() predicate.RoleBinding {
-	return predicate.RoleBinding(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ProjectTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ProjectTable, ProjectColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasProjectWith applies the HasEdge predicate on the "project" edge with a given conditions (other predicates).
-func HasProjectWith(preds ...predicate.Project) predicate.RoleBinding {
-	return predicate.RoleBinding(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ProjectInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ProjectTable, ProjectColumn),
-		)
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasService applies the HasEdge predicate on the "service" edge.
-func HasService() predicate.RoleBinding {
-	return predicate.RoleBinding(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ServiceTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ServiceTable, ServiceColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasServiceWith applies the HasEdge predicate on the "service" edge with a given conditions (other predicates).
-func HasServiceWith(preds ...predicate.Service) predicate.RoleBinding {
-	return predicate.RoleBinding(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ServiceInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ServiceTable, ServiceColumn),
-		)
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.RoleBinding {
-	return predicate.RoleBinding(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(UserTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.RoleBinding {
-	return predicate.RoleBinding(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(UserInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
-		)
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
 	})
 }
 

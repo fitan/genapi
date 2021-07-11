@@ -894,22 +894,16 @@ func (m *ProjectMutation) ResetEdge(name string) error {
 // RoleBindingMutation represents an operation that mutates the RoleBinding nodes in the graph.
 type RoleBindingMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *int
-	create_time    *time.Time
-	update_time    *time.Time
-	role           *rolebinding.Role
-	clearedFields  map[string]struct{}
-	project        *int
-	clearedproject bool
-	service        *int
-	clearedservice bool
-	user           *int
-	cleareduser    bool
-	done           bool
-	oldValue       func(context.Context) (*RoleBinding, error)
-	predicates     []predicate.RoleBinding
+	op            Op
+	typ           string
+	id            *int
+	create_time   *time.Time
+	update_time   *time.Time
+	role          *rolebinding.Role
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*RoleBinding, error)
+	predicates    []predicate.RoleBinding
 }
 
 var _ ent.Mutation = (*RoleBindingMutation)(nil)
@@ -1099,123 +1093,6 @@ func (m *RoleBindingMutation) ResetRole() {
 	m.role = nil
 }
 
-// SetProjectID sets the "project" edge to the Project entity by id.
-func (m *RoleBindingMutation) SetProjectID(id int) {
-	m.project = &id
-}
-
-// ClearProject clears the "project" edge to the Project entity.
-func (m *RoleBindingMutation) ClearProject() {
-	m.clearedproject = true
-}
-
-// ProjectCleared returns if the "project" edge to the Project entity was cleared.
-func (m *RoleBindingMutation) ProjectCleared() bool {
-	return m.clearedproject
-}
-
-// ProjectID returns the "project" edge ID in the mutation.
-func (m *RoleBindingMutation) ProjectID() (id int, exists bool) {
-	if m.project != nil {
-		return *m.project, true
-	}
-	return
-}
-
-// ProjectIDs returns the "project" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProjectID instead. It exists only for internal usage by the builders.
-func (m *RoleBindingMutation) ProjectIDs() (ids []int) {
-	if id := m.project; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetProject resets all changes to the "project" edge.
-func (m *RoleBindingMutation) ResetProject() {
-	m.project = nil
-	m.clearedproject = false
-}
-
-// SetServiceID sets the "service" edge to the Service entity by id.
-func (m *RoleBindingMutation) SetServiceID(id int) {
-	m.service = &id
-}
-
-// ClearService clears the "service" edge to the Service entity.
-func (m *RoleBindingMutation) ClearService() {
-	m.clearedservice = true
-}
-
-// ServiceCleared returns if the "service" edge to the Service entity was cleared.
-func (m *RoleBindingMutation) ServiceCleared() bool {
-	return m.clearedservice
-}
-
-// ServiceID returns the "service" edge ID in the mutation.
-func (m *RoleBindingMutation) ServiceID() (id int, exists bool) {
-	if m.service != nil {
-		return *m.service, true
-	}
-	return
-}
-
-// ServiceIDs returns the "service" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ServiceID instead. It exists only for internal usage by the builders.
-func (m *RoleBindingMutation) ServiceIDs() (ids []int) {
-	if id := m.service; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetService resets all changes to the "service" edge.
-func (m *RoleBindingMutation) ResetService() {
-	m.service = nil
-	m.clearedservice = false
-}
-
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *RoleBindingMutation) SetUserID(id int) {
-	m.user = &id
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (m *RoleBindingMutation) ClearUser() {
-	m.cleareduser = true
-}
-
-// UserCleared returns if the "user" edge to the User entity was cleared.
-func (m *RoleBindingMutation) UserCleared() bool {
-	return m.cleareduser
-}
-
-// UserID returns the "user" edge ID in the mutation.
-func (m *RoleBindingMutation) UserID() (id int, exists bool) {
-	if m.user != nil {
-		return *m.user, true
-	}
-	return
-}
-
-// UserIDs returns the "user" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// UserID instead. It exists only for internal usage by the builders.
-func (m *RoleBindingMutation) UserIDs() (ids []int) {
-	if id := m.user; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetUser resets all changes to the "user" edge.
-func (m *RoleBindingMutation) ResetUser() {
-	m.user = nil
-	m.cleareduser = false
-}
-
 // Op returns the operation name.
 func (m *RoleBindingMutation) Op() Op {
 	return m.op
@@ -1363,113 +1240,49 @@ func (m *RoleBindingMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RoleBindingMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.project != nil {
-		edges = append(edges, rolebinding.EdgeProject)
-	}
-	if m.service != nil {
-		edges = append(edges, rolebinding.EdgeService)
-	}
-	if m.user != nil {
-		edges = append(edges, rolebinding.EdgeUser)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *RoleBindingMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case rolebinding.EdgeProject:
-		if id := m.project; id != nil {
-			return []ent.Value{*id}
-		}
-	case rolebinding.EdgeService:
-		if id := m.service; id != nil {
-			return []ent.Value{*id}
-		}
-	case rolebinding.EdgeUser:
-		if id := m.user; id != nil {
-			return []ent.Value{*id}
-		}
-	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RoleBindingMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *RoleBindingMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RoleBindingMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.clearedproject {
-		edges = append(edges, rolebinding.EdgeProject)
-	}
-	if m.clearedservice {
-		edges = append(edges, rolebinding.EdgeService)
-	}
-	if m.cleareduser {
-		edges = append(edges, rolebinding.EdgeUser)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *RoleBindingMutation) EdgeCleared(name string) bool {
-	switch name {
-	case rolebinding.EdgeProject:
-		return m.clearedproject
-	case rolebinding.EdgeService:
-		return m.clearedservice
-	case rolebinding.EdgeUser:
-		return m.cleareduser
-	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *RoleBindingMutation) ClearEdge(name string) error {
-	switch name {
-	case rolebinding.EdgeProject:
-		m.ClearProject()
-		return nil
-	case rolebinding.EdgeService:
-		m.ClearService()
-		return nil
-	case rolebinding.EdgeUser:
-		m.ClearUser()
-		return nil
-	}
 	return fmt.Errorf("unknown RoleBinding unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *RoleBindingMutation) ResetEdge(name string) error {
-	switch name {
-	case rolebinding.EdgeProject:
-		m.ResetProject()
-		return nil
-	case rolebinding.EdgeService:
-		m.ResetService()
-		return nil
-	case rolebinding.EdgeUser:
-		m.ResetUser()
-		return nil
-	}
 	return fmt.Errorf("unknown RoleBinding edge %s", name)
 }
 

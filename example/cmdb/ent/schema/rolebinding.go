@@ -2,7 +2,6 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 )
@@ -28,8 +27,8 @@ func (RoleBinding) Fields() []ent.Field {
 // Edges of the RoleBinding.
 func (RoleBinding) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("project", Project.Type).Ref("role_bindings").Required().Unique(),
-		edge.From("service", Service.Type).Ref("role_bindings").Unique(),
-		edge.From("user", User.Type).Ref("role_bindings").Required().Unique(),
+		//edge.From("project", Project.Type).Ref("role_bindings").Required().Unique(),
+		//edge.From("service", Service.Type).Ref("role_bindings").Unique(),
+		//edge.From("user", User.Type).Ref("role_bindings").Required().Unique(),
 	}
 }

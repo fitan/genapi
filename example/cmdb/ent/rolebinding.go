@@ -3,10 +3,7 @@
 package ent
 
 import (
-	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
-	"cmdb/ent/service"
-	"cmdb/ent/user"
 	"fmt"
 	"strings"
 	"time"
@@ -24,68 +21,10 @@ type RoleBinding struct {
 	// UpdateTime holds the value of the "update_time" field.
 	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Role holds the value of the "role" field.
-	Role rolebinding.Role `json:"role,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the RoleBindingQuery when eager-loading is set.
-	Edges                 RoleBindingEdges `json:"edges"`
+	Role                  rolebinding.Role `json:"role,omitempty"`
 	project_role_bindings *int
 	service_role_bindings *int
 	user_role_bindings    *int
-}
-
-// RoleBindingEdges holds the relations/edges for other nodes in the graph.
-type RoleBindingEdges struct {
-	// Project holds the value of the project edge.
-	Project *Project `json:"project,omitempty"`
-	// Service holds the value of the service edge.
-	Service *Service `json:"service,omitempty"`
-	// User holds the value of the user edge.
-	User *User `json:"user,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
-}
-
-// ProjectOrErr returns the Project value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e RoleBindingEdges) ProjectOrErr() (*Project, error) {
-	if e.loadedTypes[0] {
-		if e.Project == nil {
-			// The edge project was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: project.Label}
-		}
-		return e.Project, nil
-	}
-	return nil, &NotLoadedError{edge: "project"}
-}
-
-// ServiceOrErr returns the Service value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e RoleBindingEdges) ServiceOrErr() (*Service, error) {
-	if e.loadedTypes[1] {
-		if e.Service == nil {
-			// The edge service was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: service.Label}
-		}
-		return e.Service, nil
-	}
-	return nil, &NotLoadedError{edge: "service"}
-}
-
-// UserOrErr returns the User value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e RoleBindingEdges) UserOrErr() (*User, error) {
-	if e.loadedTypes[2] {
-		if e.User == nil {
-			// The edge user was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: user.Label}
-		}
-		return e.User, nil
-	}
-	return nil, &NotLoadedError{edge: "user"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -168,21 +107,6 @@ func (rb *RoleBinding) assignValues(columns []string, values []interface{}) erro
 		}
 	}
 	return nil
-}
-
-// QueryProject queries the "project" edge of the RoleBinding entity.
-func (rb *RoleBinding) QueryProject() *ProjectQuery {
-	return (&RoleBindingClient{config: rb.config}).QueryProject(rb)
-}
-
-// QueryService queries the "service" edge of the RoleBinding entity.
-func (rb *RoleBinding) QueryService() *ServiceQuery {
-	return (&RoleBindingClient{config: rb.config}).QueryService(rb)
-}
-
-// QueryUser queries the "user" edge of the RoleBinding entity.
-func (rb *RoleBinding) QueryUser() *UserQuery {
-	return (&RoleBindingClient{config: rb.config}).QueryUser(rb)
 }
 
 // Update returns a builder for updating this RoleBinding.

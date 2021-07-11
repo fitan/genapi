@@ -19,36 +19,8 @@ const (
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
 
-	// EdgeProject holds the string denoting the project edge name in mutations.
-	EdgeProject = "project"
-	// EdgeService holds the string denoting the service edge name in mutations.
-	EdgeService = "service"
-	// EdgeUser holds the string denoting the user edge name in mutations.
-	EdgeUser = "user"
-
 	// Table holds the table name of the rolebinding in the database.
 	Table = "role_bindings"
-	// ProjectTable is the table the holds the project relation/edge.
-	ProjectTable = "role_bindings"
-	// ProjectInverseTable is the table name for the Project entity.
-	// It exists in this package in order to avoid circular dependency with the "project" package.
-	ProjectInverseTable = "projects"
-	// ProjectColumn is the table column denoting the project relation/edge.
-	ProjectColumn = "project_role_bindings"
-	// ServiceTable is the table the holds the service relation/edge.
-	ServiceTable = "role_bindings"
-	// ServiceInverseTable is the table name for the Service entity.
-	// It exists in this package in order to avoid circular dependency with the "service" package.
-	ServiceInverseTable = "services"
-	// ServiceColumn is the table column denoting the service relation/edge.
-	ServiceColumn = "service_role_bindings"
-	// UserTable is the table the holds the user relation/edge.
-	UserTable = "role_bindings"
-	// UserInverseTable is the table name for the User entity.
-	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "users"
-	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_role_bindings"
 )
 
 // Columns holds all SQL columns for rolebinding fields.

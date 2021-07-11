@@ -12,7 +12,9 @@ import (
 	"golang.org/x/tools/go/packages"
 	"log"
 	"path"
+	"reflect"
 	"regexp"
+	"strings"
 )
 
 const mode packages.LoadMode = packages.NeedName |
@@ -315,46 +317,35 @@ func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
 	return fileName
 }
 
-func ExtractType(pkg *packages.Package, file *ast.File, node ast.Node)  {
+func ExtractType(pkg *packages.Package, file *ast.File, node ast.Node) {
 
 }
 
-
-
 func SpliceType(pkg *packages.Package, file *ast.File, node ast.Node) bool {
-	var replace bool
+	replace := false
 	astutil.Apply(node, func(c *astutil.Cursor) bool {
 		switch t := c.Node().(type) {
-		//case ast.Expr:
-		//	if pkg.TypesInfo.TypeOf(t) != nil {
-		//		fmt.Println("type string:  ", pkg.TypesInfo.TypeOf(t).Underlying().String())
-		//	}
-		//case *ast.Ident:
-		//	if _,ok := pkg.TypesInfo.TypeOf(t).Underlying().(types.Type);ok {
-		//		fmt.Println("is ident type: ", t.Name)
-		//	}
+		case *ast.Field:
+			fmt.Println("ent ast field")
+			if t.Tag == nil {
+				fmt.Println("out ast field")
+				return false
+			}
 
+			if tags, ok := reflect.StructTag(t.Tag.Value[1 : len(t.Tag.Value)-1]).Lookup("json"); ok {
+				for _, tag := range strings.Split(tags, ",") {
+					if tag == "-" {
+						fmt.Println("out ast field")
+						return false
+					}
+				}
+			}
+			fmt.Println("out ast field")
+			return true
 
-		//case *ast.Field:
-			//SpliceType(pkg, file, t)
-			//return false
-			//fmt.Println(Node2String(pkg.Fset, t.Type))
-
-
-			//if Node2String(pkg.Fset,t.Type) == "time.Time" {
-			//	return false
-			//}
-			//if t.Tag == nil {
-			//	c.Delete()
-			//	return false
-			//} else {
-			//	_, ok := reflect.StructTag(t.Tag.Value[1 : len(t.Tag.Value)-1]).Lookup("json")
-			//	if !ok {
-			//		c.Delete()
-			//		return false
-			//	}
-			//}
 		case *ast.Ident:
+			defer fmt.Println("out ast ident")
+			fmt.Println("ent ast ident")
 			//if pkg.TypesInfo.TypeOf(t) != nil {
 			//	switch InfoT := pkg.TypesInfo.TypeOf(t).Underlying().(type) {
 			//	case *types.Struct:
@@ -377,14 +368,24 @@ func SpliceType(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 			//
 			//	}
 			//}
+			fmt.Println("t name: ", t.Name, "t obj: ", t.Obj)
 			if t.Obj != nil {
-				if t.Obj.Kind.String() ==  "type" {
-					fmt.Println("ident name: ", t.Name)
-					_, findTs := FindTypeByName(pkg, t.Name)
-					fmt.Println("find ident type: ", findTs.Type)
-					c.Replace(findTs.Type)
+				if t.Obj.Kind.String() == "type" {
+					//fmt.Println("ident name: ", t.Name)
+					fmt.Println("find need name: ", t.Name)
+					f, findTs := FindTypeByName(pkg, t.Name)
+					file.Imports = append(file.Imports, f.Imports...)
+					fmt.Println("find: ", findTs)
+					fmt.Println("find ident type: ", findTs.Type, "name: ", t.Name)
 					replace = true
-
+					c.Replace(findTs.Type)
+				}
+			} else {
+				if !JudgeBuiltInType(t.Name) {
+					f, findTs := FindTypeByName(pkg, t.Name)
+					file.Imports = append(file.Imports, f.Imports...)
+					replace = true
+					c.Replace(findTs.Type)
 				}
 			}
 			//if t.Name == "Code" {
@@ -416,11 +417,28 @@ func SpliceType(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 		//
 		//
 		case *ast.SelectorExpr:
+			defer fmt.Println("ent ast selector expr")
+			fmt.Println("ent ast selector expr")
+			if t.X.(*ast.Ident).Name == "time" && t.Sel.Name == "Time" {
+				return false
+			}
 			path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
+			fmt.Println("file name: ", file.Name, "find pkg path: ", t.X.(*ast.Ident).Name)
 			findPkg := pkg.Imports[path]
-			_, findTs := FindTypeByName(findPkg, t.Sel.Name)
-			c.Replace(findTs.Type)
+			fmt.Println("find pkg : ", path)
+			if findPkg.Imports != nil {
+				for index, importPath := range findPkg.Imports {
+					pkg.Imports[index] = importPath
+				}
+			}
+			for _, synx := range findPkg.Syntax {
+				pkg.Syntax = append(pkg.Syntax, synx)
+			}
+			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
+			file.Imports = append(file.Imports, f.Imports...)
+
 			replace = true
+			c.Replace(findTs.Type)
 			return false
 		}
 		return true
@@ -428,26 +446,32 @@ func SpliceType(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 		return true
 	})
 
-	fmt.Println("splice struct :   ", Node2String(pkg.Fset, node))
+	//fmt.Println("splice struct :   ", Node2String(pkg.Fset, node))
 	return replace
 }
 
 func Struct2Ts(pkg *packages.Package, file *ast.File, node ast.Node, objName string) string {
+	ok := SpliceType(pkg, file, node)
+	for ok {
+		fmt.Println("ent struct 2 ts")
+		ok = SpliceType(pkg, file, node)
+	}
 	//if SpliceType(pkg, file, node) {
-	SpliceType(pkg, file, node)
+	//	SpliceType(pkg, file, node)
 	//}
-	s := fmt.Sprintf("type %s %s", objName,Node2String(pkg.Fset, node))
+	s := fmt.Sprintf("type %s %s", objName, Node2String(pkg.Fset, node))
+	fmt.Println("convert struct2ts")
 	return Convert(s)
 }
 
 func WarpResult2Ts(pkg *packages.Package, file *ast.File, node ast.Node, objName string) string {
-	//if SpliceType(pkg, file, node) {
-	SpliceType(pkg,file,node)
-	//}
-	ResutlStr :="type %s struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
-	s := fmt.Sprintf(ResutlStr, objName,Node2String(pkg.Fset, node))
+	ok := SpliceType(pkg, file, node)
+	for ok {
+		fmt.Println("ent warp 2 ts")
+		ok = SpliceType(pkg, file, node)
+	}
+	ResutlStr := "type %s struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
+	s := fmt.Sprintf(ResutlStr, objName, Node2String(pkg.Fset, node))
+	fmt.Println("convert warpresult2ts")
 	return Convert(s)
 }
-
-
-

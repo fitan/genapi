@@ -4,10 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/predicate"
-	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
-	"cmdb/ent/service"
-	"cmdb/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -26,11 +23,7 @@ type RoleBindingQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.RoleBinding
-	// eager-loading edges.
-	withProject *ProjectQuery
-	withService *ServiceQuery
-	withUser    *UserQuery
-	withFKs     bool
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,72 +51,6 @@ func (rbq *RoleBindingQuery) Offset(offset int) *RoleBindingQuery {
 func (rbq *RoleBindingQuery) Order(o ...OrderFunc) *RoleBindingQuery {
 	rbq.order = append(rbq.order, o...)
 	return rbq
-}
-
-// QueryProject chains the current query on the "project" edge.
-func (rbq *RoleBindingQuery) QueryProject() *ProjectQuery {
-	query := &ProjectQuery{config: rbq.config}
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := rbq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := rbq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(rolebinding.Table, rolebinding.FieldID, selector),
-			sqlgraph.To(project.Table, project.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, rolebinding.ProjectTable, rolebinding.ProjectColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(rbq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryService chains the current query on the "service" edge.
-func (rbq *RoleBindingQuery) QueryService() *ServiceQuery {
-	query := &ServiceQuery{config: rbq.config}
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := rbq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := rbq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(rolebinding.Table, rolebinding.FieldID, selector),
-			sqlgraph.To(service.Table, service.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, rolebinding.ServiceTable, rolebinding.ServiceColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(rbq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryUser chains the current query on the "user" edge.
-func (rbq *RoleBindingQuery) QueryUser() *UserQuery {
-	query := &UserQuery{config: rbq.config}
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := rbq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := rbq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(rolebinding.Table, rolebinding.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, rolebinding.UserTable, rolebinding.UserColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(rbq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first RoleBinding entity from the query.
@@ -302,51 +229,15 @@ func (rbq *RoleBindingQuery) Clone() *RoleBindingQuery {
 		return nil
 	}
 	return &RoleBindingQuery{
-		config:      rbq.config,
-		limit:       rbq.limit,
-		offset:      rbq.offset,
-		order:       append([]OrderFunc{}, rbq.order...),
-		predicates:  append([]predicate.RoleBinding{}, rbq.predicates...),
-		withProject: rbq.withProject.Clone(),
-		withService: rbq.withService.Clone(),
-		withUser:    rbq.withUser.Clone(),
+		config:     rbq.config,
+		limit:      rbq.limit,
+		offset:     rbq.offset,
+		order:      append([]OrderFunc{}, rbq.order...),
+		predicates: append([]predicate.RoleBinding{}, rbq.predicates...),
 		// clone intermediate query.
 		sql:  rbq.sql.Clone(),
 		path: rbq.path,
 	}
-}
-
-// WithProject tells the query-builder to eager-load the nodes that are connected to
-// the "project" edge. The optional arguments are used to configure the query builder of the edge.
-func (rbq *RoleBindingQuery) WithProject(opts ...func(*ProjectQuery)) *RoleBindingQuery {
-	query := &ProjectQuery{config: rbq.config}
-	for _, opt := range opts {
-		opt(query)
-	}
-	rbq.withProject = query
-	return rbq
-}
-
-// WithService tells the query-builder to eager-load the nodes that are connected to
-// the "service" edge. The optional arguments are used to configure the query builder of the edge.
-func (rbq *RoleBindingQuery) WithService(opts ...func(*ServiceQuery)) *RoleBindingQuery {
-	query := &ServiceQuery{config: rbq.config}
-	for _, opt := range opts {
-		opt(query)
-	}
-	rbq.withService = query
-	return rbq
-}
-
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (rbq *RoleBindingQuery) WithUser(opts ...func(*UserQuery)) *RoleBindingQuery {
-	query := &UserQuery{config: rbq.config}
-	for _, opt := range opts {
-		opt(query)
-	}
-	rbq.withUser = query
-	return rbq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -412,18 +303,10 @@ func (rbq *RoleBindingQuery) prepareQuery(ctx context.Context) error {
 
 func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error) {
 	var (
-		nodes       = []*RoleBinding{}
-		withFKs     = rbq.withFKs
-		_spec       = rbq.querySpec()
-		loadedTypes = [3]bool{
-			rbq.withProject != nil,
-			rbq.withService != nil,
-			rbq.withUser != nil,
-		}
+		nodes   = []*RoleBinding{}
+		withFKs = rbq.withFKs
+		_spec   = rbq.querySpec()
 	)
-	if rbq.withProject != nil || rbq.withService != nil || rbq.withUser != nil {
-		withFKs = true
-	}
 	if withFKs {
 		_spec.Node.Columns = append(_spec.Node.Columns, rolebinding.ForeignKeys...)
 	}
@@ -437,7 +320,6 @@ func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error)
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, rbq.driver, _spec); err != nil {
@@ -446,82 +328,6 @@ func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error)
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-
-	if query := rbq.withProject; query != nil {
-		ids := make([]int, 0, len(nodes))
-		nodeids := make(map[int][]*RoleBinding)
-		for i := range nodes {
-			if fk := nodes[i].project_role_bindings; fk != nil {
-				ids = append(ids, *fk)
-				nodeids[*fk] = append(nodeids[*fk], nodes[i])
-			}
-		}
-		query.Where(project.IDIn(ids...))
-		neighbors, err := query.All(ctx)
-		if err != nil {
-			return nil, err
-		}
-		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
-			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "project_role_bindings" returned %v`, n.ID)
-			}
-			for i := range nodes {
-				nodes[i].Edges.Project = n
-			}
-		}
-	}
-
-	if query := rbq.withService; query != nil {
-		ids := make([]int, 0, len(nodes))
-		nodeids := make(map[int][]*RoleBinding)
-		for i := range nodes {
-			if fk := nodes[i].service_role_bindings; fk != nil {
-				ids = append(ids, *fk)
-				nodeids[*fk] = append(nodeids[*fk], nodes[i])
-			}
-		}
-		query.Where(service.IDIn(ids...))
-		neighbors, err := query.All(ctx)
-		if err != nil {
-			return nil, err
-		}
-		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
-			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "service_role_bindings" returned %v`, n.ID)
-			}
-			for i := range nodes {
-				nodes[i].Edges.Service = n
-			}
-		}
-	}
-
-	if query := rbq.withUser; query != nil {
-		ids := make([]int, 0, len(nodes))
-		nodeids := make(map[int][]*RoleBinding)
-		for i := range nodes {
-			if fk := nodes[i].user_role_bindings; fk != nil {
-				ids = append(ids, *fk)
-				nodeids[*fk] = append(nodeids[*fk], nodes[i])
-			}
-		}
-		query.Where(user.IDIn(ids...))
-		neighbors, err := query.All(ctx)
-		if err != nil {
-			return nil, err
-		}
-		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
-			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_role_bindings" returned %v`, n.ID)
-			}
-			for i := range nodes {
-				nodes[i].Edges.User = n
-			}
-		}
-	}
-
 	return nodes, nil
 }
 

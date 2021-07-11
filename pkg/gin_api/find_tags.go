@@ -1,6 +1,7 @@
 package gen_apiV2
 
 import (
+	"fmt"
 	"go/ast"
 	"go/types"
 	"golang.org/x/tools/go/packages"
@@ -52,10 +53,12 @@ func TrimImport(s string) string {
 func FindImportPath(importSpecs []*ast.ImportSpec, target string) string {
 	for _, importSpec := range importSpecs {
 		if importSpec.Name != nil {
+			fmt.Println("import name: ", importSpec.Name.Name, "import path: ", importSpec.Path.Value)
 			if importSpec.Name.Name == target {
 				return TrimImport(importSpec.Path.Value)
 			}
 		} else {
+			fmt.Println("import name: ", nil, "import path: ", importSpec.Path.Value)
 			if target == path.Base(TrimImport(importSpec.Path.Value)) {
 				return TrimImport(importSpec.Path.Value)
 			}
