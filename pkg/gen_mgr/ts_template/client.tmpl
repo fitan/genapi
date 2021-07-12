@@ -1,7 +1,11 @@
 
 
 {{range $index, $fc := $.Funcs}}
-{{$fc.ParamIn1Ts}}
+{{range  $v := $fc.ParamIn1Ts}}
+{{$v}}
+{{end}}
 
-{{$fc.ResOut0Ts}}
+{{range $v := $fc.ResOut0Ts}}
+{{$v}}
+{{end}}
 {{end}}

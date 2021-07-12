@@ -4,8 +4,12 @@ package ent
 
 import (
 	"cmdb/ent/predicate"
+	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
+	"cmdb/ent/service"
+	"cmdb/ent/user"
 	"context"
+	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
@@ -32,9 +36,68 @@ func (rbu *RoleBindingUpdate) SetRole(r rolebinding.Role) *RoleBindingUpdate {
 	return rbu
 }
 
+// SetProjectID sets the "project" edge to the Project entity by ID.
+func (rbu *RoleBindingUpdate) SetProjectID(id int) *RoleBindingUpdate {
+	rbu.mutation.SetProjectID(id)
+	return rbu
+}
+
+// SetProject sets the "project" edge to the Project entity.
+func (rbu *RoleBindingUpdate) SetProject(p *Project) *RoleBindingUpdate {
+	return rbu.SetProjectID(p.ID)
+}
+
+// SetServiceID sets the "service" edge to the Service entity by ID.
+func (rbu *RoleBindingUpdate) SetServiceID(id int) *RoleBindingUpdate {
+	rbu.mutation.SetServiceID(id)
+	return rbu
+}
+
+// SetNillableServiceID sets the "service" edge to the Service entity by ID if the given value is not nil.
+func (rbu *RoleBindingUpdate) SetNillableServiceID(id *int) *RoleBindingUpdate {
+	if id != nil {
+		rbu = rbu.SetServiceID(*id)
+	}
+	return rbu
+}
+
+// SetService sets the "service" edge to the Service entity.
+func (rbu *RoleBindingUpdate) SetService(s *Service) *RoleBindingUpdate {
+	return rbu.SetServiceID(s.ID)
+}
+
+// SetUserID sets the "user" edge to the User entity by ID.
+func (rbu *RoleBindingUpdate) SetUserID(id int) *RoleBindingUpdate {
+	rbu.mutation.SetUserID(id)
+	return rbu
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (rbu *RoleBindingUpdate) SetUser(u *User) *RoleBindingUpdate {
+	return rbu.SetUserID(u.ID)
+}
+
 // Mutation returns the RoleBindingMutation object of the builder.
 func (rbu *RoleBindingUpdate) Mutation() *RoleBindingMutation {
 	return rbu.mutation
+}
+
+// ClearProject clears the "project" edge to the Project entity.
+func (rbu *RoleBindingUpdate) ClearProject() *RoleBindingUpdate {
+	rbu.mutation.ClearProject()
+	return rbu
+}
+
+// ClearService clears the "service" edge to the Service entity.
+func (rbu *RoleBindingUpdate) ClearService() *RoleBindingUpdate {
+	rbu.mutation.ClearService()
+	return rbu
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (rbu *RoleBindingUpdate) ClearUser() *RoleBindingUpdate {
+	rbu.mutation.ClearUser()
+	return rbu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -110,6 +173,12 @@ func (rbu *RoleBindingUpdate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf("ent: validator failed for field \"role\": %w", err)}
 		}
 	}
+	if _, ok := rbu.mutation.ProjectID(); rbu.mutation.ProjectCleared() && !ok {
+		return errors.New("ent: clearing a required unique edge \"project\"")
+	}
+	if _, ok := rbu.mutation.UserID(); rbu.mutation.UserCleared() && !ok {
+		return errors.New("ent: clearing a required unique edge \"user\"")
+	}
 	return nil
 }
 
@@ -145,6 +214,111 @@ func (rbu *RoleBindingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: rolebinding.FieldRole,
 		})
 	}
+	if rbu.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ProjectTable,
+			Columns: []string{rolebinding.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: project.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rbu.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ProjectTable,
+			Columns: []string{rolebinding.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: project.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if rbu.mutation.ServiceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ServiceTable,
+			Columns: []string{rolebinding.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: service.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rbu.mutation.ServiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ServiceTable,
+			Columns: []string{rolebinding.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: service.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if rbu.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.UserTable,
+			Columns: []string{rolebinding.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rbu.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.UserTable,
+			Columns: []string{rolebinding.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, rbu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{rolebinding.Label}
@@ -169,9 +343,68 @@ func (rbuo *RoleBindingUpdateOne) SetRole(r rolebinding.Role) *RoleBindingUpdate
 	return rbuo
 }
 
+// SetProjectID sets the "project" edge to the Project entity by ID.
+func (rbuo *RoleBindingUpdateOne) SetProjectID(id int) *RoleBindingUpdateOne {
+	rbuo.mutation.SetProjectID(id)
+	return rbuo
+}
+
+// SetProject sets the "project" edge to the Project entity.
+func (rbuo *RoleBindingUpdateOne) SetProject(p *Project) *RoleBindingUpdateOne {
+	return rbuo.SetProjectID(p.ID)
+}
+
+// SetServiceID sets the "service" edge to the Service entity by ID.
+func (rbuo *RoleBindingUpdateOne) SetServiceID(id int) *RoleBindingUpdateOne {
+	rbuo.mutation.SetServiceID(id)
+	return rbuo
+}
+
+// SetNillableServiceID sets the "service" edge to the Service entity by ID if the given value is not nil.
+func (rbuo *RoleBindingUpdateOne) SetNillableServiceID(id *int) *RoleBindingUpdateOne {
+	if id != nil {
+		rbuo = rbuo.SetServiceID(*id)
+	}
+	return rbuo
+}
+
+// SetService sets the "service" edge to the Service entity.
+func (rbuo *RoleBindingUpdateOne) SetService(s *Service) *RoleBindingUpdateOne {
+	return rbuo.SetServiceID(s.ID)
+}
+
+// SetUserID sets the "user" edge to the User entity by ID.
+func (rbuo *RoleBindingUpdateOne) SetUserID(id int) *RoleBindingUpdateOne {
+	rbuo.mutation.SetUserID(id)
+	return rbuo
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (rbuo *RoleBindingUpdateOne) SetUser(u *User) *RoleBindingUpdateOne {
+	return rbuo.SetUserID(u.ID)
+}
+
 // Mutation returns the RoleBindingMutation object of the builder.
 func (rbuo *RoleBindingUpdateOne) Mutation() *RoleBindingMutation {
 	return rbuo.mutation
+}
+
+// ClearProject clears the "project" edge to the Project entity.
+func (rbuo *RoleBindingUpdateOne) ClearProject() *RoleBindingUpdateOne {
+	rbuo.mutation.ClearProject()
+	return rbuo
+}
+
+// ClearService clears the "service" edge to the Service entity.
+func (rbuo *RoleBindingUpdateOne) ClearService() *RoleBindingUpdateOne {
+	rbuo.mutation.ClearService()
+	return rbuo
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (rbuo *RoleBindingUpdateOne) ClearUser() *RoleBindingUpdateOne {
+	rbuo.mutation.ClearUser()
+	return rbuo
 }
 
 // Save executes the query and returns the updated RoleBinding entity.
@@ -247,6 +480,12 @@ func (rbuo *RoleBindingUpdateOne) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf("ent: validator failed for field \"role\": %w", err)}
 		}
 	}
+	if _, ok := rbuo.mutation.ProjectID(); rbuo.mutation.ProjectCleared() && !ok {
+		return errors.New("ent: clearing a required unique edge \"project\"")
+	}
+	if _, ok := rbuo.mutation.UserID(); rbuo.mutation.UserCleared() && !ok {
+		return errors.New("ent: clearing a required unique edge \"user\"")
+	}
 	return nil
 }
 
@@ -286,6 +525,111 @@ func (rbuo *RoleBindingUpdateOne) sqlSave(ctx context.Context) (_node *RoleBindi
 			Value:  value,
 			Column: rolebinding.FieldRole,
 		})
+	}
+	if rbuo.mutation.ProjectCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ProjectTable,
+			Columns: []string{rolebinding.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: project.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rbuo.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ProjectTable,
+			Columns: []string{rolebinding.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: project.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if rbuo.mutation.ServiceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ServiceTable,
+			Columns: []string{rolebinding.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: service.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rbuo.mutation.ServiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ServiceTable,
+			Columns: []string{rolebinding.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: service.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if rbuo.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.UserTable,
+			Columns: []string{rolebinding.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := rbuo.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.UserTable,
+			Columns: []string{rolebinding.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &RoleBinding{config: rbuo.config}
 	_spec.Assign = _node.assignValues

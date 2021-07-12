@@ -10,6 +10,7 @@ import (
 	"golang.org/x/tools/go/packages"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -250,16 +251,12 @@ func SpliceTypeV2(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 			if t.Obj != nil {
 				if t.Obj.Kind.String() == "type" {
 
-
-
 					//fmt.Println("ident name: ", t.Name)
 					fmt.Println("find need name: ", t.Name)
 					f, findTs := FindTypeByName(pkg, t.Name)
-					if _, ok := findTs.Type.(*ast.StructType);ok {
+					if _, ok := findTs.Type.(*ast.StructType); ok {
 						return false
 					}
-
-
 
 					file.Imports = append(file.Imports, f.Imports...)
 					fmt.Println("find: ", findTs)
@@ -270,7 +267,7 @@ func SpliceTypeV2(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 			} else {
 				if !JudgeBuiltInType(t.Name) {
 					f, findTs := FindTypeByName(pkg, t.Name)
-					if _, ok := findTs.Type.(*ast.StructType);ok {
+					if _, ok := findTs.Type.(*ast.StructType); ok {
 						return false
 					}
 					file.Imports = append(file.Imports, f.Imports...)
@@ -325,7 +322,7 @@ func SpliceTypeV2(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 				pkg.Syntax = append(pkg.Syntax, synx)
 			}
 			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
-			if _, ok := findTs.Type.(*ast.StructType);ok {
+			if _, ok := findTs.Type.(*ast.StructType); ok {
 				return false
 			}
 
@@ -344,58 +341,82 @@ func SpliceTypeV2(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 	return replace
 }
 
+type NodeInfo struct {
+	Pkg  *packages.Package
+	File *ast.File
+	Node ast.Node
+}
 
 type ExtractStruct2Ts struct {
-	PendNodes       map[string]ast.Node
-	ResolveNodes    []ast.Node
-	ResolveMergePkg map[string]interface{}
-	Pkg             *packages.Package
-	File            *ast.File
-	TempType        ast.Node
-	EnterType       ast.Node
+	PendNodeRecord  map[string]struct{}
+	PendNodes       []NodeInfo
+	ResolveNodes    []NodeInfo
+	ResolveMergePkg map[string]struct{}
+	TempNodeInfo    NodeInfo
+	EnterType       NodeInfo
+}
+
+func NewExtractStruct2Ts(pkg *packages.Package, file *ast.File, node ast.Node) *ExtractStruct2Ts {
+	e := &ExtractStruct2Ts{EnterType: NodeInfo{
+		Pkg:  pkg,
+		File: file,
+		Node: node,
+	}, PendNodeRecord: map[string]struct{}{}, ResolveMergePkg: map[string]struct{}{}}
+	e.PendNodeRecord[e.nodeRecordKey(pkg, file, node)] = struct{}{}
+	return e
 }
 
 func (e *ExtractStruct2Ts) Pend2Temp() bool {
 	if len(e.PendNodes) > 0 {
-		for k,v := range e.PendNodes {
-			e.TempType = v
-			delete(e.PendNodes, k)
-			return true
-		}
-	}
-	return false
-}
-func (e *ExtractStruct2Ts) Temp2ResolveNodes() {
-	e.ResolveNodes = append(e.ResolveNodes, e.TempType)
-}
-func (e *ExtractStruct2Ts) MergePkg(pkg *packages.Package) {
-	if pkg.Imports != nil {
-		for index, importPath := range pkg.Imports {
-			e.Pkg.Imports[index] = importPath
-		}
-	}
-	if _,ok := e.ResolveMergePkg[pkg.PkgPath]; !ok { 
-		if e.Pkg.PkgPath  != pkg.PkgPath {
-			for _, synx := range pkg.Syntax {
-				e.Pkg.Syntax = append(e.Pkg.Syntax, synx)
-			}
-		}
-	}
-}
-
-func (e *ExtractStruct2Ts) AddPendNodes(key string, spec *ast.TypeSpec) bool {
-	if _, ok := e.PendNodes[key]; ok {
-		return false
-	} else {
-		e.PendNodes[key] = spec
+		e.TempNodeInfo = e.PendNodes[0]
+		e.PendNodes = e.PendNodes[1:]
 		return true
 	}
 	return false
 }
 
+func (e *ExtractStruct2Ts) Temp2ResolveNodes() {
+	e.ResolveNodes = append(e.ResolveNodes, e.TempNodeInfo)
+}
+
+func (e *ExtractStruct2Ts) MergePkg(pkg *packages.Package) {
+	if pkg.Imports != nil {
+		for index, importPath := range pkg.Imports {
+			e.TempNodeInfo.Pkg.Imports[index] = importPath
+		}
+	}
+	if _, ok := e.ResolveMergePkg[pkg.PkgPath]; !ok {
+		if e.TempNodeInfo.Pkg.PkgPath != pkg.PkgPath {
+			for _, synx := range pkg.Syntax {
+				e.TempNodeInfo.Pkg.Syntax = append(e.TempNodeInfo.Pkg.Syntax, synx)
+			}
+		}
+	} else {
+		e.ResolveMergePkg[pkg.PkgPath] = struct {
+		}{}
+	}
+}
+
+func (e *ExtractStruct2Ts) AddPendNodes(pkg *packages.Package, file *ast.File, node *ast.TypeSpec) bool {
+	key := e.nodeRecordKey(pkg, file, node)
+
+	if _, ok := e.PendNodeRecord[key]; ok {
+		return false
+	} else {
+		e.PendNodes = append(e.PendNodes, NodeInfo{
+			Pkg:  pkg,
+			File: file,
+			Node: node,
+		})
+		e.PendNodeRecord[key] = struct {
+		}{}
+		return true
+	}
+}
+
 func (e *ExtractStruct2Ts) SpliceType() bool {
 	replace := false
-	astutil.Apply(e.TempType, func(c *astutil.Cursor) bool {
+	astutil.Apply(e.TempNodeInfo.Node, func(c *astutil.Cursor) bool {
 		switch t := c.Node().(type) {
 		case *ast.Field:
 			if t.Tag == nil {
@@ -414,31 +435,45 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 		case *ast.Ident:
 			if t.Obj != nil {
 				if t.Obj.Kind.String() == "type" {
-					f, findTs := FindTypeByName(e.Pkg, t.Name)
-					if _,ok := findTs.Type.(*ast.StructType); ok {
-						if e.AddPendNodes(string(findTs.Pos()) + string(findTs.End()), findTs) {
-							e.File.Imports = append(e.File.Imports, f.Imports...)
-						}
+					f, findTs := FindTypeByName(e.TempNodeInfo.Pkg, t.Name)
+					if _, ok := findTs.Type.(*ast.StructType); ok {
+						e.AddPendNodes(e.TempNodeInfo.Pkg, f, findTs)
 						return false
 					}
-					e.File.Imports = append(e.File.Imports, f.Imports...)
+					e.TempNodeInfo.File.Imports = append(e.TempNodeInfo.File.Imports, f.Imports...)
+					replace = true
+					c.Replace(findTs.Type)
+				}
+			} else {
+				if !JudgeBuiltInType(t.Name) {
+					f, findTs := FindTypeByName(e.TempNodeInfo.Pkg, t.Name)
+					if _, ok := findTs.Type.(*ast.StructType); ok {
+						e.AddPendNodes(e.TempNodeInfo.Pkg, f, findTs)
+						return false
+					}
+					e.TempNodeInfo.File.Imports = append(e.TempNodeInfo.File.Imports, f.Imports...)
 					replace = true
 					c.Replace(findTs.Type)
 				}
 			}
 		case *ast.SelectorExpr:
-			findPkg := FindPkgBySelector(e.Pkg, e.File, t)
-			e.MergePkg(findPkg)
-			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
-			if _,ok := findTs.Type.(*ast.StructType); ok {
-				if e.AddPendNodes(string(findTs.Pos()) + string(findTs.End()), findTs) {
-					e.File.Imports = append(e.File.Imports, f.Imports...)
-				}
+			if n := e.selectorCover(t); n != nil {
+				c.Replace(n)
 				return false
 			}
-			e.File.Imports = append(e.File.Imports, f.Imports...)
+
+			findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, t)
+			e.MergePkg(findPkg)
+			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
+			if _, ok := findTs.Type.(*ast.StructType); ok {
+				e.AddPendNodes(findPkg, f, findTs)
+				tmpNode := ast.NewIdent(t.Sel.Name)
+				c.Replace(tmpNode)
+				return false
+			}
 			replace = true
 			c.Replace(findTs.Type)
+			return false
 		}
 
 		return true
@@ -447,15 +482,24 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 	})
 	return replace
 }
+func (e *ExtractStruct2Ts) nodeRecordKey(pkg *packages.Package, file *ast.File, node ast.Node) string {
+	return strconv.Itoa(int(node.Pos())) + strconv.Itoa(int(node.End()))
+}
 
-func (e *ExtractStruct2Ts) Parse()  {
-	e.TempType = e.EnterType
+func (e *ExtractStruct2Ts) selectorCover(expr *ast.SelectorExpr) *ast.Ident {
+	if expr.X.(*ast.Ident).Name == "time" && expr.Sel.Name == "Time" {
+		return ast.NewIdent("string")
+	}
+	return nil
+}
+
+func (e *ExtractStruct2Ts) Parse() {
+	e.TempNodeInfo = e.EnterType
 	ok := e.SpliceType()
 	for ok {
 		ok = e.SpliceType()
 	}
-	e.Temp2ResolveNodes()
-
+	//e.Temp2ResolveNodes()
 
 	for e.Pend2Temp() {
 		ok := e.SpliceType()
@@ -466,4 +510,15 @@ func (e *ExtractStruct2Ts) Parse()  {
 	}
 }
 
+func (e *ExtractStruct2Ts) toTsFormat(s string) string {
+	return fmt.Sprintf("type Obj %s", s)
+}
 
+func (e *ExtractStruct2Ts) ToTs(format func(string) string) []string {
+	tss := make([]string, 0, 0)
+	tss = append(tss, Convert(format(Node2String(e.EnterType.Pkg.Fset, e.EnterType.Node))))
+	for _, node := range e.ResolveNodes {
+		tss = append(tss, Convert("type "+Node2String(node.Pkg.Fset, node.Node)))
+	}
+	return tss
+}
