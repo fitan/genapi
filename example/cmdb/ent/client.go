@@ -448,6 +448,54 @@ func (c *RoleBindingClient) GetX(ctx context.Context, id int) *RoleBinding {
 	return obj
 }
 
+// QueryProject queries the project edge of a RoleBinding.
+func (c *RoleBindingClient) QueryProject(rb *RoleBinding) *ProjectQuery {
+	query := &ProjectQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := rb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(rolebinding.Table, rolebinding.FieldID, id),
+			sqlgraph.To(project.Table, project.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, rolebinding.ProjectTable, rolebinding.ProjectColumn),
+		)
+		fromV = sqlgraph.Neighbors(rb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryService queries the service edge of a RoleBinding.
+func (c *RoleBindingClient) QueryService(rb *RoleBinding) *ServiceQuery {
+	query := &ServiceQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := rb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(rolebinding.Table, rolebinding.FieldID, id),
+			sqlgraph.To(service.Table, service.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, rolebinding.ServiceTable, rolebinding.ServiceColumn),
+		)
+		fromV = sqlgraph.Neighbors(rb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUser queries the user edge of a RoleBinding.
+func (c *RoleBindingClient) QueryUser(rb *RoleBinding) *UserQuery {
+	query := &UserQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := rb.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(rolebinding.Table, rolebinding.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, rolebinding.UserTable, rolebinding.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(rb.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *RoleBindingClient) Hooks() []Hook {
 	return c.hooks.RoleBinding

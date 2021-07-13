@@ -3,7 +3,10 @@
 package ent
 
 import (
+	"cmdb/ent/project"
 	"cmdb/ent/rolebinding"
+	"cmdb/ent/service"
+	"cmdb/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -52,6 +55,47 @@ func (rbc *RoleBindingCreate) SetNillableUpdateTime(t *time.Time) *RoleBindingCr
 func (rbc *RoleBindingCreate) SetRole(r rolebinding.Role) *RoleBindingCreate {
 	rbc.mutation.SetRole(r)
 	return rbc
+}
+
+// SetProjectID sets the "project" edge to the Project entity by ID.
+func (rbc *RoleBindingCreate) SetProjectID(id int) *RoleBindingCreate {
+	rbc.mutation.SetProjectID(id)
+	return rbc
+}
+
+// SetProject sets the "project" edge to the Project entity.
+func (rbc *RoleBindingCreate) SetProject(p *Project) *RoleBindingCreate {
+	return rbc.SetProjectID(p.ID)
+}
+
+// SetServiceID sets the "service" edge to the Service entity by ID.
+func (rbc *RoleBindingCreate) SetServiceID(id int) *RoleBindingCreate {
+	rbc.mutation.SetServiceID(id)
+	return rbc
+}
+
+// SetNillableServiceID sets the "service" edge to the Service entity by ID if the given value is not nil.
+func (rbc *RoleBindingCreate) SetNillableServiceID(id *int) *RoleBindingCreate {
+	if id != nil {
+		rbc = rbc.SetServiceID(*id)
+	}
+	return rbc
+}
+
+// SetService sets the "service" edge to the Service entity.
+func (rbc *RoleBindingCreate) SetService(s *Service) *RoleBindingCreate {
+	return rbc.SetServiceID(s.ID)
+}
+
+// SetUserID sets the "user" edge to the User entity by ID.
+func (rbc *RoleBindingCreate) SetUserID(id int) *RoleBindingCreate {
+	rbc.mutation.SetUserID(id)
+	return rbc
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (rbc *RoleBindingCreate) SetUser(u *User) *RoleBindingCreate {
+	return rbc.SetUserID(u.ID)
 }
 
 // Mutation returns the RoleBindingMutation object of the builder.
@@ -132,6 +176,12 @@ func (rbc *RoleBindingCreate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf("ent: validator failed for field \"role\": %w", err)}
 		}
 	}
+	if _, ok := rbc.mutation.ProjectID(); !ok {
+		return &ValidationError{Name: "project", err: errors.New("ent: missing required edge \"project\"")}
+	}
+	if _, ok := rbc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user", err: errors.New("ent: missing required edge \"user\"")}
+	}
 	return nil
 }
 
@@ -182,6 +232,63 @@ func (rbc *RoleBindingCreate) createSpec() (*RoleBinding, *sqlgraph.CreateSpec) 
 			Column: rolebinding.FieldRole,
 		})
 		_node.Role = value
+	}
+	if nodes := rbc.mutation.ProjectIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ProjectTable,
+			Columns: []string{rolebinding.ProjectColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: project.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rbc.mutation.ServiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.ServiceTable,
+			Columns: []string{rolebinding.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: service.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rbc.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   rolebinding.UserTable,
+			Columns: []string{rolebinding.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

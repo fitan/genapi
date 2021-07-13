@@ -3,37 +3,41 @@ package gen_apiV2
 import (
 	"fmt"
 	"go/ast"
-	"strings"
+	"golang.org/x/tools/go/packages"
 	"testing"
 )
 
-func Test_writeType(t *testing.T) {
+func TestNewExtractStruct2Ts(t *testing.T) {
 	type args struct {
-		s     *strings.Builder
-		t     ast.Expr
-		depth int
+		pkg  *packages.Package
+		file *ast.File
+		node ast.Node
 	}
 	_, pkg, _ := LoadPackages("./TestData")
-	_, findType := FindTypeByName(pkg, "Test1T")
-	builder := strings.Builder{}
+	f, findTs := FindTypeByName(pkg, "UserResult")
 	tests := []struct {
 		name string
 		args args
+		want *ExtractStruct2Ts
 	}{
 		{
-			name: "test1t",
+			name: "UserResult",
 			args: args{
-				s:    &builder,
-				t:     findType.Type,
-				depth: 0,
+				pkg:  pkg,
+				file: f,
+				node: findTs.Type,
 			},
+			want: nil,
 		},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			writeType(tt.args.s,tt.args.t,tt.args.depth)
-			fmt.Println(tt.args.s.String())
+			got := NewExtractStruct2Ts(tt.args.pkg, tt.args.file, tt.args.node)
+			got.Parse()
+			for index, v := range got.ToTs("MainIn") {
+				fmt.Println(index, v)
+			}
 		})
 	}
 }

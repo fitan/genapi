@@ -76,7 +76,7 @@ func Node2String(fset *token.FileSet, node interface{}) string {
 	err := printer.Fprint(&buf, fset, node)
 	if err != nil {
 		spew.Dump(node)
-		log.Fatalln(err.Error())
+		log.Panicln(err.Error())
 	}
 	return buf.String()
 }
@@ -317,8 +317,9 @@ func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
 	return fileName
 }
 
-func ExtractType(pkg *packages.Package, file *ast.File, node ast.Node) {
-
+func FindPkgBySelector(pkg *packages.Package, file *ast.File, selector *ast.SelectorExpr) *packages.Package {
+	path := FindImportPath(file.Imports, selector.X.(*ast.Ident).Name)
+	return pkg.Imports[path]
 }
 
 func SpliceType(pkg *packages.Package, file *ast.File, node ast.Node) bool {

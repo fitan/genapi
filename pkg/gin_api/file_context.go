@@ -43,12 +43,11 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 		FuncName: f.Name.Name,
 		ResOut0:  "",
 		Plugins: Plugins{
-			Point:    []plugins.PointTemplate{},
+			Point: []plugins.PointTemplate{},
 		},
 	}
 	inField := f.Type.Params.List[1]
 	outField := f.Type.Results.List[0]
-
 
 	_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
 	//_, inStruct := c.FindStruct(inField)
@@ -56,8 +55,17 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	c.ParseComment(&fc, f.Doc.List, inField, outField)
 	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(inField.Type, c.File.Name.Name))
 	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(outField.Type, c.File.Name.Name))
-	fc.ParamIn1Ts = Struct2Ts(c.Pkg, c.File, inStruct, f.Name.Name + "In")
-	fc.ResOut0Ts = WarpResult2Ts(c.Pkg, c.File, outField.Type, f.Name.Name + "Out")
+	inTs := NewExtractStruct2Ts(c.Pkg, c.File, inStruct)
+	inTs.Parse()
+	fc.ParamIn1Ts = inTs.ToTs(func(s string) string {
+		return fmt.Sprintf("type %sIn %s", f.Name.Name, s)
+	})
+	outTs := NewExtractStruct2Ts(c.Pkg, c.File, outField.Type)
+	outTs.Parse()
+	fc.ResOut0Ts = outTs.ToTs(func(s string) string {
+		resutlStr := "type %sOut struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
+		return fmt.Sprintf(resutlStr, f.Name.Name, s)
+	})
 	return fc
 }
 
