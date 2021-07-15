@@ -53,8 +53,8 @@ type UpdateIn struct {
 }
 
 type DeleteIn struct {
-	Uri Uri
-	Query Query
+	Uri Uri `json:"uri"`
+	Query Query `json:"query"`
 }
 
 func (d DeleteIn) GetRedisKey() string {

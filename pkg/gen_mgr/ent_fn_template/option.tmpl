@@ -18,8 +18,8 @@ type {{$n.Name}}Includes struct {
 }
 
 type Get{{$n.Name}}ListData struct {
-	Count int
-	Result []*ent.{{$n.Name}}
+	Count int `json:"count"`
+	Result []*ent.{{$n.Name}} `json:"result"`
 }
 
 func {{$n.Name}}Selete(queryer *ent.{{$n.Name}}Query)  {

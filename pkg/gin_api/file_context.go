@@ -22,11 +22,15 @@ type FileContext struct {
 	Funcs []Func
 }
 
+type ParseOption struct {
+	ParseTs bool
+}
+
 func NewFileContext(pkgName string, pkg *packages.Package, file *ast.File) *FileContext {
 	return &FileContext{PkgName: pkgName, Pkg: pkg, File: file}
 }
 
-func (c *FileContext) Parse() {
+func (c *FileContext) Parse(option ParseOption) {
 	//c.ImportMsgs = ParseImport(c.File)
 	//c.ParseCasbinPluginer()
 	fs := make([]Func, 0, 0)
@@ -35,10 +39,34 @@ func (c *FileContext) Parse() {
 		fs = append(fs, f)
 	}
 	c.Funcs = fs
+	if option.ParseTs {
+		c.Func2Ts()
+	}
+}
+
+func (c *FileContext) Func2Ts() {
+	pendNodeRecord := make(map[string]struct{},0)
+	for index, _ := range c.Funcs {
+		inField := c.Funcs[index].Fd.Type.Params.List[1]
+		_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
+		inTs := NewExtractStruct2Ts(c.Pkg, c.File, inStruct, pendNodeRecord)
+		inTs.Parse()
+		c.Funcs[index].ParamIn1Ts = inTs.ToTs(func(s string) string {
+			return fmt.Sprintf("type %sIn %s", c.Funcs[index].Fd.Name.Name, s)
+		})
+		outField := c.Funcs[index].Fd.Type.Results.List[0]
+		outTs := NewExtractStruct2Ts(c.Pkg, c.File, outField.Type, pendNodeRecord)
+		outTs.Parse()
+		c.Funcs[index].ResOut0Ts = outTs.ToTs(func(s string) string {
+			resutlStr := "type %sOut struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
+			return fmt.Sprintf(resutlStr, c.Funcs[index].Fd.Name.Name, s)
+		})
+	}
 }
 
 func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	fc := Func{
+		Fd:  f,
 		PkgName:  c.PkgName,
 		FuncName: f.Name.Name,
 		ResOut0:  "",
@@ -53,19 +81,21 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	//_, inStruct := c.FindStruct(inField)
 	fc.Bind = c.ParseBind(fc.FuncName, inStruct)
 	c.ParseComment(&fc, f.Doc.List, inField, outField)
-	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(inField.Type, c.File.Name.Name))
-	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(outField.Type, c.File.Name.Name))
-	inTs := NewExtractStruct2Ts(c.Pkg, c.File, inStruct)
-	inTs.Parse()
-	fc.ParamIn1Ts = inTs.ToTs(func(s string) string {
-		return fmt.Sprintf("type %sIn %s", f.Name.Name, s)
-	})
-	outTs := NewExtractStruct2Ts(c.Pkg, c.File, outField.Type)
-	outTs.Parse()
-	fc.ResOut0Ts = outTs.ToTs(func(s string) string {
-		resutlStr := "type %sOut struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
-		return fmt.Sprintf(resutlStr, f.Name.Name, s)
-	})
+	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(copyAST(inField.Type), c.File.Name.Name))
+	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(copyAST(outField.Type), c.File.Name.Name))
+	//fmt.Println("enter func %s in", fc.FuncName)
+	//inTs := NewExtractStruct2Ts(c.Pkg, c.File, inStruct)
+	//inTs.Parse()
+	//fc.ParamIn1Ts = inTs.ToTs(func(s string) string {
+	//	return fmt.Sprintf("type %sIn %s", f.Name.Name, s)
+	//})
+	//fmt.Println("enter func %s out", fc.FuncName)
+	//outTs := NewExtractStruct2Ts(c.Pkg, c.File, outField.Type)
+	//outTs.Parse()
+	//fc.ResOut0Ts = outTs.ToTs(func(s string) string {
+	//	resutlStr := "type %sOut struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
+	//	return fmt.Sprintf(resutlStr, f.Name.Name, s)
+	//})
 	return fc
 }
 
@@ -218,6 +248,9 @@ func (c *FileContext) ApiMark2SwagRouter(fields []string) (Router, string) {
 	ginPath := fields[2]
 	ginPath = strings.ReplaceAll(ginPath, "{", ":")
 	ginPath = strings.ReplaceAll(ginPath, "}", "")
+	GenMarkPath := fields[2]
+	TsPath := fields[2]
+	TsPath = strings.ReplaceAll(TsPath, "{", "${")
 	routerGroupKey := ""
 	if len(fields) >= 5 {
 		routerGroupKey = fields[4]
@@ -225,7 +258,9 @@ func (c *FileContext) ApiMark2SwagRouter(fields []string) (Router, string) {
 	}
 	return Router{
 		Method:         strings.ToUpper(method[1 : len(method)-1]),
+		GenMarkPath:  GenMarkPath,
 		GinPath:        ginPath,
+		TsPath: TsPath,
 		RouterGroupKey: routerGroupKey,
 	}, strings.Join(fields[:4], " ")
 }

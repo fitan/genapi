@@ -8,7 +8,7 @@ import (
 type UserCallIn struct {
 	Query struct {
 		Id string `json:"id"`
-	}
+	} `json:"query"`
 }
 
 func (i UserCallIn) GetCasbinKeys() [][]interface{} {

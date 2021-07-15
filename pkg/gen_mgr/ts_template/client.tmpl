@@ -1,3 +1,34 @@
+import {defHttp} from "/@/utils/http/axios";
+import {ErrorMessageMode} from "/#/axios";
+
+{{range $index, $fc := $.Funcs}}
+
+export function {{$fc.FuncName}}(params: {{$fc.FuncName}}In, mode: ErrorMessageMode = 'modal') {
+  {{if $fc.Bind.Uri.Has}}
+  {{range $TagMsg := $fc.Bind.Uri.TagMsgs}}
+  let {{$TagMsg.TagValue}} = params.uri.{{$TagMsg.TagValue}}
+  {{end}}
+  {{end}}
+  let url = `{{$fc.Router.TsPath}}`
+  return defHttp.get<{{$fc.FuncName}}Out>(
+    {
+      url: url,
+      {{if $fc.Bind.Body.Has}}
+      data: params.body,
+      {{- end}}
+      {{if $fc.Bind.Query.Has}}
+      params: params.query,
+      {{- end}}
+      {{if $fc.Bind.Header.Has}}
+      headers: params.header,
+      {{- end}}
+    },
+    {
+      errorMessageMode: mode,
+    }
+  );
+}
+{{end}}
 
 
 {{range $index, $fc := $.Funcs}}
@@ -8,4 +39,6 @@
 {{range $v := $fc.ResOut0Ts}}
 {{$v}}
 {{end}}
+
+
 {{end}}

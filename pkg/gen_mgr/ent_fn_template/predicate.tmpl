@@ -27,10 +27,10 @@ import (
 
     {{ range $n := $.Nodes }}
 type {{$n.Name}}ID struct {
-    ID {{$.IDType}} `uri:"id" binding:"required"`
+    ID {{$.IDType}} `json:"id" uri:"id" binding:"required"`
 }
 type {{$n.Name}}IDs struct {
-    IDs []{{$.IDType}} `form:"ids" binding:"required"`
+    IDs []{{$.IDType}} `json:"ids" form:"ids" binding:"required"`
 }
 
 func {{$n.Name}}PredicatesExec(fs ...func() (predicate.{{$n.Name}}, error)) ([]predicate.{{$n.Name}}, error) {

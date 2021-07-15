@@ -1,8 +1,12 @@
 package gen_apiV2
 
-import "github.com/fitan/genapi/pkg/gin_api/plugins"
+import (
+	"github.com/fitan/genapi/pkg/gin_api/plugins"
+	"go/ast"
+)
 
 type Func struct {
+	Fd *ast.FuncDecl
 	PkgName    string
 	Comments   []string
 	Router     Router
@@ -22,7 +26,9 @@ type Plugins struct {
 
 type Router struct {
 	Method         string
+	GenMarkPath string
 	GinPath        string
+	TsPath string
 	RouterGroupKey string
 }
 

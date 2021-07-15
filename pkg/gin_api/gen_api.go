@@ -27,11 +27,11 @@ func (c *ApiContext) Load(dir string) {
 	c.Pkg = pkg
 }
 
-func (c *ApiContext) Parse() {
+func (c *ApiContext) Parse(option ParseOption) {
 	files := make(map[string]*FileContext, 0)
 	for _, f := range c.Pkg.Syntax {
 		fc := NewFileContext(c.PkgName, c.Pkg, f)
-		fc.Parse()
+		fc.Parse(option)
 		if len(fc.Funcs) != 0 {
 			files[GetFileNameByPos(c.Pkg.Fset, f.Pos())] = fc
 		}

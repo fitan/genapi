@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-var Indent = "    "
+var Indent = "  "
 
 func getIdent(s string) string {
 	switch s {
@@ -183,7 +183,7 @@ func main() {
 				w.WriteString("\n\n")
 			}
 
-			w.WriteString("declare interface ")
+			w.WriteString("export interface ")
 			w.WriteString(name)
 			w.WriteString(" {\n")
 
@@ -356,12 +356,12 @@ type ExtractStruct2Ts struct {
 	EnterType       NodeInfo
 }
 
-func NewExtractStruct2Ts(pkg *packages.Package, file *ast.File, node ast.Node) *ExtractStruct2Ts {
+func NewExtractStruct2Ts(pkg *packages.Package, file *ast.File, node ast.Node, pendNodeRecord map[string]struct{}) *ExtractStruct2Ts {
 	e := &ExtractStruct2Ts{EnterType: NodeInfo{
 		Pkg:  pkg,
 		File: file,
 		Node: node,
-	}, PendNodeRecord: map[string]struct{}{}, ResolveMergePkg: map[string]struct{}{}}
+	}, PendNodeRecord: pendNodeRecord, ResolveMergePkg: map[string]struct{}{}}
 	e.PendNodeRecord[e.nodeRecordKey(pkg, file, node)] = struct{}{}
 	return e
 }
@@ -416,7 +416,7 @@ func (e *ExtractStruct2Ts) AddPendNodes(pkg *packages.Package, file *ast.File, n
 
 func (e *ExtractStruct2Ts) SpliceType() bool {
 	replace := false
-	astutil.Apply(e.TempNodeInfo.Node, func(c *astutil.Cursor) bool {
+	newNode := astutil.Apply(e.TempNodeInfo.Node, func(c *astutil.Cursor) bool {
 		switch t := c.Node().(type) {
 		case *ast.Field:
 			if t.Tag == nil {
@@ -426,8 +426,8 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 			if tags, ok := reflect.StructTag(t.Tag.Value[1 : len(t.Tag.Value)-1]).Lookup("json"); ok {
 				for _, tag := range strings.Split(tags, ",") {
 					if tag == "-" {
-						return false
-					}
+							return false
+						}
 				}
 			}
 			return true
@@ -462,7 +462,11 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 				return false
 			}
 
+			fmt.Println(t.End() + t.Pos(), Node2String(e.TempNodeInfo.Pkg.Fset, t))
+
 			findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, t)
+			fmt.Println("find need merge pkg: ", e.TempNodeInfo.Pkg.Name, t.X.(*ast.Ident).Name,t.Sel.Name)
+			//fmt.Println(Node2String(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File))
 			e.MergePkg(findPkg)
 			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
 			if _, ok := findTs.Type.(*ast.StructType); ok {
@@ -472,7 +476,10 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 				return false
 			}
 			replace = true
+			//fmt.Println("replace selector: ", Node2String(e.TempNodeInfo.Pkg.Fset, findTs.Type))
 			c.Replace(findTs.Type)
+			//fmt.Println("replace after: ", Node2String(e.TempNodeInfo.Pkg.Fset, c.Node()))
+			//fmt.Println("echo file: ", Node2String(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File))
 			return false
 		}
 
@@ -480,6 +487,8 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 	}, func(c *astutil.Cursor) bool {
 		return true
 	})
+	//fmt.Println("new node: ", Node2String(e.TempNodeInfo.Pkg.Fset,newNode))
+	e.TempNodeInfo.Node = newNode
 	return replace
 }
 func (e *ExtractStruct2Ts) nodeRecordKey(pkg *packages.Package, file *ast.File, node ast.Node) string {
@@ -495,10 +504,12 @@ func (e *ExtractStruct2Ts) selectorCover(expr *ast.SelectorExpr) *ast.Ident {
 
 func (e *ExtractStruct2Ts) Parse() {
 	e.TempNodeInfo = e.EnterType
+	//e.SpliceType()
 	ok := e.SpliceType()
 	for ok {
 		ok = e.SpliceType()
 	}
+	e.EnterType = e.TempNodeInfo
 	//e.Temp2ResolveNodes()
 
 	for e.Pend2Temp() {

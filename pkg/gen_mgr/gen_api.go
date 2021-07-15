@@ -100,7 +100,7 @@ func genApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 func GenApi(src, dest string)  {
 	context := gen_apiV2.NewApiContext()
 	context.Load(src)
-	context.Parse()
+	context.Parse(gen_apiV2.ParseOption{false})
 	for _, file := range context.Files {
 		if len(file.Funcs) != 0 {
 			genApiV2(context.Files, context.ReginsterMap, public.GetGenConf().BaseConf,dest)

@@ -89,7 +89,7 @@ func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, d
 func GenTs(src, dest string)  {
 	context := gen_apiV2.NewApiContext()
 	context.Load(src)
-	context.Parse()
+	context.Parse(gen_apiV2.ParseOption{true})
 	for _, file := range context.Files {
 		if len(file.Funcs) != 0 {
 			genTs(context.Files, public.GetGenConf().BaseConf,dest)
