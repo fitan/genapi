@@ -30,16 +30,10 @@ func (User) Annotations() []schema.Annotation {
 			},
 			Method: gen_mgr.NodeMethod{
 				GetOne:     gen_mgr.NodeMethodOp{
-					Has:       gen_mgr.GenRestFalse,
-					RouterTag: "auth",
-					Comments: []string{
-						"this is ",
-					},
+					Has:       gen_mgr.GenRestTrue,
 				},
 				GetList:    gen_mgr.NodeMethodOp{
-					Has:       gen_mgr.GenRestFalse,
-					RouterTag: "",
-					Comments:  nil,
+					Has:       gen_mgr.GenRestTrue,
 				},
 				CreateOne:  gen_mgr.NodeMethodOp{},
 				CreateList: gen_mgr.NodeMethodOp{},

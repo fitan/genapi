@@ -3,7 +3,9 @@ package main
 import (
 	"cmdb/public"
 	"cmdb/routers"
+	"context"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -29,6 +31,9 @@ func main() {
 		fmt.Printf("Build TimeStamp: %s \n", buildTime)
 		fmt.Printf("GoLang Version: %s \n", goVersion)
 		return
+	}
+	if err := public.GetDB().Schema.Create(context.Background()); err != nil {
+		log.Fatalf("failed creating schema resources: %v", err)
 	}
 	routers.GetDefaultRouter().Run(public.GetConf().App.Host + ":" + public.GetConf().App.Port)
 }

@@ -78,6 +78,38 @@ func (t TableColumn) SetEditable(has bool) TableColumn {
 	return t
 }
 
+func (t TableColumn) SetApi(api interface{}) TableColumn {
+	return t
+}
+
+type ActionItem struct {
+	// 按钮文本
+	Label string `json:"label"`
+	// 是否禁用
+	Disabled bool `json:"disabled"`
+	// 按钮颜色 'success' | 'error' | 'warning'
+	Color string `json:"color"`
+	// 按钮类型
+	ButionType string `json:"type"`
+	// button组件props
+	Props interface{} `json:"props"`
+	// 按钮图标
+	Icon string `json:"icon"`
+	// 气泡确认框
+	PopConfirm interface{} `json:"popConfirm"`
+	// 是否显示分隔线，v2.0.0+
+	Divider bool `json:"divider"`
+	// 根据权限编码来控制当前列是否显示，v2.4.0+
+	//auth?: RoleEnum | RoleEnum[] | string | string[];
+	// 根据业务状态来控制当前列是否显示，v2.4.0+
+	//ifShow?: boolean | ((action: ActionItem) => boolean);
+	// 点击回调
+	OnClick interface{} `json:"onClick"`
+	// Tooltip配置，2.5.3以上版本支持，可以配置为string，或者完整的tooltip属性
+	Tooltip interface{} `json:"tooltip"`
+
+}
+
 
 
 
@@ -93,3 +125,38 @@ const  (
     DatePicker ComponentType = "DatePicker"  // v2.5.0 以上
     TimePicker ComponentType = "TimePicker"
 )
+
+type Tableer interface {
+	Columns() []TableColumn
+	Actions() []ActionItem
+}
+
+type Table struct {
+	
+}
+
+func (t Table) Columns() []TableColumn {
+	return []TableColumn{{
+		Title:                "",
+		Width:                "",
+		DataIndex:            "",
+		Align:                "",
+		Ellipsis:             false,
+		colSpan:              0,
+		DefaultFilteredValue: nil,
+		Filtered:             false,
+		FilteredValue:        nil,
+		FilterMultiple:       false,
+		DefaultHiddena:       false,
+		HelpMessage:          nil,
+		Edit:                 false,
+		EditRow:              false,
+		Editable:             false,
+	}}
+}
+
+func (t Table) Actions() []ActionItem {
+	panic("implement me")
+}
+
+

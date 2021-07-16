@@ -54,11 +54,11 @@ type UserOrder struct {
     {{- range $field := $orderOp.OrderField}}
     // {{$field}}
     {{- end}}
-	Sort *string `form:"sort" json:"sort" binding:"oneof={{Join $orderOp.OrderField " "}}"`
+	Sort *string `form:"sort" json:"sort" binding:"omitempty,oneof={{Join $orderOp.OrderField " "}}"`
 	// Association query Multiple choice:
 	// asc
 	// desc
-	Order *string `form:"order" json:"order" binding:"oneof=asc desc"`
+	Order *string `form:"order" json:"order" binding:"omitempty,oneof=asc desc"`
 }
 
 func (o *UserOrder)BindOrderUser(queryer *ent.UserQuery)  {
