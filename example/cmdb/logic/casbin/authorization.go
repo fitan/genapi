@@ -5,39 +5,64 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//
-//import (
-//	"cmdb/public"
-//	"github.com/gin-gonic/gin"
-//)
-//
-//const UrlPrefix = "/api"
-//
-//// @GenApi /policy [get]
-//func GetPolicyList(c *gin.Context, in *GetListIn) ([][]string,error) {
-//	return public.GetCasbin().GetFilteredPolicy(0,in.Query.User), nil
-//}
-//
-//// @GenApi /policy [post]
-//func AddPolicies(c *gin.Context, in *AddListIn) (bool, error) {
-//	ps := make([][]string, 0, len(in.Body))
-//	for _, v := range in.Body {
-//		ps = append(ps, append([]string{}, v.User,v.Path,v.Method))
-//	}
-//	return public.GetCasbin().AddPolicies(ps)
-//}
-//
-//// @GenApi /policy [put]
-//func UpdatePolicy(c *gin.Context, in *UpdateIn) (bool, error)  {
-//	return public.GetCasbin().UpdatePolicies(in.Body.Old.Serialize(), in.Body.New.Serialize())
-//}
-//
+type GetRolesIn struct {
 
-// @GenApi /policy [delete]
-// @CallBack redis delete
-func DeletePolicy(c *gin.Context, in *DeleteIn) (bool, error) {
-	return public.GetCasbin().DeleteUser(in.Query.User)
 }
+
+type GetRolesOut map[string][]string
+
+func GetRoles(c *gin.Context, in *GetRolesIn) map[string][]string {
+	out := make(map[string][]string, 0)
+	gs := public.GetCasbin().GetNamedGroupingPolicy("g")
+	for _, g := range gs {
+		Name := g[1]
+		if l, ok := out[Name]; ok {
+			out[Name] = append(l, g[0])
+		} else {
+			out[Name] = []string{g[0]}
+		}
+	}
+	return out
+}
+
+
+type AddRoleIn struct {
+	Body struct{
+		// 角色
+		Name string
+		// 允许的方法
+		Action []string
+	}
+}
+
+func (a *AddRoleIn) ToRoles() [][]string {
+	roles := make([][]string, 0 ,0)
+	for _, action := range a.Body.Action {
+		roles = append(roles, []string{action ,a.Body.Name})
+	}
+	return roles
+}
+
+
+
+func AddRoles(c *gin.Context, in *AddRoleIn) (bool, error) {
+	return public.GetCasbin().AddNamedGroupingPolicies("g",in.ToRoles())
+}
+
+func UpdateRoles(c *gin.Context, in *AddRoleIn) (bool, error) {
+	return public.GetCasbin().UpdateFilteredNamedPolicies("g", in.ToRoles(), 1, in.Body.Name)
+}
+
+type DeleteRolesIn struct {
+	Uri struct{
+		Name string
+	}
+}
+func DeleteRoles(c *gin.Context, in *DeleteRolesIn) (bool, error) {
+	return public.GetCasbin().RemoveFilteredGroupingPolicy(1, in.Uri.Name)
+}
+
+
 
 
 

@@ -1,0 +1,13 @@
+alice, data1, read
+alice, data1, write
+alice, data2, read
+alice, data2, write
+
+boweian, consul, GetOneConsul
+boweian, consul, DeleteOneConsul
+boweian, consul, GetListConsul
+bowei, consul, GetOneConsul
+
+boweian, cmdb, GetOneConsul
+
+an, zabbix, put
