@@ -444,7 +444,8 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*User)
 		for i := range nodes {
-			if fk := nodes[i].user_alert; fk != nil {
+			fk := nodes[i].user_alert
+			if fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -476,7 +477,7 @@ func (uq *UserQuery) sqlCount(ctx context.Context) (int, error) {
 func (uq *UserQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := uq.sqlCount(ctx)
 	if err != nil {
-		return false, fmt.Errorf("ent: check existence: %v", err)
+		return false, fmt.Errorf("ent: check existence: %w", err)
 	}
 	return n > 0, nil
 }

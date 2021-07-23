@@ -51,23 +51,20 @@ var (
 		PrimaryKey: []*schema.Column{RoleBindingsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "role_bindings_projects_role_bindings",
-				Columns: []*schema.Column{RoleBindingsColumns[4]},
-
+				Symbol:     "role_bindings_projects_role_bindings",
+				Columns:    []*schema.Column{RoleBindingsColumns[4]},
 				RefColumns: []*schema.Column{ProjectsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:  "role_bindings_services_role_bindings",
-				Columns: []*schema.Column{RoleBindingsColumns[5]},
-
+				Symbol:     "role_bindings_services_role_bindings",
+				Columns:    []*schema.Column{RoleBindingsColumns[5]},
 				RefColumns: []*schema.Column{ServicesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:  "role_bindings_users_role_bindings",
-				Columns: []*schema.Column{RoleBindingsColumns[6]},
-
+				Symbol:     "role_bindings_users_role_bindings",
+				Columns:    []*schema.Column{RoleBindingsColumns[6]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -105,10 +102,31 @@ var (
 		PrimaryKey: []*schema.Column{ServicesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "services_projects_services",
-				Columns: []*schema.Column{ServicesColumns[4]},
-
+				Symbol:     "services_projects_services",
+				Columns:    []*schema.Column{ServicesColumns[4]},
 				RefColumns: []*schema.Column{ProjectsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// ServiceTreesColumns holds the columns for the "service_trees" table.
+	ServiceTreesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "note", Type: field.TypeString},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"project", "service"}},
+		{Name: "service_tree_service", Type: field.TypeInt, Nullable: true},
+	}
+	// ServiceTreesTable holds the schema information for the "service_trees" table.
+	ServiceTreesTable = &schema.Table{
+		Name:       "service_trees",
+		Columns:    ServiceTreesColumns,
+		PrimaryKey: []*schema.Column{ServiceTreesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "service_trees_service_trees_service",
+				Columns:    []*schema.Column{ServiceTreesColumns[4]},
+				RefColumns: []*schema.Column{ServiceTreesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -130,9 +148,8 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "users_alerts_alert",
-				Columns: []*schema.Column{UsersColumns[6]},
-
+				Symbol:     "users_alerts_alert",
+				Columns:    []*schema.Column{UsersColumns[6]},
 				RefColumns: []*schema.Column{AlertsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -150,16 +167,14 @@ var (
 		PrimaryKey: []*schema.Column{ServiceServersColumns[0], ServiceServersColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "service_servers_service_id",
-				Columns: []*schema.Column{ServiceServersColumns[0]},
-
+				Symbol:     "service_servers_service_id",
+				Columns:    []*schema.Column{ServiceServersColumns[0]},
 				RefColumns: []*schema.Column{ServicesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:  "service_servers_server_id",
-				Columns: []*schema.Column{ServiceServersColumns[1]},
-
+				Symbol:     "service_servers_server_id",
+				Columns:    []*schema.Column{ServiceServersColumns[1]},
 				RefColumns: []*schema.Column{ServersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -172,6 +187,7 @@ var (
 		RoleBindingsTable,
 		ServersTable,
 		ServicesTable,
+		ServiceTreesTable,
 		UsersTable,
 		ServiceServersTable,
 	}
@@ -182,6 +198,7 @@ func init() {
 	RoleBindingsTable.ForeignKeys[1].RefTable = ServicesTable
 	RoleBindingsTable.ForeignKeys[2].RefTable = UsersTable
 	ServicesTable.ForeignKeys[0].RefTable = ProjectsTable
+	ServiceTreesTable.ForeignKeys[0].RefTable = ServiceTreesTable
 	UsersTable.ForeignKeys[0].RefTable = AlertsTable
 	ServiceServersTable.ForeignKeys[0].RefTable = ServicesTable
 	ServiceServersTable.ForeignKeys[1].RefTable = ServersTable

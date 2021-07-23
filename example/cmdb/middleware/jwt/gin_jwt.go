@@ -14,7 +14,7 @@ var identityKey = "id"
 
 
 type loginValues struct {
-	User string `json:"user"`
+	UserName string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -52,7 +52,7 @@ func NewAuthMiddleware(authorizator Authorizatorer) (*jwt.GinJWTMiddleware, erro
 			if err := c.ShouldBind(&login); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			u, err := public.GetDB().User.Query().Where(user.EmailEQ(login.User), user.Password(login.Password)).Only(c)
+			u, err := public.GetDB().User.Query().Where(user.EmailEQ(login.UserName), user.Password(login.Password)).Only(c)
 			if err != nil {
 				return nil, err
 			}
@@ -65,13 +65,13 @@ func NewAuthMiddleware(authorizator Authorizatorer) (*jwt.GinJWTMiddleware, erro
 		Authorizator: authorizator.Authorizator,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*ent.User); ok {
-				return jwt.MapClaims{"role": v.Role}
+				return jwt.MapClaims{"user_name": v.Name}
 			}
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			role := claims["role"].(string)
+			role := claims["user_name"].(string)
 			return role
 		},
 		IdentityKey: identityKey,

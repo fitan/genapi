@@ -29,6 +29,7 @@ type hooks struct {
 	RoleBinding []ent.Hook
 	Server      []ent.Hook
 	Service     []ent.Hook
+	ServiceTree []ent.Hook
 	User        []ent.Hook
 }
 

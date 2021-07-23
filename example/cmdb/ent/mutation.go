@@ -9,6 +9,7 @@ import (
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/server"
 	"cmdb/ent/service"
+	"cmdb/ent/servicetree"
 	"cmdb/ent/user"
 	"context"
 	"fmt"
@@ -32,6 +33,7 @@ const (
 	TypeRoleBinding = "RoleBinding"
 	TypeServer      = "Server"
 	TypeService     = "Service"
+	TypeServiceTree = "ServiceTree"
 	TypeUser        = "User"
 )
 
@@ -2748,6 +2750,552 @@ func (m *ServiceMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown Service edge %s", name)
+}
+
+// ServiceTreeMutation represents an operation that mutates the ServiceTree nodes in the graph.
+type ServiceTreeMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int
+	name           *string
+	note           *string
+	_type          *servicetree.Type
+	clearedFields  map[string]struct{}
+	project        *int
+	clearedproject bool
+	service        map[int]struct{}
+	removedservice map[int]struct{}
+	clearedservice bool
+	done           bool
+	oldValue       func(context.Context) (*ServiceTree, error)
+	predicates     []predicate.ServiceTree
+}
+
+var _ ent.Mutation = (*ServiceTreeMutation)(nil)
+
+// servicetreeOption allows management of the mutation configuration using functional options.
+type servicetreeOption func(*ServiceTreeMutation)
+
+// newServiceTreeMutation creates new mutation for the ServiceTree entity.
+func newServiceTreeMutation(c config, op Op, opts ...servicetreeOption) *ServiceTreeMutation {
+	m := &ServiceTreeMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeServiceTree,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withServiceTreeID sets the ID field of the mutation.
+func withServiceTreeID(id int) servicetreeOption {
+	return func(m *ServiceTreeMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ServiceTree
+		)
+		m.oldValue = func(ctx context.Context) (*ServiceTree, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ServiceTree.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withServiceTree sets the old ServiceTree of the mutation.
+func withServiceTree(node *ServiceTree) servicetreeOption {
+	return func(m *ServiceTreeMutation) {
+		m.oldValue = func(context.Context) (*ServiceTree, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ServiceTreeMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ServiceTreeMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *ServiceTreeMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetName sets the "name" field.
+func (m *ServiceTreeMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *ServiceTreeMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the ServiceTree entity.
+// If the ServiceTree object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServiceTreeMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *ServiceTreeMutation) ResetName() {
+	m.name = nil
+}
+
+// SetNote sets the "note" field.
+func (m *ServiceTreeMutation) SetNote(s string) {
+	m.note = &s
+}
+
+// Note returns the value of the "note" field in the mutation.
+func (m *ServiceTreeMutation) Note() (r string, exists bool) {
+	v := m.note
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNote returns the old "note" field's value of the ServiceTree entity.
+// If the ServiceTree object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServiceTreeMutation) OldNote(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldNote is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldNote requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNote: %w", err)
+	}
+	return oldValue.Note, nil
+}
+
+// ResetNote resets all changes to the "note" field.
+func (m *ServiceTreeMutation) ResetNote() {
+	m.note = nil
+}
+
+// SetType sets the "type" field.
+func (m *ServiceTreeMutation) SetType(s servicetree.Type) {
+	m._type = &s
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *ServiceTreeMutation) GetType() (r servicetree.Type, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the ServiceTree entity.
+// If the ServiceTree object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ServiceTreeMutation) OldType(ctx context.Context) (v servicetree.Type, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *ServiceTreeMutation) ResetType() {
+	m._type = nil
+}
+
+// SetProjectID sets the "project" edge to the ServiceTree entity by id.
+func (m *ServiceTreeMutation) SetProjectID(id int) {
+	m.project = &id
+}
+
+// ClearProject clears the "project" edge to the ServiceTree entity.
+func (m *ServiceTreeMutation) ClearProject() {
+	m.clearedproject = true
+}
+
+// ProjectCleared returns if the "project" edge to the ServiceTree entity was cleared.
+func (m *ServiceTreeMutation) ProjectCleared() bool {
+	return m.clearedproject
+}
+
+// ProjectID returns the "project" edge ID in the mutation.
+func (m *ServiceTreeMutation) ProjectID() (id int, exists bool) {
+	if m.project != nil {
+		return *m.project, true
+	}
+	return
+}
+
+// ProjectIDs returns the "project" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ProjectID instead. It exists only for internal usage by the builders.
+func (m *ServiceTreeMutation) ProjectIDs() (ids []int) {
+	if id := m.project; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetProject resets all changes to the "project" edge.
+func (m *ServiceTreeMutation) ResetProject() {
+	m.project = nil
+	m.clearedproject = false
+}
+
+// AddServiceIDs adds the "service" edge to the ServiceTree entity by ids.
+func (m *ServiceTreeMutation) AddServiceIDs(ids ...int) {
+	if m.service == nil {
+		m.service = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.service[ids[i]] = struct{}{}
+	}
+}
+
+// ClearService clears the "service" edge to the ServiceTree entity.
+func (m *ServiceTreeMutation) ClearService() {
+	m.clearedservice = true
+}
+
+// ServiceCleared returns if the "service" edge to the ServiceTree entity was cleared.
+func (m *ServiceTreeMutation) ServiceCleared() bool {
+	return m.clearedservice
+}
+
+// RemoveServiceIDs removes the "service" edge to the ServiceTree entity by IDs.
+func (m *ServiceTreeMutation) RemoveServiceIDs(ids ...int) {
+	if m.removedservice == nil {
+		m.removedservice = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedservice[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedService returns the removed IDs of the "service" edge to the ServiceTree entity.
+func (m *ServiceTreeMutation) RemovedServiceIDs() (ids []int) {
+	for id := range m.removedservice {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ServiceIDs returns the "service" edge IDs in the mutation.
+func (m *ServiceTreeMutation) ServiceIDs() (ids []int) {
+	for id := range m.service {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetService resets all changes to the "service" edge.
+func (m *ServiceTreeMutation) ResetService() {
+	m.service = nil
+	m.clearedservice = false
+	m.removedservice = nil
+}
+
+// Op returns the operation name.
+func (m *ServiceTreeMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (ServiceTree).
+func (m *ServiceTreeMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ServiceTreeMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.name != nil {
+		fields = append(fields, servicetree.FieldName)
+	}
+	if m.note != nil {
+		fields = append(fields, servicetree.FieldNote)
+	}
+	if m._type != nil {
+		fields = append(fields, servicetree.FieldType)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ServiceTreeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case servicetree.FieldName:
+		return m.Name()
+	case servicetree.FieldNote:
+		return m.Note()
+	case servicetree.FieldType:
+		return m.GetType()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ServiceTreeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case servicetree.FieldName:
+		return m.OldName(ctx)
+	case servicetree.FieldNote:
+		return m.OldNote(ctx)
+	case servicetree.FieldType:
+		return m.OldType(ctx)
+	}
+	return nil, fmt.Errorf("unknown ServiceTree field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ServiceTreeMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case servicetree.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case servicetree.FieldNote:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNote(v)
+		return nil
+	case servicetree.FieldType:
+		v, ok := value.(servicetree.Type)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ServiceTree field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ServiceTreeMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ServiceTreeMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ServiceTreeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown ServiceTree numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ServiceTreeMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ServiceTreeMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ServiceTreeMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ServiceTree nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ServiceTreeMutation) ResetField(name string) error {
+	switch name {
+	case servicetree.FieldName:
+		m.ResetName()
+		return nil
+	case servicetree.FieldNote:
+		m.ResetNote()
+		return nil
+	case servicetree.FieldType:
+		m.ResetType()
+		return nil
+	}
+	return fmt.Errorf("unknown ServiceTree field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ServiceTreeMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.project != nil {
+		edges = append(edges, servicetree.EdgeProject)
+	}
+	if m.service != nil {
+		edges = append(edges, servicetree.EdgeService)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ServiceTreeMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case servicetree.EdgeProject:
+		if id := m.project; id != nil {
+			return []ent.Value{*id}
+		}
+	case servicetree.EdgeService:
+		ids := make([]ent.Value, 0, len(m.service))
+		for id := range m.service {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ServiceTreeMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedservice != nil {
+		edges = append(edges, servicetree.EdgeService)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ServiceTreeMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case servicetree.EdgeService:
+		ids := make([]ent.Value, 0, len(m.removedservice))
+		for id := range m.removedservice {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ServiceTreeMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedproject {
+		edges = append(edges, servicetree.EdgeProject)
+	}
+	if m.clearedservice {
+		edges = append(edges, servicetree.EdgeService)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ServiceTreeMutation) EdgeCleared(name string) bool {
+	switch name {
+	case servicetree.EdgeProject:
+		return m.clearedproject
+	case servicetree.EdgeService:
+		return m.clearedservice
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ServiceTreeMutation) ClearEdge(name string) error {
+	switch name {
+	case servicetree.EdgeProject:
+		m.ClearProject()
+		return nil
+	}
+	return fmt.Errorf("unknown ServiceTree unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ServiceTreeMutation) ResetEdge(name string) error {
+	switch name {
+	case servicetree.EdgeProject:
+		m.ResetProject()
+		return nil
+	case servicetree.EdgeService:
+		m.ResetService()
+		return nil
+	}
+	return fmt.Errorf("unknown ServiceTree edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.

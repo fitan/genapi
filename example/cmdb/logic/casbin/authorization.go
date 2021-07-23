@@ -1,7 +1,10 @@
 package casbin
 
 import (
+	"cmdb/ent"
+	"cmdb/ent/servicetree"
 	"cmdb/public"
+	"context"
 	"github.com/gin-gonic/gin"
 )
 
@@ -64,17 +67,35 @@ func DeleteRoles(c *gin.Context, in *DeleteRolesIn) (bool, error) {
 }
 
 type PoliciesIn struct {
-	Body []struct {
-		User      string `json:"user"`
-		ServiceId string `json:"service_id"`
-		Role      string `json:"role"`
-	} `json:"body"`
+	Body []Policy `json:"body"`
+}
+
+type RawPolicies [][]string
+
+func (r RawPolicies) ToPolicies() []Policy {
+	policies := make([]Policy, 0, 0)
+	for _, raw := range r {
+		policies = append(policies, Policy{
+			User:      raw[0],
+			ProjectName: raw[1],
+			ServiceName: raw[2],
+			Role:      raw[3],
+		})
+	}
+	return policies
+}
+
+type Policy struct {
+	User      string `json:"user"`
+	ProjectName string `json:"project_name"`
+	ServiceName string `json:"service_name"`
+	Role      string `json:"role"`
 }
 
 func (p *PoliciesIn) ToPolicies() [][]string {
 	ps := make([][]string, 0, 0)
 	for _, v := range p.Body {
-		ps = append(ps, []string{v.User, v.ServiceId, v.Role})
+		ps = append(ps, []string{v.User, v.ProjectName, v.ServiceName, v.Role})
 	}
 	return ps
 }
@@ -88,11 +109,42 @@ type GetPoliciesIn struct {
 }
 
 // @GenApi /api/policies/get [get]
-func GetPolicies(c *gin.Context, in *GetPoliciesIn) ([][]string, error) {
-	return public.GetCasbin().GetPolicy(), nil
+func GetPolicies(c *gin.Context, in *GetPoliciesIn) ([]Policy, error) {
+	raw := public.GetCasbin().GetPolicy()
+
+	return RawPolicies(raw).ToPolicies(), nil
+
 }
 
 // @GenApi /api/policies/delete [post]
 func DeletePolicies(c *gin.Context, in *PoliciesIn) (bool, error) {
 	return public.GetCasbin().RemovePolicies(in.ToPolicies())
 }
+
+type GetServiceTreeIn struct {
+
+}
+
+func GetServiceTree(c *gin.Context, in *GetServiceTreeIn) ([]*ent.ServiceTree, error) {
+	return public.GetDB().ServiceTree.Query().Where(servicetree.Not(servicetree.HasProject())).WithService().All(context.Background())
+}
+
+type CreateProjectIn struct {
+	Body ent.ServiceTree `json:"body"`
+}
+
+func CreateProject(c *gin.Context, in CreateProjectIn) (*ent.ServiceTree, error) {
+	return public.GetDB().ServiceTree.Create().SetProject(&in.Body).Save(context.Background())
+}
+
+type CreateServiceIn struct {
+	Uri struct{
+		Id int `json:"id" uri:"id"`
+	}
+	Body ent.ServiceTree `json:"body"`
+}
+
+func CreateService(c *gin.Context, in *CreateServiceIn) (*ent.ServiceTree, error) {
+	return public.GetDB().ServiceTree.Create().SetProjectID(in.Uri.Id).AddService(&in.Body).Save(context.Background())
+}
+

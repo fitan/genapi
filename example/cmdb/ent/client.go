@@ -14,6 +14,7 @@ import (
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/server"
 	"cmdb/ent/service"
+	"cmdb/ent/servicetree"
 	"cmdb/ent/user"
 
 	"entgo.io/ent/dialect"
@@ -36,6 +37,8 @@ type Client struct {
 	Server *ServerClient
 	// Service is the client for interacting with the Service builders.
 	Service *ServiceClient
+	// ServiceTree is the client for interacting with the ServiceTree builders.
+	ServiceTree *ServiceTreeClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -56,6 +59,7 @@ func (c *Client) init() {
 	c.RoleBinding = NewRoleBindingClient(c.config)
 	c.Server = NewServerClient(c.config)
 	c.Service = NewServiceClient(c.config)
+	c.ServiceTree = NewServiceTreeClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -83,7 +87,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	}
 	tx, err := newTx(ctx, c.driver)
 	if err != nil {
-		return nil, fmt.Errorf("ent: starting a transaction: %v", err)
+		return nil, fmt.Errorf("ent: starting a transaction: %w", err)
 	}
 	cfg := c.config
 	cfg.driver = tx
@@ -95,6 +99,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		RoleBinding: NewRoleBindingClient(cfg),
 		Server:      NewServerClient(cfg),
 		Service:     NewServiceClient(cfg),
+		ServiceTree: NewServiceTreeClient(cfg),
 		User:        NewUserClient(cfg),
 	}, nil
 }
@@ -108,7 +113,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		BeginTx(context.Context, *sql.TxOptions) (dialect.Tx, error)
 	}).BeginTx(ctx, opts)
 	if err != nil {
-		return nil, fmt.Errorf("ent: starting a transaction: %v", err)
+		return nil, fmt.Errorf("ent: starting a transaction: %w", err)
 	}
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
@@ -119,6 +124,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		RoleBinding: NewRoleBindingClient(cfg),
 		Server:      NewServerClient(cfg),
 		Service:     NewServiceClient(cfg),
+		ServiceTree: NewServiceTreeClient(cfg),
 		User:        NewUserClient(cfg),
 	}, nil
 }
@@ -154,6 +160,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.RoleBinding.Use(hooks...)
 	c.Server.Use(hooks...)
 	c.Service.Use(hooks...)
+	c.ServiceTree.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -739,6 +746,126 @@ func (c *ServiceClient) QueryProject(s *Service) *ProjectQuery {
 // Hooks returns the client hooks.
 func (c *ServiceClient) Hooks() []Hook {
 	return c.hooks.Service
+}
+
+// ServiceTreeClient is a client for the ServiceTree schema.
+type ServiceTreeClient struct {
+	config
+}
+
+// NewServiceTreeClient returns a client for the ServiceTree from the given config.
+func NewServiceTreeClient(c config) *ServiceTreeClient {
+	return &ServiceTreeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `servicetree.Hooks(f(g(h())))`.
+func (c *ServiceTreeClient) Use(hooks ...Hook) {
+	c.hooks.ServiceTree = append(c.hooks.ServiceTree, hooks...)
+}
+
+// Create returns a create builder for ServiceTree.
+func (c *ServiceTreeClient) Create() *ServiceTreeCreate {
+	mutation := newServiceTreeMutation(c.config, OpCreate)
+	return &ServiceTreeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ServiceTree entities.
+func (c *ServiceTreeClient) CreateBulk(builders ...*ServiceTreeCreate) *ServiceTreeCreateBulk {
+	return &ServiceTreeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ServiceTree.
+func (c *ServiceTreeClient) Update() *ServiceTreeUpdate {
+	mutation := newServiceTreeMutation(c.config, OpUpdate)
+	return &ServiceTreeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ServiceTreeClient) UpdateOne(st *ServiceTree) *ServiceTreeUpdateOne {
+	mutation := newServiceTreeMutation(c.config, OpUpdateOne, withServiceTree(st))
+	return &ServiceTreeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ServiceTreeClient) UpdateOneID(id int) *ServiceTreeUpdateOne {
+	mutation := newServiceTreeMutation(c.config, OpUpdateOne, withServiceTreeID(id))
+	return &ServiceTreeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ServiceTree.
+func (c *ServiceTreeClient) Delete() *ServiceTreeDelete {
+	mutation := newServiceTreeMutation(c.config, OpDelete)
+	return &ServiceTreeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *ServiceTreeClient) DeleteOne(st *ServiceTree) *ServiceTreeDeleteOne {
+	return c.DeleteOneID(st.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *ServiceTreeClient) DeleteOneID(id int) *ServiceTreeDeleteOne {
+	builder := c.Delete().Where(servicetree.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ServiceTreeDeleteOne{builder}
+}
+
+// Query returns a query builder for ServiceTree.
+func (c *ServiceTreeClient) Query() *ServiceTreeQuery {
+	return &ServiceTreeQuery{config: c.config}
+}
+
+// Get returns a ServiceTree entity by its id.
+func (c *ServiceTreeClient) Get(ctx context.Context, id int) (*ServiceTree, error) {
+	return c.Query().Where(servicetree.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ServiceTreeClient) GetX(ctx context.Context, id int) *ServiceTree {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryProject queries the project edge of a ServiceTree.
+func (c *ServiceTreeClient) QueryProject(st *ServiceTree) *ServiceTreeQuery {
+	query := &ServiceTreeQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := st.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(servicetree.Table, servicetree.FieldID, id),
+			sqlgraph.To(servicetree.Table, servicetree.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, servicetree.ProjectTable, servicetree.ProjectColumn),
+		)
+		fromV = sqlgraph.Neighbors(st.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryService queries the service edge of a ServiceTree.
+func (c *ServiceTreeClient) QueryService(st *ServiceTree) *ServiceTreeQuery {
+	query := &ServiceTreeQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := st.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(servicetree.Table, servicetree.FieldID, id),
+			sqlgraph.To(servicetree.Table, servicetree.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, servicetree.ServiceTable, servicetree.ServiceColumn),
+		)
+		fromV = sqlgraph.Neighbors(st.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ServiceTreeClient) Hooks() []Hook {
+	return c.hooks.ServiceTree
 }
 
 // UserClient is a client for the User schema.

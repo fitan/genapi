@@ -157,14 +157,18 @@ func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bin
 			//}
 			var raw string
 			var quoteType QuoteType
-			st, hasStructType := field.Type.(*ast.StructType)
-			if hasStructType {
-				quoteType = StructType
-				raw = Node2String(c.Pkg.Fset, st)
-			} else {
-				quoteType = IdentType
-				raw = Node2String(c.Pkg.Fset, Node2SwagType(field.Type, c.File.Name.Name))
-			}
+
+			//st, hasStructType := field.Type.(*ast.StructType)
+			//if hasStructType {
+			//	quoteType = StructType
+			//	raw = Node2String(c.Pkg.Fset, st)
+			//} else {
+			//	quoteType = IdentType
+			//	fmt.Println("node2string: ", Node2String(c.Pkg.Fset, field.Type))
+			//	raw = Node2String(c.Pkg.Fset, Node2SwagType(field.Type, c.File.Name.Name))
+			//}
+			raw = Node2String(c.Pkg.Fset, Node2SwagType(field.Type, c.File.Name.Name))
+			quoteType = StructType
 			switch ident.Name {
 			case "Query":
 				bind.Query.Has = true
@@ -172,24 +176,24 @@ func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bin
 				bind.Query.QuoteType = quoteType
 				bind.Query.SwagRaw = raw
 				bind.Query.Comment = strings.ReplaceAll(field.Doc.Text(), "\n", "\\n")
-				if hasStructType {
-					bind.Query.SwagObj = bind.Query.SwagStructName
-				} else {
-					bind.Query.SwagObj = bind.Query.SwagRaw
-					//_, _, ts, _ := FindStructByExpr(c.Pkg, c.File, field.Type)
-					//_, _,  findStruct := FindTypeByName(c.Pkg,)
-				}
+				bind.Query.SwagObj = bind.Query.SwagStructName
+				//if hasStructType {
+				//	bind.Query.SwagObj = bind.Query.SwagStructName
+				//} else {
+				//	bind.Query.SwagObj = bind.Query.SwagRaw
+				//}
 			case "Body":
 				bind.Body.Has = true
 				bind.Body.QuoteType = quoteType
 				bind.Body.SwagStructName = "Swag" + funcName + "Body"
 				bind.Body.SwagRaw = raw
 				bind.Body.Comment = strings.ReplaceAll(field.Doc.Text(), "\n", "\\n")
-				if hasStructType {
-					bind.Body.SwagObj = bind.Body.SwagStructName
-				} else {
-					bind.Body.SwagObj = bind.Body.SwagRaw
-				}
+				bind.Body.SwagObj = bind.Body.SwagStructName
+				//if hasStructType {
+				//	bind.Body.SwagObj = bind.Body.SwagStructName
+				//} else {
+				//	bind.Body.SwagObj = bind.Body.SwagRaw
+				//}
 			case "Uri":
 				bind.Uri.Has = true
 				bind.Uri.TagMsgs = FindTagAndCommentByField(c.Pkg, c.File, field, "uri")

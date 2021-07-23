@@ -107,15 +107,22 @@ func node2SwagType1(node ast.Node) ast.Node {
 
 func node2SwagType2(node ast.Node, selectName string) ast.Node {
 	return astutil.Apply(node, func(c *astutil.Cursor) bool {
-		switch c.Node().(type) {
+		switch t := c.Node().(type) {
 		case *ast.SelectorExpr:
 			return false
 
 		case *ast.Ident:
-			spew.Dump(c.Node())
-			if ok := JudgeBuiltInType(c.Node().(*ast.Ident).Name); !ok {
-				tmp := ast.SelectorExpr{X: ast.NewIdent(selectName), Sel: ast.NewIdent(c.Node().(*ast.Ident).Name)}
-				c.Replace(&tmp)
+			if t.Obj != nil {
+				if t.Obj.Kind.String() == "type" {
+					tmp := ast.SelectorExpr{X: ast.NewIdent(selectName), Sel: ast.NewIdent(c.Node().(*ast.Ident).Name)}
+					c.Replace(&tmp)
+				}
+			} else {
+				spew.Dump(c.Node())
+				if ok := JudgeBuiltInType(c.Node().(*ast.Ident).Name); !ok {
+					tmp := ast.SelectorExpr{X: ast.NewIdent(selectName), Sel: ast.NewIdent(c.Node().(*ast.Ident).Name)}
+					c.Replace(&tmp)
+				}
 			}
 		}
 		return true

@@ -21,12 +21,10 @@ const (
 	FieldPhone = "phone"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
-
 	// EdgeRoleBindings holds the string denoting the role_bindings edge name in mutations.
 	EdgeRoleBindings = "role_bindings"
 	// EdgeAlert holds the string denoting the alert edge name in mutations.
 	EdgeAlert = "alert"
-
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleBindingsTable is the table the holds the role_bindings relation/edge.
@@ -55,7 +53,8 @@ var Columns = []string{
 	FieldRole,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the User type.
+// ForeignKeys holds the SQL foreign-keys that are owned by the "users"
+// table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"user_alert",
 }

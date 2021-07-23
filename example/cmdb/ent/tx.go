@@ -22,6 +22,8 @@ type Tx struct {
 	Server *ServerClient
 	// Service is the client for interacting with the Service builders.
 	Service *ServiceClient
+	// ServiceTree is the client for interacting with the ServiceTree builders.
+	ServiceTree *ServiceTreeClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -164,6 +166,7 @@ func (tx *Tx) init() {
 	tx.RoleBinding = NewRoleBindingClient(tx.config)
 	tx.Server = NewServerClient(tx.config)
 	tx.Service = NewServiceClient(tx.config)
+	tx.ServiceTree = NewServiceTreeClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

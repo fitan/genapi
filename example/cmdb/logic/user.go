@@ -28,3 +28,4 @@ func (i UserCallIn) GetRedisKey() string {
 func UserCall(c *gin.Context, in *UserCallIn) ([]*ent.User, error) {
 	return nil, nil
 }
+
