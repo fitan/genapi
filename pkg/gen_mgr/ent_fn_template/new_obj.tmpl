@@ -23,9 +23,11 @@ func New{{$n.Name}}CURD(db *ent.Client) *{{$n.Name}}CURD {
     {{lower $n.Name}}CURD = &{{$n.Name}}CURD{
         Db:      db,
         {{ range $e := $n.Edges}}
+        {{ if ne $n.Name $e.Type.Name}}
         {{$e.Type.Name}}Obj: &{{$e.Type.Name}}CURD{
             Db: db,
         },
+        {{end}}
         {{ end }}
     }
     return {{lower $n.Name}}CURD

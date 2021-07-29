@@ -104,6 +104,7 @@ func DeleteList{{$n.Name}}(c *gin.Context, in *DeleteList{{$n.Name}}In) (int, er
 	return Get{{$n.Name}}CURD().DeleteList(in.Query.IDs)
 }
 {{ range $e := $n.Edges}}
+{{if ne $e.Type.Name $n.Name}}
 {{$rel := PaseRelType $e}}
 // action {{$e.Type.Name}} by {{$n.Name}}
 {{$methodOp := (PaseRestEdgeMethod $e.Annotations)}}
@@ -179,4 +180,5 @@ func DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *DeleteList{{$
 {{end}}
 {{end}}
 
+{{end}}
 {{end}}

@@ -117,7 +117,7 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("role_bindings", RoleBinding.Type).Annotations(entsql.Annotation{}),
+		edge.To("role_bind", RoleBinding.Type).Annotations(entsql.Annotation{}),
 		edge.To("alert", Alert.Type).Unique(),
 	}
 }
