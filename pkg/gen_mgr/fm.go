@@ -3,6 +3,7 @@ package gen_mgr
 import (
 	"encoding/json"
 	"entgo.io/ent/entc/gen"
+	"github.com/davecgh/go-spew/spew"
 	gen_apiV2 "github.com/fitan/genapi/pkg/gin_api"
 	"log"
 	"strings"
@@ -28,6 +29,7 @@ var FM = template.FuncMap{
 	"Join":                     strings.Join,
 	"ForMat":                   GenForMat,
 	"FuncImportUnique": FuncImportUnique,
+	"Dump": Dump,
 }
 
 func FuncImportUnique(fs []gen_apiV2.Func) string {
@@ -559,4 +561,9 @@ func (s TempString) Format(data interface{}) (out string, err error) {
 func GenForMat(s string, data interface{}) string {
 	res,_ := TempString(s).Format(data)
 	return res
+}
+
+func Dump(i interface{}) string {
+	spew.Dump(i)
+	return ""
 }

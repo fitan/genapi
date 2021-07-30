@@ -66,7 +66,7 @@ func {{$n.Name}}UpdateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{range $e := $n.Edges}}
     {{if $e.Inverse}}
 	{{if $e.Unique}}
-	m.Set{{$e.Type.Name}}ID(v.Edges.{{$e.Type.Name}}.ID)
+	m.Set{{pascal $e.Name}}ID(v.Edges.{{pascal $e.Name}}.ID)
 	{{else}}
 	m.Add{{$e.Type.Name}}IDs(GetIDsBy{{$e.Type.Name}}(v.Edges.{{plural $e.Type.Name}})...)
     {{end}}
