@@ -1,0 +1,253 @@
+{{template "pkg_name" $.PkgName}}
+
+import (
+	"context"
+	"fmt"
+	"strconv"
+	"{{$.Config.Package}}"
+	"{{$.Config.Package}}/predicate"
+	"github.com/gin-gonic/gin"
+{{- range $n := $.Nodes }}
+	"{{$.Config.Package}}/{{lower $n.Name}}"
+{{- end }}
+)
+
+{{ range $n := $.Nodes }}
+
+type {{$n.Name}}CURD struct {
+	Db *ent.Client
+	{{ range $e := $n.Edges}}
+	{{ if ne $n.Name $e.Type.Name}}
+	{{$e.Type.Name}}Obj *{{$e.Type.Name}}CURD
+	{{end}}
+	{{ end }}
+}
+
+func (curd *{{$n.Name}}CURD) GetQueryer() *ent.{{$n.Name}}Query {
+	return curd.Db.{{$n.Name}}.Query()
+}
+
+func (curd *{{$n.Name}}CURD) GetCreater() *ent.{{$n.Name}}Create {
+	return curd.Db.{{$n.Name}}.Create()
+}
+
+func (curd *{{$n.Name}}CURD) GetDeleter() *ent.{{$n.Name}}Delete {
+	return curd.Db.{{$n.Name}}.Delete()
+}
+
+func (curd *{{$n.Name}}CURD) GetUpdaterById(id int) *ent.{{$n.Name}}UpdateOne {
+	return curd.Db.{{$n.Name}}.UpdateOneID(id)
+}
+
+func (curd *{{$n.Name}}CURD) GetQueryerById(id int) *ent.{{$n.Name}}Query {
+	return curd.GetQueryer().Where({{lower $n.Name}}.IDEQ(id))
+}
+
+func (curd *{{$n.Name}}CURD) GetOne(id int) (*ent.{{$n.Name}}, error) {
+	queryer := curd.GetQueryerById(id)
+	{{$n.Name}}Selete(queryer)
+	return queryer.Only(context.Background())
+}
+
+func (curd *{{$n.Name}}CURD) SetGetListQueryerOption(queryer *ent.{{$n.Name}}Query, query *{{$n.Name}}QueryOption) error {
+	err := query.Exec(queryer)
+	if err != nil {
+		return err
+	}
+	{{$n.Name}}Selete(queryer)
+	return nil
+}
+
+func (curd *{{$n.Name}}CURD) SetListCountQueryer(queryer *ent.{{$n.Name}}Query, query *{{$n.Name}}QueryOption) error {
+	ps, err := query.PredicatesExec()
+	if err != nil {
+		return err
+	}
+	queryer.Where({{lower $n.Name}}.And(ps...))
+	return nil
+}
+
+func (curd *{{$n.Name}}CURD) GetList(query *{{$n.Name}}QueryOption) (*Get{{$n.Name}}ListData, error) {
+	listQueryer := curd.GetQueryer()
+	countQueryer := curd.GetQueryer()
+	return curd.GetListByQueryer(listQueryer, countQueryer, query)
+}
+
+func (curd *{{$n.Name}}CURD) GetListByQueryer(listQueryer, countQueryer *ent.{{$n.Name}}Query, query *{{$n.Name}}QueryOption) (*Get{{$n.Name}}ListData, error) {
+	bg := context.Background()
+	err := curd.SetGetListQueryerOption(listQueryer, query)
+	if err != nil {
+		return nil, err
+	}
+	list, err := listQueryer.All(bg)
+	if err != nil {
+		return nil, err
+	}
+	err = curd.SetListCountQueryer(countQueryer, query)
+	if err != nil {
+		return nil, err
+	}
+	count, err := countQueryer.Count(bg)
+	if err != nil {
+		return nil, err
+	}
+	return &Get{{$n.Name}}ListData{count, list}, nil
+}
+
+func (curd *{{$n.Name}}CURD) CreateOne({{lower $n.Name}} *ent.{{$n.Name}}) (*ent.{{$n.Name}}, error) {
+	creater := curd.GetCreater()
+	{{$n.Name}}CreateMutation(creater.Mutation(), {{lower $n.Name}})
+	return creater.Save(context.Background())
+}
+
+func (curd *{{$n.Name}}CURD) GetBulk({{lower $n.Name}}s []*ent.{{$n.Name}}) []*ent.{{$n.Name}}Create {
+	bulk := make([]*ent.{{$n.Name}}Create, 0, len({{lower $n.Name}}s))
+	for _, v := range {{lower $n.Name}}s {
+		creater := curd.GetCreater()
+		{{$n.Name}}CreateMutation(creater.Mutation(), v)
+		bulk = append(bulk, creater)
+	}
+	return bulk
+}
+
+func (curd *{{$n.Name}}CURD) CreateList({{lower $n.Name}}s []*ent.{{$n.Name}}) ([]*ent.{{$n.Name}}, error) {
+	return curd.Db.{{$n.Name}}.CreateBulk(curd.GetBulk({{lower $n.Name}}s)...).Save(context.Background())
+}
+
+func (curd *{{$n.Name}}CURD) UpdateOne({{lower $n.Name}} *ent.{{$n.Name}}) (*ent.{{$n.Name}}, error) {
+	updater := curd.GetUpdaterById({{lower $n.Name}}.ID)
+	{{$n.Name}}UpdateMutation(updater.Mutation(), {{lower $n.Name}})
+	return updater.Save(context.Background())
+}
+
+func (curd *{{$n.Name}}CURD) UpdateList({{lower $n.Name}}s []*ent.{{$n.Name}}) (string, error) {
+	bg := context.Background()
+	tx, err := curd.Db.Tx(bg)
+	if err != nil {
+		return "", err
+	}
+	for _, v := range {{lower $n.Name}}s {
+		updater := tx.{{$n.Name}}.UpdateOneID(v.ID)
+		{{$n.Name}}UpdateMutation(updater.Mutation(), v)
+		_, err := updater.Save(bg)
+		if err != nil {
+			if rerr := tx.Rollback(); rerr != nil {
+				return "", fmt.Errorf("$v: %v", err, rerr)
+			}
+		}
+	}
+	return "ok", tx.Commit()
+}
+
+func (curd *{{$n.Name}}CURD) DeleteOne(id int) (int, error) {
+	return curd.GetDeleter().Where({{lower $n.Name}}.IDEQ(id)).Exec(context.Background())
+}
+
+func (curd *{{$n.Name}}CURD) DeleteList(ids []int) (int, error) {
+	return curd.Db.{{$n.Name}}.Delete().Where({{lower $n.Name}}.IDIn(ids...)).Exec(context.Background())
+}
+
+{{ range $e := $n.Edges}}
+{{ if ne $n.Name $e.Type.Name}}
+{{$rel := PaseRelType $e}}
+{{if eq $rel.Dest "O"}}
+// action {{$e.Type.Name}} by {{$n.Name}}
+func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}Id(id int) (*ent.{{$e.Type.Name}}, error) {
+	queryer := curd.GetQueryerById(id).Query{{$e.Type.Name}}()
+	{{$e.Type.Name}}Selete(queryer)
+	return queryer.Only(context.Background())
+}
+
+func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(id int, alert *ent.{{$e.Type.Name}}) (*ent.{{$e.Type.Name}}, error) {
+	bg := context.Background()
+	tx, err := curd.Db.Tx(bg)
+	if err != nil {
+		return nil, err
+	}
+	save, err := func() (*ent.{{$e.Type.Name}}, error) {
+		creater := tx.{{$e.Type.Name}}.Create()
+		{{$e.Type.Name}}CreateMutation(creater.Mutation(), alert)
+		save, err := creater.Save(bg)
+		if err != nil {
+			return nil, err
+		}
+		_, err = tx.{{$n.Name}}.UpdateOneID(id).Set{{$e.Type.Name}}ID(save.ID).Save(bg)
+		if err != nil {
+			return nil, err
+		}
+		return save, nil
+	} ()
+
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%v: %v", err, rerr)
+		}
+		return nil, err
+	}
+	return save, tx.Commit()
+}
+
+func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(id int) (int, error) {
+	bg := context.Background()
+	onlyID, err := curd.GetQueryerById(id).Query{{$e.Type.Name}}().OnlyID(bg)
+	if err != nil {
+		return onlyID, err
+	}
+	return curd.{{$e.Type.Name}}Obj.DeleteOne(onlyID)
+}    
+
+{{else}}
+// action {{$e.Type.Name}} by {{$n.Name}}
+func (curd *{{$n.Name}}CURD) GetList{{$e.Type.Name}}By{{$n.Name}}Id(id int, query *{{$e.Type.Name}}QueryOption) (*Get{{$e.Type.Name}}ListData, error) {
+	listQueryer := curd.GetQueryerById(id).Query{{pascal $e.Name}}()
+	countQueryer := curd.GetQueryerById(id).Query{{pascal $e.Name}}()
+	return curd.{{$e.Type.Name}}Obj.GetListByQueryer(listQueryer, countQueryer, query)
+}
+
+func (curd *{{$n.Name}}CURD) CreateList{{$e.Type.Name}}By{{$n.Name}}Id(id int, {{lower (plural $e.Type.Name)}} ent.{{plural $e.Type.Name}}) (ent.{{plural $e.Type.Name}}, error) {
+	bulk := curd.{{$e.Type.Name}}Obj.GetBulk({{lower (plural $e.Type.Name)}})
+
+	bg := context.Background()
+	tx, err := curd.Db.Tx(bg)
+	if err != nil {
+		return nil, err
+	}
+	save, err := func() (ent.{{plural $e.Type.Name}}, error) {
+		save, err := tx.{{$e.Type.Name}}.CreateBulk(bulk...).Save(bg)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = tx.{{$n.Name}}.UpdateOneID(id).Add{{pascal $e.Name}}(save...).Save(bg)
+		if err != nil {
+			return nil, err
+		}
+		return save, nil
+	}()
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = fmt.Errorf("%v: %v", err, rerr)
+		}
+		return nil, err
+	}
+	return save, nil
+
+}
+
+func (curd *{{$n.Name}}CURD) DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(id int, query *{{$e.Type.Name}}QueryOption) (int, error) {
+	queryer := curd.GetQueryerById(id)
+
+	curd.{{$e.Type.Name}}Obj.SetListCountQueryer(queryer.Query{{pascal $e.Name}}(), query)
+	bg := context.Background()
+	ids, err := queryer.IDs(bg)
+	if err != nil {
+		return 0, err
+	}
+	return curd.{{$e.Type.Name}}Obj.DeleteList(ids)
+}	
+
+{{end}}
+{{end}}
+
+{{end}}
+{{end}}

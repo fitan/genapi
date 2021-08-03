@@ -1,0 +1,79 @@
+{{define "router"}}
+	{{$n := .}}
+	{{$a := (PaseRestNodeMethod $n.Annotations)}}
+	{{range $method, $route := $a}}
+	{{if eq $method "Get"}}
+	{{$method = "GetOne"}}
+	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{$method = "GetList"}}
+	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{end}}
+	{{if eq $method "Create"}}
+	{{$method = "CreateOne"}}
+
+	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{$method = "CreateList"}}
+
+	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{end}}
+	{{if eq $method "Update"}}
+	{{$method = "UpdateOne"}}
+
+	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{$method = "UpdateList"}}
+
+	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
+		err := curd.{{$method}}(c)
+		RestReturnFunc(c, "", err)
+	})
+	{{end}}
+	{{if eq $method "Delete"}}
+	{{$method = "DeleteOne"}}
+
+	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{$method = "DeleteList"}}
+
+	r.{{$route}}(curd.{{$method}}RoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{end}}
+
+	{{end}}
+	{{ range $e := $n.Edges}}
+	{{$a := (PaseRestEdgeMethod $e.Annotations)}}
+	{{range $method, $route := $a}}
+{{/*    {{if or (ne $method "Create") (and (eq $method "Create") (not $e.Inverse))}}*/}}
+	{{if $e.Unique}}
+	r.{{$route}}(curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}One{{$e.Type.Name}}By{{$n.Name}}Id(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{else}}
+	r.{{$route}}(curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}IdRoutePath(), func(c *gin.Context) {
+		data, err := curd.{{$method}}List{{plural $e.Type.Name}}By{{$n.Name}}Id(c)
+		RestReturnFunc(c, data, err)
+	})
+	{{end}}
+	{{end}}
+{{/*	{{end}}*/}}
+	{{end}}
+{{end}}

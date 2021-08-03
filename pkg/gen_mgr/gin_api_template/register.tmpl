@@ -1,0 +1,16 @@
+{{template "pkg_name" $.PkgName}}
+import (
+    "github.com/gin-gonic/gin"
+	{{$.BaseConf.WrapResult.ImportPath}}
+)
+
+
+{{range $key,$funcs := $.ReginsterMap}}
+func Register{{pascal $key}}(r gin.IRouter) {
+	{{range $func := $funcs}}
+	r.{{$func.Router.Method}}("{{$func.Router.GinPath}}", func(c *gin.Context) {
+        {{$.BaseConf.WrapResult.WrapFunc}}(c, {{$func.FuncName}})
+    })
+	{{end}}
+}
+{{end}}

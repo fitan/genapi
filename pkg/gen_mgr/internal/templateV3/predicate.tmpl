@@ -1,0 +1,302 @@
+{{template "pkg_name" $.PkgName}}
+import (
+    "{{$.Config.Package}}/predicate"
+    "github.com/gin-gonic/gin"
+    {{- range $n := $.Nodes }}
+    "{{$.Config.Package}}/{{lower $n.Name}}"
+    {{- end }}
+    {{$hasTime := "False"}}
+    {{$hasUuid := "False"}}
+    {{range $n := $.Nodes}}
+        {{range $f := $n.Fields}}
+            {{if eq (toString $f.Type) "uuid.UUID"}}
+                {{$hasUuid = "True"}}
+            {{end}}
+            {{if eq (toString $f.Type) "time.Time"}}
+                {{$hasTime = "True"}}
+            {{end}}
+        {{end}}
+    {{end}}
+    {{if eq $hasTime "True"}}
+    "time"
+    {{end}}
+    {{if eq $hasUuid "True"}}
+    "github.com/google/uuid"
+    {{end}}
+)
+
+    {{ range $n := $.Nodes }}
+type {{$n.Name}}ID struct {
+    ID {{$.IDType}} `uri:"id" binding:"required"`
+}
+type {{$n.Name}}IDs struct {
+    IDs []{{$.IDType}} `form:"ids" binding:"required"`
+}
+
+func {{$n.Name}}PredicatesExec(fs ...func() (predicate.{{$n.Name}}, error)) ([]predicate.{{$n.Name}}, error) {
+    ps := make([]predicate.{{$n.Name}}, 0, len(fs))
+    for _, f := range fs {
+        p, err := f()
+        if err != nil {
+            return ps, err
+        }
+        if p != nil {
+            ps = append(ps, p)
+        }
+    }
+    return ps, nil
+}
+
+{{$orderOp := PaseFieldsOrderOp $n.Fields}}
+{{if $orderOp.Has}}
+type UserOrder struct {
+    // Association query Multiple choice:
+    {{- range $field := $orderOp.OrderField}}
+    // {{$field}}
+    {{- end}}
+	Sort *string `form:"sort" json:"sort" binding:"oneof={{Join $orderOp.OrderField " "}}"`
+	// Association query Multiple choice:
+	// asc
+	// desc
+	Order *string `form:"order" json:"order" binding:"oneof=asc desc"`
+}
+
+func (o *UserOrder)BindOrderUser(queryer *ent.UserQuery)  {
+	if o.Sort != nil && o.Order != nil {
+		switch *o.Order {
+		case "asc":
+			queryer.Order(ent.Asc(*o.Sort))
+		case "desc":
+			queryer.Order(ent.Desc(*o.Sort))
+		}
+	}
+}
+{{end}}
+
+
+{{$page := (PaseRestNodePaging $n.Annotations)}}
+
+
+type {{$n.Name}}Paging struct {
+	{{if eq (toString $page.MaxLimit) "0"}}
+    Limit int `form:"limit" json:"limit"`
+    {{else}}
+    // limit must <= {{$page.MaxLimit}}
+    Limit int `form:"limit" binding:"lte={{$page.MaxLimit}}" json:"limit"`
+    {{end}}
+    {{if eq (toString $page.Must) "true"}}
+    // page must > 0
+    Page int `form:"page" binding:"gt=0" json"page"`
+    {{else}}
+    Page int `form:"page" json:"page"`
+    {{end}}
+}
+
+func (m *{{$n.Name}}Paging)BindPaging{{$n.Name}}(queryer *ent.{{$n.Name}}Query) error  {
+    if m.Page == 0{
+        return nil
+    }
+    queryer.Limit(m.Limit).Offset((m.Page - 1) * m.Limit)
+    return nil
+}
+        {{ range $f := $n.Fields }}
+            {{range $method := opsString (ops $f)}}
+{{ if eq $method  "EQ"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} == %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+    	return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}),nil
+}
+{{end}}
+
+{{if eq $method "NEQ"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} != %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}),nil
+}
+{{end}}
+
+
+{{if eq $method "In"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} in []%v
+    {{$f.StructField}}{{$method}} []{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if len(m.{{$f.StructField}}{{$method}}) == 0 {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(m.{{$f.StructField}}{{$method}}...),nil
+}
+{{end}}
+
+
+
+{{if eq $method "NotIn"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // // {{$f.StructField}} not in []%v
+    {{$f.StructField}}{{$method}} []{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if len(m.{{$f.StructField}}{{$method}}) == 0 {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(m.{{$f.StructField}}{{$method}}...),nil
+}
+{{end}}
+
+{{if eq $method "GT"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} > %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}),nil
+}
+    {{end}}
+
+{{if eq $method "GTE"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} >= %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}),nil
+}
+{{end}}
+
+{{if eq $method  "LT"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} < %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}),nil
+}
+    {{end}}
+
+{{if eq $method "LTE"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} <= %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}),nil
+}
+{{end}}
+
+{{if eq $method "EQ"}}
+{{$TmpMethod := $method}}
+{{ $method = "Or"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} == []%v
+    {{$f.StructField}}{{$method}} []{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if len(m.{{$f.StructField}}{{$method}}) == 0 {
+        return nil, nil
+    }
+    predicate := make([]predicate.{{$n.Name}},0,len(m.{{$f.StructField}}Or))
+    for i,_ := range m.{{$f.StructField}}Or {
+        predicate = append(predicate, {{lower $n.Name}}.{{$f.StructField}}EQ(m.{{$f.StructField}}Or[i]))
+    }
+    return {{lower $n.Name}}.Or(predicate...),nil
+}
+{{$method = $TmpMethod}}
+{{end}}
+
+{{if eq $method "Contains"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} $method %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}), nil
+}
+{{end}}
+
+
+{{if eq $method "ContainsFold"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} $method %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}), nil
+}
+    {{end}}
+
+
+{{if eq $method "HasPrefix"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} $method %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}), nil
+
+}
+    {{end}}
+
+{{if eq $method "HasSuffix"}}
+type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
+    // {{$f.StructField}} $method %v
+    {{$f.StructField}}{{$method}} *{{ $f.Type }} `json:"{{snake $method}}_{{$f.Name}}" form:"{{snake $method}}_{{$f.Name}}"`
+}
+
+func (m *{{$n.Name}}{{$f.StructField}}{{$method}})Bind{{$n.Name}}{{$f.StructField}}{{$method}}() (predicate.{{$n.Name}}, error) {
+    if m.{{$f.StructField}}{{$method}} == nil {
+        return nil, nil
+    }
+    return {{lower $n.Name}}.{{$f.StructField}}{{$method}}(*m.{{$f.StructField}}{{$method}}), nil
+}
+{{end}}
+
+{{end}}
+
+{{end}}
+{{end}}

@@ -1,0 +1,183 @@
+(map[string]map[string]map[string]pkg.ApiMsg) (len=1) {
+ (string) (len=3) "api": (map[string]map[string]pkg.ApiMsg) (len=1) {
+  (string) (len=12) "api/hello.go": (map[string]pkg.ApiMsg) (len=2) {
+   (string) (len=5) "Hello": (pkg.ApiMsg) {
+    SrcPkgName: (string) (len=3) "api",
+    FuncRouter: (pkg.FuncRouter) {
+     SwagRouter: (string) (len=22) "// @Router /user [get]",
+     Method: (string) (len=3) "GET",
+     GinPath: (string) (len=5) "/user"
+    },
+    Doc: (*ast.CommentGroup)(0xc00061a030)({
+     List: ([]*ast.Comment) (len=1 cap=1) {
+      (*ast.Comment)(0xc00061a018)({
+       Slash: (token.Pos) 158,
+       Text: (string) (len=22) "// @GenApi /user [get]"
+      })
+     }
+    }),
+    In: (struct { ObjectMsg pkg.ObjectMsg; InHas pkg.InHas }) {
+     ObjectMsg: (pkg.ObjectMsg) {
+      PkgName: (string) (len=3) "api",
+      RawName: (string) (len=14) "*api_models.In",
+      SelectorSel: (string) (len=2) "In",
+      SelectorX: (string) (len=10) "api_models",
+      IsSelector: (bool) true,
+      ObjectImportMsg: (pkg.ObjectImportMsg) {
+       RawImport: (string) (len=28) "\"ent_samp/models/api_models\"",
+       PathDir: (string) (len=56) "/mnt/e/project/genapi/example/ent_smap/models/api_models",
+       AliseName: (string) (len=10) "api_models",
+       PkgName: (string) (len=10) "api_models"
+      }
+     },
+     InHas: (pkg.InHas) {
+      HasBody: (bool) true,
+      BodyMsg: (pkg.FieldMsg) {
+       IsSelector: (bool) false,
+       PkgName: (string) (len=10) "api_models",
+       Raw: (string) (len=4) "Body",
+       FieldTags: ([]pkg.FieldTag) {
+       },
+       ImportPath: (string) (len=28) "\"ent_samp/models/api_models\""
+      },
+      HasUri: (bool) true,
+      UriMsg: (pkg.FieldMsg) {
+       IsSelector: (bool) false,
+       PkgName: (string) (len=10) "api_models",
+       Raw: (string) (len=3) "Uri",
+       FieldTags: ([]pkg.FieldTag) (len=1 cap=1) {
+        (pkg.FieldTag) {
+         FieldName: (string) (len=2) "ID",
+         TagName: (string) (len=2) "id"
+        }
+       },
+       ImportPath: (string) (len=28) "\"ent_samp/models/api_models\""
+      },
+      HasHeader: (bool) false,
+      HeaderMsg: (pkg.FieldMsg) {
+       IsSelector: (bool) false,
+       PkgName: (string) "",
+       Raw: (string) "",
+       FieldTags: ([]pkg.FieldTag) <nil>,
+       ImportPath: (string) ""
+      },
+      HasQuery: (bool) true,
+      QueryMsg: (pkg.FieldMsg) {
+       IsSelector: (bool) false,
+       PkgName: (string) (len=10) "api_models",
+       Raw: (string) (len=5) "Query",
+       FieldTags: ([]pkg.FieldTag) (len=1 cap=1) {
+        (pkg.FieldTag) {
+         FieldName: (string) (len=6) "NameEQ",
+         TagName: (string) (len=7) "eq_name"
+        }
+       },
+       ImportPath: (string) (len=28) "\"ent_samp/models/api_models\""
+      }
+     }
+    },
+    Out: (pkg.ObjectMsg) {
+     PkgName: (string) (len=3) "api",
+     RawName: (string) (len=11) "[]*ent.User",
+     SelectorSel: (string) (len=4) "User",
+     SelectorX: (string) (len=3) "ent",
+     IsSelector: (bool) true,
+     ObjectImportMsg: (pkg.ObjectImportMsg) {
+      RawImport: (string) (len=14) "\"ent_samp/ent\"",
+      PathDir: (string) (len=42) "/mnt/e/project/genapi/example/ent_smap/ent",
+      AliseName: (string) (len=3) "ent",
+      PkgName: (string) (len=3) "ent"
+     }
+    }
+   },
+   (string) (len=3) "Car": (pkg.ApiMsg) {
+    SrcPkgName: (string) (len=3) "api",
+    FuncRouter: (pkg.FuncRouter) {
+     SwagRouter: (string) (len=26) "// @Router /car/{id} [get]",
+     Method: (string) (len=3) "GET",
+     GinPath: (string) (len=8) "/car/:id"
+    },
+    Doc: (*ast.CommentGroup)(0xc00061a240)({
+     List: ([]*ast.Comment) (len=1 cap=1) {
+      (*ast.Comment)(0xc00061a228)({
+       Slash: (token.Pos) 498,
+       Text: (string) (len=26) "// @GenApi /car/{id} [get]"
+      })
+     }
+    }),
+    In: (struct { ObjectMsg pkg.ObjectMsg; InHas pkg.InHas }) {
+     ObjectMsg: (pkg.ObjectMsg) {
+      PkgName: (string) (len=3) "api",
+      RawName: (string) (len=6) "*CarIn",
+      SelectorSel: (string) (len=5) "CarIn",
+      SelectorX: (string) "",
+      IsSelector: (bool) false,
+      ObjectImportMsg: (pkg.ObjectImportMsg) {
+       RawImport: (string) (len=12) "ent_smap/api",
+       PathDir: (string) "",
+       AliseName: (string) "",
+       PkgName: (string) ""
+      }
+     },
+     InHas: (pkg.InHas) {
+      HasBody: (bool) false,
+      BodyMsg: (pkg.FieldMsg) {
+       IsSelector: (bool) false,
+       PkgName: (string) "",
+       Raw: (string) "",
+       FieldTags: ([]pkg.FieldTag) <nil>,
+       ImportPath: (string) ""
+      },
+      HasUri: (bool) true,
+      UriMsg: (pkg.FieldMsg) {
+       IsSelector: (bool) true,
+       PkgName: (string) "",
+       Raw: (string) (len=13) "genrest.IdUri",
+       FieldTags: ([]pkg.FieldTag) (len=1 cap=1) {
+        (pkg.FieldTag) {
+         FieldName: (string) (len=2) "ID",
+         TagName: (string) (len=2) "id"
+        }
+       },
+       ImportPath: (string) (len=26) "genrest \"ent_samp/service\""
+      },
+      HasHeader: (bool) false,
+      HeaderMsg: (pkg.FieldMsg) {
+       IsSelector: (bool) false,
+       PkgName: (string) "",
+       Raw: (string) "",
+       FieldTags: ([]pkg.FieldTag) <nil>,
+       ImportPath: (string) ""
+      },
+      HasQuery: (bool) true,
+      QueryMsg: (pkg.FieldMsg) {
+       IsSelector: (bool) true,
+       PkgName: (string) "",
+       Raw: (string) (len=18) "genrest.UserNameEQ",
+       FieldTags: ([]pkg.FieldTag) (len=1 cap=1) {
+        (pkg.FieldTag) {
+         FieldName: (string) (len=6) "NameEQ",
+         TagName: (string) (len=7) "eq_name"
+        }
+       },
+       ImportPath: (string) (len=26) "genrest \"ent_samp/service\""
+      }
+     }
+    },
+    Out: (pkg.ObjectMsg) {
+     PkgName: (string) (len=3) "api",
+     RawName: (string) (len=11) "[]*ent.User",
+     SelectorSel: (string) (len=4) "User",
+     SelectorX: (string) (len=3) "ent",
+     IsSelector: (bool) true,
+     ObjectImportMsg: (pkg.ObjectImportMsg) {
+      RawImport: (string) (len=14) "\"ent_samp/ent\"",
+      PathDir: (string) (len=42) "/mnt/e/project/genapi/example/ent_smap/ent",
+      AliseName: (string) (len=3) "ent",
+      PkgName: (string) (len=3) "ent"
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,50 @@
+{{define "swaggerobj"}}
+{{range $n := $.Nodes}}
+type {{$n.Name}}ID struct {
+    ID {{ $n.ID.Type }} {{ with $n.Annotations.Fields.StructTag.id }}`{{ . }}`{{ else }}`{{ $n.ID.StructTag }}`{{ end }}
+}
+
+type {{$n.Name}}Node struct {
+    {{$n.Name}}ID
+    {{$n.Name}}NodeNotID
+}
+
+type {{$n.Name}}Edges struct {
+    {{range $e := $n.Edges}}
+    {{if $e.Inverse}}
+    {{if $e.Unique}}
+    {{$e.Type.Name}} *{{$e.Type.Name}}ID `{{$e.StructTag}}`
+    {{else}}
+    {{plural $e.Type.Name}} []*{{$e.Type.Name}}ID `{{$e.StructTag}}`
+    {{end}}
+    {{end}}
+    {{end}}
+}
+
+
+
+type {{$n.Name}}NodeNotID struct {
+    {{range $f := $n.Fields}}
+    // {{$f.Comment}}
+    {{$f.StructField}} {{ if $f.Nillable }}*{{ end }}{{ $f.Type }} `{{$f.StructTag}} {{if eq (toString $f.Type) "uuid.UUID"}}format:"uuid"{{end}} {{if eq (toString $f.Type) "time.Time"}}format:"date-time"{{end}} {{$isEnum := PaseFieldIsEnum $f}}{{if $isEnum.Has}}enums:"{{$isEnum.Values}}" binding:"oneof={{$isEnum.Values}}"{{end}}`
+    {{- end}}
+    Edges {{$n.Name}}Edges `json:"edges"`
+}
+
+type {{$n.Name}}Query struct {
+    // Association query Multiple choice:
+    // {{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v "\n    // "}}{{end}}{{end}}
+    Includes []string `json:"includes" form:"includes" enums:"{{range $k,$v := $.Includes}}{{if eq $k (snake $n.Name)}}{{IncludesTo $v ","}}{{end}}{{end}}"`
+{{range $f := $n.Fields}}
+{{$a := (PaseRestFieldQueryOp $f.Annotations)}}
+{{range $method := $a}}
+    {{$n.Name}}{{$f.StructField}}{{$method}}
+{{- end}}
+{{- end}}
+    {{$page := (PaseRestNodePaging $n.Annotations)}}
+    {{if eq (toString $page.Open) "true"}}
+    {{$n.Name}}Paging
+    {{end}}
+}
+{{end}}
+{{end}}

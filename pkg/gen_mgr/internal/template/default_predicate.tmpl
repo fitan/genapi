@@ -1,0 +1,75 @@
+{{ define "genrest/default_predicate"}}
+package genrest
+
+import (
+    "{{$.Config.Package}}"
+    "{{$.Config.Package}}/predicate"
+    {{- range $n := $.Nodes}}
+    "{{$.Config.Package}}/{{snake $n.Name}}"
+    {{- end}}
+    "github.com/gin-gonic/gin"
+)
+{{ range $n := $.Nodes }}
+type {{$n.Name}}DefaultQuery struct {
+    {{range $f := $n.Fields}}
+    {{$a := (PaseRestFieldQueryOp $f.Annotations)}}
+    {{range $method := $a}}
+    {{$n.Name}}{{$f.StructField}}{{$method}}
+    {{end}}
+    {{end}}
+    {{$order := (PaseRestNodeOrderOp $n.Annotations)}}
+    {{if eq (toString $order.OpenOptionalOrder) "true"}}
+    Order
+    {{end}}
+    {{$page := (PaseRestNodePaging $n.Annotations)}}
+    {{if eq (toString $page.Open) "true"}}
+    {{$n.Name}}Paging
+    {{end}}
+}
+
+{{$receiver := (receiver $n.Name)}}
+{{if eq (toString $order.OpenOptionalOrder) "true"}}
+func ({{$receiver}} *{{$n.Name}}DefaultQuery) GetExpectOrder() map[string]int {
+    return map[string]int {
+        {{range $k := $order.OptionalOrder}}
+        "{{$k}}": 0,
+        {{end}}
+    }
+}
+{{end}}
+
+func ({{$receiver}} *{{$n.Name}}DefaultQuery) PredicatesExec() ([]predicate.{{$n.Name}}, error) {
+    return {{$n.Name}}PredicatesExec(
+    {{range $f := $n.Fields}}
+    {{$a := (PaseRestFieldQueryOp $f.Annotations)}}
+    {{range $method := $a}}
+        {{$receiver}}.Bind{{$n.Name}}{{$f.StructField}}{{$method}},
+    {{end}}
+    {{end}}
+    )
+}
+
+func ({{$receiver}} *{{$n.Name}}DefaultQuery) Exec(queryer *ent.{{$n.Name}}Query) error {
+    ps, err := {{$receiver}}.PredicatesExec()
+    if err != nil {
+        return err
+    }
+
+    queryer.Where({{snake $n.Name}}.And(ps...))
+
+{{if eq (toString $page.Open) "true"}}
+    {{$receiver}}.BindPaging{{$n.Name}}(queryer)
+{{end}}
+
+    {{if eq (toString $order.OpenOptionalOrder) "true"}}
+    orderfc, err := {{$receiver}}.BindOrder({{$receiver}}.GetExpectOrder())
+    if err != nil {
+        return err
+    }
+    queryer.Order(orderfc...)
+    {{end}}
+
+    return nil
+}
+{{end}}
+{{end}}
