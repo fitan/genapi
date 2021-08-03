@@ -26,6 +26,7 @@ gen
 # vendor/
 
 /example/cmdb/ent/
+!/example/cmdb/ent/schema
 #/example/cmdb/gen/
 /example/cmdb/logs/
 /example/cmdb/docs/
