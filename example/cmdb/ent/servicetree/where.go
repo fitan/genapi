@@ -432,6 +432,34 @@ func HasServiceWith(preds ...predicate.ServiceTree) predicate.ServiceTree {
 	})
 }
 
+// HasServers applies the HasEdge predicate on the "servers" edge.
+func HasServers() predicate.ServiceTree {
+	return predicate.ServiceTree(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ServersTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ServersTable, ServersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasServersWith applies the HasEdge predicate on the "servers" edge with a given conditions (other predicates).
+func HasServersWith(preds ...predicate.Server) predicate.ServiceTree {
+	return predicate.ServiceTree(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ServersInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ServersTable, ServersColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.ServiceTree) predicate.ServiceTree {
 	return predicate.ServiceTree(func(s *sql.Selector) {

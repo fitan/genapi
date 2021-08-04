@@ -33,9 +33,11 @@ type ServiceTreeEdges struct {
 	Project *ServiceTree `json:"project,omitempty"`
 	// Service holds the value of the service edge.
 	Service []*ServiceTree `json:"service,omitempty"`
+	// Servers holds the value of the servers edge.
+	Servers []*Server `json:"servers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // ProjectOrErr returns the Project value or an error if the edge
@@ -59,6 +61,15 @@ func (e ServiceTreeEdges) ServiceOrErr() ([]*ServiceTree, error) {
 		return e.Service, nil
 	}
 	return nil, &NotLoadedError{edge: "service"}
+}
+
+// ServersOrErr returns the Servers value or an error if the edge
+// was not loaded in eager-loading.
+func (e ServiceTreeEdges) ServersOrErr() ([]*Server, error) {
+	if e.loadedTypes[2] {
+		return e.Servers, nil
+	}
+	return nil, &NotLoadedError{edge: "servers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -131,6 +142,11 @@ func (st *ServiceTree) QueryProject() *ServiceTreeQuery {
 // QueryService queries the "service" edge of the ServiceTree entity.
 func (st *ServiceTree) QueryService() *ServiceTreeQuery {
 	return (&ServiceTreeClient{config: st.config}).QueryService(st)
+}
+
+// QueryServers queries the "servers" edge of the ServiceTree entity.
+func (st *ServiceTree) QueryServers() *ServerQuery {
+	return (&ServiceTreeClient{config: st.config}).QueryServers(st)
 }
 
 // Update returns a builder for updating this ServiceTree.

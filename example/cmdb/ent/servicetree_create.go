@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"cmdb/ent/server"
 	"cmdb/ent/servicetree"
 	"context"
 	"errors"
@@ -69,6 +70,21 @@ func (stc *ServiceTreeCreate) AddService(s ...*ServiceTree) *ServiceTreeCreate {
 		ids[i] = s[i].ID
 	}
 	return stc.AddServiceIDs(ids...)
+}
+
+// AddServerIDs adds the "servers" edge to the Server entity by IDs.
+func (stc *ServiceTreeCreate) AddServerIDs(ids ...int) *ServiceTreeCreate {
+	stc.mutation.AddServerIDs(ids...)
+	return stc
+}
+
+// AddServers adds the "servers" edges to the Server entity.
+func (stc *ServiceTreeCreate) AddServers(s ...*Server) *ServiceTreeCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return stc.AddServerIDs(ids...)
 }
 
 // Mutation returns the ServiceTreeMutation object of the builder.
@@ -218,6 +234,25 @@ func (stc *ServiceTreeCreate) createSpec() (*ServiceTree, *sqlgraph.CreateSpec) 
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: servicetree.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := stc.mutation.ServersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicetree.ServersTable,
+			Columns: []string{servicetree.ServersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: server.FieldID,
 				},
 			},
 		}

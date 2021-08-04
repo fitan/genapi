@@ -5,6 +5,7 @@ package ent
 import (
 	"cmdb/ent/predicate"
 	"cmdb/ent/server"
+	"cmdb/ent/servicetree"
 	"context"
 	"errors"
 	"fmt"
@@ -23,6 +24,9 @@ type ServerQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Server
+	// eager-loading edges.
+	withOwner *ServiceTreeQuery
+	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -50,6 +54,28 @@ func (sq *ServerQuery) Offset(offset int) *ServerQuery {
 func (sq *ServerQuery) Order(o ...OrderFunc) *ServerQuery {
 	sq.order = append(sq.order, o...)
 	return sq
+}
+
+// QueryOwner chains the current query on the "owner" edge.
+func (sq *ServerQuery) QueryOwner() *ServiceTreeQuery {
+	query := &ServiceTreeQuery{config: sq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(server.Table, server.FieldID, selector),
+			sqlgraph.To(servicetree.Table, servicetree.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, server.OwnerTable, server.OwnerColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Server entity from the query.
@@ -233,10 +259,22 @@ func (sq *ServerQuery) Clone() *ServerQuery {
 		offset:     sq.offset,
 		order:      append([]OrderFunc{}, sq.order...),
 		predicates: append([]predicate.Server{}, sq.predicates...),
+		withOwner:  sq.withOwner.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
+}
+
+// WithOwner tells the query-builder to eager-load the nodes that are connected to
+// the "owner" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *ServerQuery) WithOwner(opts ...func(*ServiceTreeQuery)) *ServerQuery {
+	query := &ServiceTreeQuery{config: sq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withOwner = query
+	return sq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -245,12 +283,12 @@ func (sq *ServerQuery) Clone() *ServerQuery {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		IP string `json:"ip,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Server.Query().
-//		GroupBy(server.FieldCreateTime).
+//		GroupBy(server.FieldIP).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -272,11 +310,11 @@ func (sq *ServerQuery) GroupBy(field string, fields ...string) *ServerGroupBy {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		IP string `json:"ip,omitempty"`
 //	}
 //
 //	client.Server.Query().
-//		Select(server.FieldCreateTime).
+//		Select(server.FieldIP).
 //		Scan(ctx, &v)
 //
 func (sq *ServerQuery) Select(field string, fields ...string) *ServerSelect {
@@ -302,9 +340,19 @@ func (sq *ServerQuery) prepareQuery(ctx context.Context) error {
 
 func (sq *ServerQuery) sqlAll(ctx context.Context) ([]*Server, error) {
 	var (
-		nodes = []*Server{}
-		_spec = sq.querySpec()
+		nodes       = []*Server{}
+		withFKs     = sq.withFKs
+		_spec       = sq.querySpec()
+		loadedTypes = [1]bool{
+			sq.withOwner != nil,
+		}
 	)
+	if sq.withOwner != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, server.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Server{config: sq.config}
 		nodes = append(nodes, node)
@@ -315,6 +363,7 @@ func (sq *ServerQuery) sqlAll(ctx context.Context) ([]*Server, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, sq.driver, _spec); err != nil {
@@ -323,6 +372,33 @@ func (sq *ServerQuery) sqlAll(ctx context.Context) ([]*Server, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := sq.withOwner; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Server)
+		for i := range nodes {
+			fk := nodes[i].service_tree_servers
+			if fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
+		}
+		query.Where(servicetree.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "service_tree_servers" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Owner = n
+			}
+		}
+	}
+
 	return nodes, nil
 }
 

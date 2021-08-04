@@ -21,5 +21,6 @@ func (ServiceTree) Fields() []ent.Field {
 func (ServiceTree) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("service", ServiceTree.Type).From("project").Unique(),
+		edge.To("servers", Server.Type),
 	}
 }

@@ -45,6 +45,15 @@ func {{$n.Name}}CreateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{if eq (PaseRestFieldOperability $f.Annotations "Create") "true"}}
 	m.Set{{$f.StructField}}(v.{{$f.StructField}})
 	{{end}}
+    {{range $e := $n.Edges}}
+    {{if $e.Inverse}}
+	{{if $e.Unique}}
+	m.Set{{pascal $e.Name}}ID(v.Edges.{{pascal $e.Name}}.ID)
+	{{else}}
+	m.Add{{$e.Type.Name}}IDs(GetIDsBy{{$e.Type.Name}}(v.Edges.{{plural $e.Type.Name}})...)
+    {{end}}
+    {{end}}
+    {{end}}
 	{{end}}
 {{/*	{{range $e := $n.Edges}}*/}}
 {{/*    {{if $e.Inverse}}*/}}

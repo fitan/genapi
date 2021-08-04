@@ -4,9 +4,9 @@ package ent
 
 import (
 	"cmdb/ent/server"
+	"cmdb/ent/servicetree"
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -16,10 +16,6 @@ type Server struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
 	// IP holds the value of the "ip" field.
 	IP string `json:"ip,omitempty"`
 	// MachineType holds the value of the "machine_type" field.
@@ -28,6 +24,33 @@ type Server struct {
 	PlatformType server.PlatformType `json:"platform_type,omitempty"`
 	// SystemType holds the value of the "system_type" field.
 	SystemType server.SystemType `json:"system_type,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ServerQuery when eager-loading is set.
+	Edges                ServerEdges `json:"edges"`
+	service_tree_servers *int
+}
+
+// ServerEdges holds the relations/edges for other nodes in the graph.
+type ServerEdges struct {
+	// Owner holds the value of the owner edge.
+	Owner *ServiceTree `json:"owner,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// OwnerOrErr returns the Owner value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ServerEdges) OwnerOrErr() (*ServiceTree, error) {
+	if e.loadedTypes[0] {
+		if e.Owner == nil {
+			// The edge owner was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: servicetree.Label}
+		}
+		return e.Owner, nil
+	}
+	return nil, &NotLoadedError{edge: "owner"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -39,8 +62,8 @@ func (*Server) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = &sql.NullInt64{}
 		case server.FieldIP, server.FieldMachineType, server.FieldPlatformType, server.FieldSystemType:
 			values[i] = &sql.NullString{}
-		case server.FieldCreateTime, server.FieldUpdateTime:
-			values[i] = &sql.NullTime{}
+		case server.ForeignKeys[0]: // service_tree_servers
+			values[i] = &sql.NullInt64{}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Server", columns[i])
 		}
@@ -62,18 +85,6 @@ func (s *Server) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			s.ID = int(value.Int64)
-		case server.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
-			} else if value.Valid {
-				s.CreateTime = value.Time
-			}
-		case server.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				s.UpdateTime = value.Time
-			}
 		case server.FieldIP:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ip", values[i])
@@ -98,9 +109,21 @@ func (s *Server) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				s.SystemType = server.SystemType(value.String)
 			}
+		case server.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field service_tree_servers", value)
+			} else if value.Valid {
+				s.service_tree_servers = new(int)
+				*s.service_tree_servers = int(value.Int64)
+			}
 		}
 	}
 	return nil
+}
+
+// QueryOwner queries the "owner" edge of the Server entity.
+func (s *Server) QueryOwner() *ServiceTreeQuery {
+	return (&ServerClient{config: s.config}).QueryOwner(s)
 }
 
 // Update returns a builder for updating this Server.
@@ -126,10 +149,6 @@ func (s *Server) String() string {
 	var builder strings.Builder
 	builder.WriteString("Server(")
 	builder.WriteString(fmt.Sprintf("id=%v", s.ID))
-	builder.WriteString(", create_time=")
-	builder.WriteString(s.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", update_time=")
-	builder.WriteString(s.UpdateTime.Format(time.ANSIC))
 	builder.WriteString(", ip=")
 	builder.WriteString(s.IP)
 	builder.WriteString(", machine_type=")

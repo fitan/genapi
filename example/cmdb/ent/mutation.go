@@ -790,13 +790,13 @@ type ServerMutation struct {
 	op            Op
 	typ           string
 	id            *int
-	create_time   *time.Time
-	update_time   *time.Time
 	ip            *string
 	machine_type  *server.MachineType
 	platform_type *server.PlatformType
 	system_type   *server.SystemType
 	clearedFields map[string]struct{}
+	owner         *int
+	clearedowner  bool
 	done          bool
 	oldValue      func(context.Context) (*Server, error)
 	predicates    []predicate.Server
@@ -879,78 +879,6 @@ func (m *ServerMutation) ID() (id int, exists bool) {
 		return
 	}
 	return *m.id, true
-}
-
-// SetCreateTime sets the "create_time" field.
-func (m *ServerMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *ServerMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the Server entity.
-// If the Server object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServerMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *ServerMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *ServerMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *ServerMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the Server entity.
-// If the Server object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServerMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *ServerMutation) ResetUpdateTime() {
-	m.update_time = nil
 }
 
 // SetIP sets the "ip" field.
@@ -1097,6 +1025,45 @@ func (m *ServerMutation) ResetSystemType() {
 	m.system_type = nil
 }
 
+// SetOwnerID sets the "owner" edge to the ServiceTree entity by id.
+func (m *ServerMutation) SetOwnerID(id int) {
+	m.owner = &id
+}
+
+// ClearOwner clears the "owner" edge to the ServiceTree entity.
+func (m *ServerMutation) ClearOwner() {
+	m.clearedowner = true
+}
+
+// OwnerCleared returns if the "owner" edge to the ServiceTree entity was cleared.
+func (m *ServerMutation) OwnerCleared() bool {
+	return m.clearedowner
+}
+
+// OwnerID returns the "owner" edge ID in the mutation.
+func (m *ServerMutation) OwnerID() (id int, exists bool) {
+	if m.owner != nil {
+		return *m.owner, true
+	}
+	return
+}
+
+// OwnerIDs returns the "owner" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// OwnerID instead. It exists only for internal usage by the builders.
+func (m *ServerMutation) OwnerIDs() (ids []int) {
+	if id := m.owner; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetOwner resets all changes to the "owner" edge.
+func (m *ServerMutation) ResetOwner() {
+	m.owner = nil
+	m.clearedowner = false
+}
+
 // Op returns the operation name.
 func (m *ServerMutation) Op() Op {
 	return m.op
@@ -1111,13 +1078,7 @@ func (m *ServerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServerMutation) Fields() []string {
-	fields := make([]string, 0, 6)
-	if m.create_time != nil {
-		fields = append(fields, server.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, server.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 4)
 	if m.ip != nil {
 		fields = append(fields, server.FieldIP)
 	}
@@ -1138,10 +1099,6 @@ func (m *ServerMutation) Fields() []string {
 // schema.
 func (m *ServerMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case server.FieldCreateTime:
-		return m.CreateTime()
-	case server.FieldUpdateTime:
-		return m.UpdateTime()
 	case server.FieldIP:
 		return m.IP()
 	case server.FieldMachineType:
@@ -1159,10 +1116,6 @@ func (m *ServerMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *ServerMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case server.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case server.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case server.FieldIP:
 		return m.OldIP(ctx)
 	case server.FieldMachineType:
@@ -1180,20 +1133,6 @@ func (m *ServerMutation) OldField(ctx context.Context, name string) (ent.Value, 
 // type.
 func (m *ServerMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case server.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case server.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case server.FieldIP:
 		v, ok := value.(string)
 		if !ok {
@@ -1271,12 +1210,6 @@ func (m *ServerMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *ServerMutation) ResetField(name string) error {
 	switch name {
-	case server.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case server.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case server.FieldIP:
 		m.ResetIP()
 		return nil
@@ -1295,49 +1228,77 @@ func (m *ServerMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ServerMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.owner != nil {
+		edges = append(edges, server.EdgeOwner)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *ServerMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case server.EdgeOwner:
+		if id := m.owner; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ServerMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *ServerMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ServerMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedowner {
+		edges = append(edges, server.EdgeOwner)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *ServerMutation) EdgeCleared(name string) bool {
+	switch name {
+	case server.EdgeOwner:
+		return m.clearedowner
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *ServerMutation) ClearEdge(name string) error {
+	switch name {
+	case server.EdgeOwner:
+		m.ClearOwner()
+		return nil
+	}
 	return fmt.Errorf("unknown Server unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *ServerMutation) ResetEdge(name string) error {
+	switch name {
+	case server.EdgeOwner:
+		m.ResetOwner()
+		return nil
+	}
 	return fmt.Errorf("unknown Server edge %s", name)
 }
 
@@ -1356,6 +1317,9 @@ type ServiceTreeMutation struct {
 	service        map[int]struct{}
 	removedservice map[int]struct{}
 	clearedservice bool
+	servers        map[int]struct{}
+	removedservers map[int]struct{}
+	clearedservers bool
 	done           bool
 	oldValue       func(context.Context) (*ServiceTree, error)
 	predicates     []predicate.ServiceTree
@@ -1640,6 +1604,59 @@ func (m *ServiceTreeMutation) ResetService() {
 	m.removedservice = nil
 }
 
+// AddServerIDs adds the "servers" edge to the Server entity by ids.
+func (m *ServiceTreeMutation) AddServerIDs(ids ...int) {
+	if m.servers == nil {
+		m.servers = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.servers[ids[i]] = struct{}{}
+	}
+}
+
+// ClearServers clears the "servers" edge to the Server entity.
+func (m *ServiceTreeMutation) ClearServers() {
+	m.clearedservers = true
+}
+
+// ServersCleared returns if the "servers" edge to the Server entity was cleared.
+func (m *ServiceTreeMutation) ServersCleared() bool {
+	return m.clearedservers
+}
+
+// RemoveServerIDs removes the "servers" edge to the Server entity by IDs.
+func (m *ServiceTreeMutation) RemoveServerIDs(ids ...int) {
+	if m.removedservers == nil {
+		m.removedservers = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedservers[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedServers returns the removed IDs of the "servers" edge to the Server entity.
+func (m *ServiceTreeMutation) RemovedServersIDs() (ids []int) {
+	for id := range m.removedservers {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ServersIDs returns the "servers" edge IDs in the mutation.
+func (m *ServiceTreeMutation) ServersIDs() (ids []int) {
+	for id := range m.servers {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetServers resets all changes to the "servers" edge.
+func (m *ServiceTreeMutation) ResetServers() {
+	m.servers = nil
+	m.clearedservers = false
+	m.removedservers = nil
+}
+
 // Op returns the operation name.
 func (m *ServiceTreeMutation) Op() Op {
 	return m.op
@@ -1787,12 +1804,15 @@ func (m *ServiceTreeMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ServiceTreeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.project != nil {
 		edges = append(edges, servicetree.EdgeProject)
 	}
 	if m.service != nil {
 		edges = append(edges, servicetree.EdgeService)
+	}
+	if m.servers != nil {
+		edges = append(edges, servicetree.EdgeServers)
 	}
 	return edges
 }
@@ -1811,15 +1831,24 @@ func (m *ServiceTreeMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case servicetree.EdgeServers:
+		ids := make([]ent.Value, 0, len(m.servers))
+		for id := range m.servers {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ServiceTreeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedservice != nil {
 		edges = append(edges, servicetree.EdgeService)
+	}
+	if m.removedservers != nil {
+		edges = append(edges, servicetree.EdgeServers)
 	}
 	return edges
 }
@@ -1834,18 +1863,27 @@ func (m *ServiceTreeMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case servicetree.EdgeServers:
+		ids := make([]ent.Value, 0, len(m.removedservers))
+		for id := range m.removedservers {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ServiceTreeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedproject {
 		edges = append(edges, servicetree.EdgeProject)
 	}
 	if m.clearedservice {
 		edges = append(edges, servicetree.EdgeService)
+	}
+	if m.clearedservers {
+		edges = append(edges, servicetree.EdgeServers)
 	}
 	return edges
 }
@@ -1858,6 +1896,8 @@ func (m *ServiceTreeMutation) EdgeCleared(name string) bool {
 		return m.clearedproject
 	case servicetree.EdgeService:
 		return m.clearedservice
+	case servicetree.EdgeServers:
+		return m.clearedservers
 	}
 	return false
 }
@@ -1882,6 +1922,9 @@ func (m *ServiceTreeMutation) ResetEdge(name string) error {
 		return nil
 	case servicetree.EdgeService:
 		m.ResetService()
+		return nil
+	case servicetree.EdgeServers:
+		m.ResetServers()
 		return nil
 	}
 	return fmt.Errorf("unknown ServiceTree edge %s", name)

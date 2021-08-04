@@ -21,6 +21,8 @@ const (
 	EdgeProject = "project"
 	// EdgeService holds the string denoting the service edge name in mutations.
 	EdgeService = "service"
+	// EdgeServers holds the string denoting the servers edge name in mutations.
+	EdgeServers = "servers"
 	// Table holds the table name of the servicetree in the database.
 	Table = "service_trees"
 	// ProjectTable is the table the holds the project relation/edge.
@@ -31,6 +33,13 @@ const (
 	ServiceTable = "service_trees"
 	// ServiceColumn is the table column denoting the service relation/edge.
 	ServiceColumn = "service_tree_service"
+	// ServersTable is the table the holds the servers relation/edge.
+	ServersTable = "servers"
+	// ServersInverseTable is the table name for the Server entity.
+	// It exists in this package in order to avoid circular dependency with the "server" package.
+	ServersInverseTable = "servers"
+	// ServersColumn is the table column denoting the servers relation/edge.
+	ServersColumn = "service_tree_servers"
 )
 
 // Columns holds all SQL columns for servicetree fields.

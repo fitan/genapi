@@ -425,6 +425,22 @@ func (c *ServerClient) GetX(ctx context.Context, id int) *Server {
 	return obj
 }
 
+// QueryOwner queries the owner edge of a Server.
+func (c *ServerClient) QueryOwner(s *Server) *ServiceTreeQuery {
+	query := &ServiceTreeQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(server.Table, server.FieldID, id),
+			sqlgraph.To(servicetree.Table, servicetree.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, server.OwnerTable, server.OwnerColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ServerClient) Hooks() []Hook {
 	return c.hooks.Server
@@ -538,6 +554,22 @@ func (c *ServiceTreeClient) QueryService(st *ServiceTree) *ServiceTreeQuery {
 			sqlgraph.From(servicetree.Table, servicetree.FieldID, id),
 			sqlgraph.To(servicetree.Table, servicetree.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, servicetree.ServiceTable, servicetree.ServiceColumn),
+		)
+		fromV = sqlgraph.Neighbors(st.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryServers queries the servers edge of a ServiceTree.
+func (c *ServiceTreeClient) QueryServers(st *ServiceTree) *ServerQuery {
+	query := &ServerQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := st.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(servicetree.Table, servicetree.FieldID, id),
+			sqlgraph.To(server.Table, server.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, servicetree.ServersTable, servicetree.ServersColumn),
 		)
 		fromV = sqlgraph.Neighbors(st.driver.Dialect(), step)
 		return fromV, nil

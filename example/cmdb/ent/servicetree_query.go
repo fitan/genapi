@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/predicate"
+	"cmdb/ent/server"
 	"cmdb/ent/servicetree"
 	"context"
 	"database/sql/driver"
@@ -27,6 +28,7 @@ type ServiceTreeQuery struct {
 	// eager-loading edges.
 	withProject *ServiceTreeQuery
 	withService *ServiceTreeQuery
+	withServers *ServerQuery
 	withFKs     bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -94,6 +96,28 @@ func (stq *ServiceTreeQuery) QueryService() *ServiceTreeQuery {
 			sqlgraph.From(servicetree.Table, servicetree.FieldID, selector),
 			sqlgraph.To(servicetree.Table, servicetree.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, servicetree.ServiceTable, servicetree.ServiceColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(stq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryServers chains the current query on the "servers" edge.
+func (stq *ServiceTreeQuery) QueryServers() *ServerQuery {
+	query := &ServerQuery{config: stq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := stq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := stq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(servicetree.Table, servicetree.FieldID, selector),
+			sqlgraph.To(server.Table, server.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, servicetree.ServersTable, servicetree.ServersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(stq.driver.Dialect(), step)
 		return fromU, nil
@@ -284,6 +308,7 @@ func (stq *ServiceTreeQuery) Clone() *ServiceTreeQuery {
 		predicates:  append([]predicate.ServiceTree{}, stq.predicates...),
 		withProject: stq.withProject.Clone(),
 		withService: stq.withService.Clone(),
+		withServers: stq.withServers.Clone(),
 		// clone intermediate query.
 		sql:  stq.sql.Clone(),
 		path: stq.path,
@@ -309,6 +334,17 @@ func (stq *ServiceTreeQuery) WithService(opts ...func(*ServiceTreeQuery)) *Servi
 		opt(query)
 	}
 	stq.withService = query
+	return stq
+}
+
+// WithServers tells the query-builder to eager-load the nodes that are connected to
+// the "servers" edge. The optional arguments are used to configure the query builder of the edge.
+func (stq *ServiceTreeQuery) WithServers(opts ...func(*ServerQuery)) *ServiceTreeQuery {
+	query := &ServerQuery{config: stq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	stq.withServers = query
 	return stq
 }
 
@@ -378,9 +414,10 @@ func (stq *ServiceTreeQuery) sqlAll(ctx context.Context) ([]*ServiceTree, error)
 		nodes       = []*ServiceTree{}
 		withFKs     = stq.withFKs
 		_spec       = stq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			stq.withProject != nil,
 			stq.withService != nil,
+			stq.withServers != nil,
 		}
 	)
 	if stq.withProject != nil {
@@ -461,6 +498,35 @@ func (stq *ServiceTreeQuery) sqlAll(ctx context.Context) ([]*ServiceTree, error)
 				return nil, fmt.Errorf(`unexpected foreign-key "service_tree_service" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Service = append(node.Edges.Service, n)
+		}
+	}
+
+	if query := stq.withServers; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*ServiceTree)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Servers = []*Server{}
+		}
+		query.withFKs = true
+		query.Where(predicate.Server(func(s *sql.Selector) {
+			s.Where(sql.InValues(servicetree.ServersColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.service_tree_servers
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "service_tree_servers" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "service_tree_servers" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Servers = append(node.Edges.Servers, n)
 		}
 	}
 

@@ -4,7 +4,6 @@ package server
 
 import (
 	"fmt"
-	"time"
 )
 
 const (
@@ -12,10 +11,6 @@ const (
 	Label = "server"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldCreateTime holds the string denoting the create_time field in the database.
-	FieldCreateTime = "create_time"
-	// FieldUpdateTime holds the string denoting the update_time field in the database.
-	FieldUpdateTime = "update_time"
 	// FieldIP holds the string denoting the ip field in the database.
 	FieldIP = "ip"
 	// FieldMachineType holds the string denoting the machine_type field in the database.
@@ -24,19 +19,32 @@ const (
 	FieldPlatformType = "platform_type"
 	// FieldSystemType holds the string denoting the system_type field in the database.
 	FieldSystemType = "system_type"
+	// EdgeOwner holds the string denoting the owner edge name in mutations.
+	EdgeOwner = "owner"
 	// Table holds the table name of the server in the database.
 	Table = "servers"
+	// OwnerTable is the table the holds the owner relation/edge.
+	OwnerTable = "servers"
+	// OwnerInverseTable is the table name for the ServiceTree entity.
+	// It exists in this package in order to avoid circular dependency with the "servicetree" package.
+	OwnerInverseTable = "service_trees"
+	// OwnerColumn is the table column denoting the owner relation/edge.
+	OwnerColumn = "service_tree_servers"
 )
 
 // Columns holds all SQL columns for server fields.
 var Columns = []string{
 	FieldID,
-	FieldCreateTime,
-	FieldUpdateTime,
 	FieldIP,
 	FieldMachineType,
 	FieldPlatformType,
 	FieldSystemType,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "servers"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"service_tree_servers",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -46,17 +54,13 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
+			return true
+		}
+	}
 	return false
 }
-
-var (
-	// DefaultCreateTime holds the default value on creation for the "create_time" field.
-	DefaultCreateTime func() time.Time
-	// DefaultUpdateTime holds the default value on creation for the "update_time" field.
-	DefaultUpdateTime func() time.Time
-	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
-	UpdateDefaultUpdateTime func() time.Time
-)
 
 // MachineType defines the type for the "machine_type" enum field.
 type MachineType string

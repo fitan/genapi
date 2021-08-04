@@ -5,6 +5,7 @@ package ent
 import (
 	"cmdb/ent/predicate"
 	"cmdb/ent/server"
+	"cmdb/ent/servicetree"
 	"context"
 	"fmt"
 
@@ -50,9 +51,34 @@ func (su *ServerUpdate) SetSystemType(st server.SystemType) *ServerUpdate {
 	return su
 }
 
+// SetOwnerID sets the "owner" edge to the ServiceTree entity by ID.
+func (su *ServerUpdate) SetOwnerID(id int) *ServerUpdate {
+	su.mutation.SetOwnerID(id)
+	return su
+}
+
+// SetNillableOwnerID sets the "owner" edge to the ServiceTree entity by ID if the given value is not nil.
+func (su *ServerUpdate) SetNillableOwnerID(id *int) *ServerUpdate {
+	if id != nil {
+		su = su.SetOwnerID(*id)
+	}
+	return su
+}
+
+// SetOwner sets the "owner" edge to the ServiceTree entity.
+func (su *ServerUpdate) SetOwner(s *ServiceTree) *ServerUpdate {
+	return su.SetOwnerID(s.ID)
+}
+
 // Mutation returns the ServerMutation object of the builder.
 func (su *ServerUpdate) Mutation() *ServerMutation {
 	return su.mutation
+}
+
+// ClearOwner clears the "owner" edge to the ServiceTree entity.
+func (su *ServerUpdate) ClearOwner() *ServerUpdate {
+	su.mutation.ClearOwner()
+	return su
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -61,7 +87,6 @@ func (su *ServerUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
-	su.defaults()
 	if len(su.hooks) == 0 {
 		if err = su.check(); err != nil {
 			return 0, err
@@ -113,14 +138,6 @@ func (su *ServerUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (su *ServerUpdate) defaults() {
-	if _, ok := su.mutation.UpdateTime(); !ok {
-		v := server.UpdateDefaultUpdateTime()
-		su.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (su *ServerUpdate) check() error {
 	if v, ok := su.mutation.MachineType(); ok {
@@ -159,13 +176,6 @@ func (su *ServerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := su.mutation.UpdateTime(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: server.FieldUpdateTime,
-		})
-	}
 	if value, ok := su.mutation.IP(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -193,6 +203,41 @@ func (su *ServerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Value:  value,
 			Column: server.FieldSystemType,
 		})
+	}
+	if su.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   server.OwnerTable,
+			Columns: []string{server.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: servicetree.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   server.OwnerTable,
+			Columns: []string{server.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: servicetree.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -236,9 +281,34 @@ func (suo *ServerUpdateOne) SetSystemType(st server.SystemType) *ServerUpdateOne
 	return suo
 }
 
+// SetOwnerID sets the "owner" edge to the ServiceTree entity by ID.
+func (suo *ServerUpdateOne) SetOwnerID(id int) *ServerUpdateOne {
+	suo.mutation.SetOwnerID(id)
+	return suo
+}
+
+// SetNillableOwnerID sets the "owner" edge to the ServiceTree entity by ID if the given value is not nil.
+func (suo *ServerUpdateOne) SetNillableOwnerID(id *int) *ServerUpdateOne {
+	if id != nil {
+		suo = suo.SetOwnerID(*id)
+	}
+	return suo
+}
+
+// SetOwner sets the "owner" edge to the ServiceTree entity.
+func (suo *ServerUpdateOne) SetOwner(s *ServiceTree) *ServerUpdateOne {
+	return suo.SetOwnerID(s.ID)
+}
+
 // Mutation returns the ServerMutation object of the builder.
 func (suo *ServerUpdateOne) Mutation() *ServerMutation {
 	return suo.mutation
+}
+
+// ClearOwner clears the "owner" edge to the ServiceTree entity.
+func (suo *ServerUpdateOne) ClearOwner() *ServerUpdateOne {
+	suo.mutation.ClearOwner()
+	return suo
 }
 
 // Save executes the query and returns the updated Server entity.
@@ -247,7 +317,6 @@ func (suo *ServerUpdateOne) Save(ctx context.Context) (*Server, error) {
 		err  error
 		node *Server
 	)
-	suo.defaults()
 	if len(suo.hooks) == 0 {
 		if err = suo.check(); err != nil {
 			return nil, err
@@ -299,14 +368,6 @@ func (suo *ServerUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (suo *ServerUpdateOne) defaults() {
-	if _, ok := suo.mutation.UpdateTime(); !ok {
-		v := server.UpdateDefaultUpdateTime()
-		suo.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (suo *ServerUpdateOne) check() error {
 	if v, ok := suo.mutation.MachineType(); ok {
@@ -350,13 +411,6 @@ func (suo *ServerUpdateOne) sqlSave(ctx context.Context) (_node *Server, err err
 			}
 		}
 	}
-	if value, ok := suo.mutation.UpdateTime(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: server.FieldUpdateTime,
-		})
-	}
 	if value, ok := suo.mutation.IP(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -384,6 +438,41 @@ func (suo *ServerUpdateOne) sqlSave(ctx context.Context) (_node *Server, err err
 			Value:  value,
 			Column: server.FieldSystemType,
 		})
+	}
+	if suo.mutation.OwnerCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   server.OwnerTable,
+			Columns: []string{server.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: servicetree.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   server.OwnerTable,
+			Columns: []string{server.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: servicetree.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Server{config: suo.config}
 	_spec.Assign = _node.assignValues

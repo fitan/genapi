@@ -153,7 +153,7 @@ func (curd *{{$n.Name}}CURD) DeleteList(ids []int) (int, error) {
 {{if eq $rel.Dest "O"}}
 // action {{$e.Type.Name}} by {{$n.Name}}
 func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}Id(id int) (*ent.{{$e.Type.Name}}, error) {
-	queryer := curd.GetQueryerById(id).Query{{$e.Type.Name}}()
+	queryer := curd.GetQueryerById(id).Query{{pascal $e.Name}}()
 	{{$e.Type.Name}}Selete(queryer)
 	return queryer.Only(context.Background())
 }
@@ -171,7 +171,7 @@ func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(id int, al
 		if err != nil {
 			return nil, err
 		}
-		_, err = tx.{{$n.Name}}.UpdateOneID(id).Set{{$e.Type.Name}}ID(save.ID).Save(bg)
+		_, err = tx.{{$n.Name}}.UpdateOneID(id).Set{{pascal $e.Name}}ID(save.ID).Save(bg)
 		if err != nil {
 			return nil, err
 		}
@@ -189,7 +189,7 @@ func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(id int, al
 
 func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(id int) (int, error) {
 	bg := context.Background()
-	onlyID, err := curd.GetQueryerById(id).Query{{$e.Type.Name}}().OnlyID(bg)
+	onlyID, err := curd.GetQueryerById(id).Query{{pascal $e.Name}}().OnlyID(bg)
 	if err != nil {
 		return onlyID, err
 	}

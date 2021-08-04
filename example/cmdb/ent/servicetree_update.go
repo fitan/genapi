@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/predicate"
+	"cmdb/ent/server"
 	"cmdb/ent/servicetree"
 	"context"
 	"fmt"
@@ -78,6 +79,21 @@ func (stu *ServiceTreeUpdate) AddService(s ...*ServiceTree) *ServiceTreeUpdate {
 	return stu.AddServiceIDs(ids...)
 }
 
+// AddServerIDs adds the "servers" edge to the Server entity by IDs.
+func (stu *ServiceTreeUpdate) AddServerIDs(ids ...int) *ServiceTreeUpdate {
+	stu.mutation.AddServerIDs(ids...)
+	return stu
+}
+
+// AddServers adds the "servers" edges to the Server entity.
+func (stu *ServiceTreeUpdate) AddServers(s ...*Server) *ServiceTreeUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return stu.AddServerIDs(ids...)
+}
+
 // Mutation returns the ServiceTreeMutation object of the builder.
 func (stu *ServiceTreeUpdate) Mutation() *ServiceTreeMutation {
 	return stu.mutation
@@ -108,6 +124,27 @@ func (stu *ServiceTreeUpdate) RemoveService(s ...*ServiceTree) *ServiceTreeUpdat
 		ids[i] = s[i].ID
 	}
 	return stu.RemoveServiceIDs(ids...)
+}
+
+// ClearServers clears all "servers" edges to the Server entity.
+func (stu *ServiceTreeUpdate) ClearServers() *ServiceTreeUpdate {
+	stu.mutation.ClearServers()
+	return stu
+}
+
+// RemoveServerIDs removes the "servers" edge to Server entities by IDs.
+func (stu *ServiceTreeUpdate) RemoveServerIDs(ids ...int) *ServiceTreeUpdate {
+	stu.mutation.RemoveServerIDs(ids...)
+	return stu
+}
+
+// RemoveServers removes "servers" edges to Server entities.
+func (stu *ServiceTreeUpdate) RemoveServers(s ...*Server) *ServiceTreeUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return stu.RemoveServerIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -305,6 +342,60 @@ func (stu *ServiceTreeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if stu.mutation.ServersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicetree.ServersTable,
+			Columns: []string{servicetree.ServersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: server.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := stu.mutation.RemovedServersIDs(); len(nodes) > 0 && !stu.mutation.ServersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicetree.ServersTable,
+			Columns: []string{servicetree.ServersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: server.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := stu.mutation.ServersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicetree.ServersTable,
+			Columns: []string{servicetree.ServersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: server.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, stu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{servicetree.Label}
@@ -375,6 +466,21 @@ func (stuo *ServiceTreeUpdateOne) AddService(s ...*ServiceTree) *ServiceTreeUpda
 	return stuo.AddServiceIDs(ids...)
 }
 
+// AddServerIDs adds the "servers" edge to the Server entity by IDs.
+func (stuo *ServiceTreeUpdateOne) AddServerIDs(ids ...int) *ServiceTreeUpdateOne {
+	stuo.mutation.AddServerIDs(ids...)
+	return stuo
+}
+
+// AddServers adds the "servers" edges to the Server entity.
+func (stuo *ServiceTreeUpdateOne) AddServers(s ...*Server) *ServiceTreeUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return stuo.AddServerIDs(ids...)
+}
+
 // Mutation returns the ServiceTreeMutation object of the builder.
 func (stuo *ServiceTreeUpdateOne) Mutation() *ServiceTreeMutation {
 	return stuo.mutation
@@ -405,6 +511,27 @@ func (stuo *ServiceTreeUpdateOne) RemoveService(s ...*ServiceTree) *ServiceTreeU
 		ids[i] = s[i].ID
 	}
 	return stuo.RemoveServiceIDs(ids...)
+}
+
+// ClearServers clears all "servers" edges to the Server entity.
+func (stuo *ServiceTreeUpdateOne) ClearServers() *ServiceTreeUpdateOne {
+	stuo.mutation.ClearServers()
+	return stuo
+}
+
+// RemoveServerIDs removes the "servers" edge to Server entities by IDs.
+func (stuo *ServiceTreeUpdateOne) RemoveServerIDs(ids ...int) *ServiceTreeUpdateOne {
+	stuo.mutation.RemoveServerIDs(ids...)
+	return stuo
+}
+
+// RemoveServers removes "servers" edges to Server entities.
+func (stuo *ServiceTreeUpdateOne) RemoveServers(s ...*Server) *ServiceTreeUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return stuo.RemoveServerIDs(ids...)
 }
 
 // Save executes the query and returns the updated ServiceTree entity.
@@ -599,6 +726,60 @@ func (stuo *ServiceTreeUpdateOne) sqlSave(ctx context.Context) (_node *ServiceTr
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: servicetree.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if stuo.mutation.ServersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicetree.ServersTable,
+			Columns: []string{servicetree.ServersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: server.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := stuo.mutation.RemovedServersIDs(); len(nodes) > 0 && !stuo.mutation.ServersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicetree.ServersTable,
+			Columns: []string{servicetree.ServersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: server.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := stuo.mutation.ServersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   servicetree.ServersTable,
+			Columns: []string{servicetree.ServersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: server.FieldID,
 				},
 			},
 		}

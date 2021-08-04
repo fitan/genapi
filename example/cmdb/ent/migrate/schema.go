@@ -45,19 +45,25 @@ var (
 	// ServersColumns holds the columns for the "servers" table.
 	ServersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
-		{Name: "ip", Type: field.TypeString},
+		{Name: "ip", Type: field.TypeString, Unique: true},
 		{Name: "machine_type", Type: field.TypeEnum, Enums: []string{"physical", "virtual"}},
 		{Name: "platform_type", Type: field.TypeEnum, Enums: []string{"zstack", "k8s", "openstack"}},
 		{Name: "system_type", Type: field.TypeEnum, Enums: []string{"linux", "windows"}},
+		{Name: "service_tree_servers", Type: field.TypeInt, Nullable: true},
 	}
 	// ServersTable holds the schema information for the "servers" table.
 	ServersTable = &schema.Table{
-		Name:        "servers",
-		Columns:     ServersColumns,
-		PrimaryKey:  []*schema.Column{ServersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "servers",
+		Columns:    ServersColumns,
+		PrimaryKey: []*schema.Column{ServersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "servers_service_trees_servers",
+				Columns:    []*schema.Column{ServersColumns[5]},
+				RefColumns: []*schema.Column{ServiceTreesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// ServiceTreesColumns holds the columns for the "service_trees" table.
 	ServiceTreesColumns = []*schema.Column{
@@ -117,6 +123,7 @@ var (
 
 func init() {
 	RoleBindingsTable.ForeignKeys[0].RefTable = UsersTable
+	ServersTable.ForeignKeys[0].RefTable = ServiceTreesTable
 	ServiceTreesTable.ForeignKeys[0].RefTable = ServiceTreesTable
 	UsersTable.ForeignKeys[0].RefTable = AlertsTable
 }

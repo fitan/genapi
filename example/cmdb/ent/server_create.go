@@ -4,10 +4,10 @@ package ent
 
 import (
 	"cmdb/ent/server"
+	"cmdb/ent/servicetree"
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,34 +18,6 @@ type ServerCreate struct {
 	config
 	mutation *ServerMutation
 	hooks    []Hook
-}
-
-// SetCreateTime sets the "create_time" field.
-func (sc *ServerCreate) SetCreateTime(t time.Time) *ServerCreate {
-	sc.mutation.SetCreateTime(t)
-	return sc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (sc *ServerCreate) SetNillableCreateTime(t *time.Time) *ServerCreate {
-	if t != nil {
-		sc.SetCreateTime(*t)
-	}
-	return sc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (sc *ServerCreate) SetUpdateTime(t time.Time) *ServerCreate {
-	sc.mutation.SetUpdateTime(t)
-	return sc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (sc *ServerCreate) SetNillableUpdateTime(t *time.Time) *ServerCreate {
-	if t != nil {
-		sc.SetUpdateTime(*t)
-	}
-	return sc
 }
 
 // SetIP sets the "ip" field.
@@ -72,6 +44,25 @@ func (sc *ServerCreate) SetSystemType(st server.SystemType) *ServerCreate {
 	return sc
 }
 
+// SetOwnerID sets the "owner" edge to the ServiceTree entity by ID.
+func (sc *ServerCreate) SetOwnerID(id int) *ServerCreate {
+	sc.mutation.SetOwnerID(id)
+	return sc
+}
+
+// SetNillableOwnerID sets the "owner" edge to the ServiceTree entity by ID if the given value is not nil.
+func (sc *ServerCreate) SetNillableOwnerID(id *int) *ServerCreate {
+	if id != nil {
+		sc = sc.SetOwnerID(*id)
+	}
+	return sc
+}
+
+// SetOwner sets the "owner" edge to the ServiceTree entity.
+func (sc *ServerCreate) SetOwner(s *ServiceTree) *ServerCreate {
+	return sc.SetOwnerID(s.ID)
+}
+
 // Mutation returns the ServerMutation object of the builder.
 func (sc *ServerCreate) Mutation() *ServerMutation {
 	return sc.mutation
@@ -83,7 +74,6 @@ func (sc *ServerCreate) Save(ctx context.Context) (*Server, error) {
 		err  error
 		node *Server
 	)
-	sc.defaults()
 	if len(sc.hooks) == 0 {
 		if err = sc.check(); err != nil {
 			return nil, err
@@ -122,26 +112,8 @@ func (sc *ServerCreate) SaveX(ctx context.Context) *Server {
 	return v
 }
 
-// defaults sets the default values of the builder before save.
-func (sc *ServerCreate) defaults() {
-	if _, ok := sc.mutation.CreateTime(); !ok {
-		v := server.DefaultCreateTime()
-		sc.mutation.SetCreateTime(v)
-	}
-	if _, ok := sc.mutation.UpdateTime(); !ok {
-		v := server.DefaultUpdateTime()
-		sc.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (sc *ServerCreate) check() error {
-	if _, ok := sc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New("ent: missing required field \"create_time\"")}
-	}
-	if _, ok := sc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New("ent: missing required field \"update_time\"")}
-	}
 	if _, ok := sc.mutation.IP(); !ok {
 		return &ValidationError{Name: "ip", err: errors.New("ent: missing required field \"ip\"")}
 	}
@@ -196,22 +168,6 @@ func (sc *ServerCreate) createSpec() (*Server, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
-	if value, ok := sc.mutation.CreateTime(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: server.FieldCreateTime,
-		})
-		_node.CreateTime = value
-	}
-	if value, ok := sc.mutation.UpdateTime(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: server.FieldUpdateTime,
-		})
-		_node.UpdateTime = value
-	}
 	if value, ok := sc.mutation.IP(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -244,6 +200,26 @@ func (sc *ServerCreate) createSpec() (*Server, *sqlgraph.CreateSpec) {
 		})
 		_node.SystemType = value
 	}
+	if nodes := sc.mutation.OwnerIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   server.OwnerTable,
+			Columns: []string{server.OwnerColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: servicetree.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.service_tree_servers = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -261,7 +237,6 @@ func (scb *ServerCreateBulk) Save(ctx context.Context) ([]*Server, error) {
 	for i := range scb.builders {
 		func(i int, root context.Context) {
 			builder := scb.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ServerMutation)
 				if !ok {
