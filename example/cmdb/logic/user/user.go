@@ -1,4 +1,4 @@
-package logic
+package user
 
 import (
 	"cmdb/ent"
@@ -11,8 +11,11 @@ type UserCallIn struct {
 	} `json:"query"`
 }
 
+
 func (i UserCallIn) GetCasbinKeys() [][]interface{} {
-	return [][]interface{}{}
+	k := make([][]interface{},0,0)
+	k = append(k, []interface{}{i.Query.Id})
+	return k
 }
 
 func (i UserCallIn) GetRedisKey() string {

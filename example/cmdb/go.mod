@@ -14,6 +14,7 @@ require (
 	github.com/go-redis/redis/v8 v8.10.0
 	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/reactivex/rxgo/v2 v2.5.0
 	github.com/rs/zerolog v1.21.0
 	github.com/spf13/viper v1.8.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14

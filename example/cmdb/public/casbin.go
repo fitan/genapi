@@ -57,8 +57,12 @@ func GetCasbin() *casbin.Enforcer {
 	return enforcer
 }
 
+func GetUserNameByContext(c *gin.Context) (interface{}, bool) {
+	return c.Get("user_name")
+}
+
 func CheckKeysCasbin(c *gin.Context, casbinMark string,key interface{}) (bool, error) {
-	userName,has := c.Get("user_name")
+	userName, has := GetUserNameByContext(c)
 	if !has {
 		return has, errors.New("not found key: userName")
 	}
@@ -75,7 +79,7 @@ func CheckKeysCasbin(c *gin.Context, casbinMark string,key interface{}) (bool, e
 }
 
 func CheckListKeysCasbin(c *gin.Context, casbinMark string, keys [][]interface{}) (bool, error)  {
-	userName, has := c.Get("user_name")
+	userName, has := GetUserNameByContext(c)
 	if !has {
 		return has, errors.New("not found key: userName")
 	}

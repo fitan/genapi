@@ -3,20 +3,26 @@ package tree
 import (
 	"cmdb/ent"
 	"cmdb/ent/servicetree"
+	"cmdb/gen/entrest"
 	"cmdb/public"
 	"context"
 	"github.com/gin-gonic/gin"
 )
 
 type GetServiceTreeIn struct {
-
+	Query struct{
+		entrest.ServiceTreePaging
+	}
 }
 
 // @Description
 // @Summary 获取服务树
 // @GenApi /api/tree [get]
 func GetServiceTree(c *gin.Context, in *GetServiceTreeIn) ([]*ent.ServiceTree, error) {
-	return public.GetDB().ServiceTree.Query().Where(servicetree.Not(servicetree.HasProject())).WithService().All(context.Background())
+	queryer := public.GetDB().ServiceTree.Query()
+	in.Query.BindPagingServiceTree(queryer)
+
+	return queryer.Where(servicetree.Not(servicetree.HasProject())).WithService().All(context.Background())
 }
 
 type CreateProjectIn struct {
