@@ -2,15 +2,32 @@
 import (
     "github.com/gin-gonic/gin"
 	{{$.BaseConf.WrapResult.ImportPath}}
+    public2 "github.com/fitan/genapi/public"
 )
 
 
 {{range $key,$funcs := $.ReginsterMap}}
-func Register{{pascal $key}}(r gin.IRouter) {
+func Register{{pascal $key}}(r gin.IRouter, roleMethod *[]public2.CasbinRoleMethod) {
 	{{range $func := $funcs}}
 	r.{{$func.Router.Method}}("{{$func.Router.GinPath}}", func(c *gin.Context) {
         {{$.BaseConf.WrapResult.WrapFunc}}(c, {{$func.FuncName}})
     })
 	{{end}}
+
+    *roleMethod = append(*roleMethod, RoleMethod()...)
 }
 {{end}}
+
+func RoleMethod() ([]public2.CasbinRoleMethod) {
+    return []public2.CasbinRoleMethod{
+{{range $key,$funcs := $.ReginsterMap}}
+        {{range $index, $fc := $funcs}}
+        {{range $t := $fc.Plugins.Point}}
+        {{if and (eq $t.Name "Casbin")  $t.Has}}
+        {"{{$t.Keys.key}}", "{{$t.Keys.note}}"},
+        {{end}}
+        {{end}}
+        {{end}}
+{{end}}
+    }
+}

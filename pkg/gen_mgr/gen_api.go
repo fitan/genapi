@@ -90,26 +90,26 @@ func genApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 		content: b.Bytes(),
 	})
 
-	tpl1, err := parse.New("role_method").Parse(role_method)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	b = bytes.NewBuffer(nil)
-	err = tpl1.Execute(b, struct {
-		PkgName string
-		ReginsterMap map[string][]gen_apiV2.Func
-	}{
-		PkgName: path.Base(dest),
-		ReginsterMap: ReginsterMap,
-	})
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	assets.files = append(assets.files, file{
-		path: filepath.Join(dest, path.Base("role_method.go")),
-		content: b.Bytes(),
-	})
+	//tpl1, err := parse.New("role_method").Parse(role_method)
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//
+	//b = bytes.NewBuffer(nil)
+	//err = tpl1.Execute(b, struct {
+	//	PkgName string
+	//	ReginsterMap map[string][]gen_apiV2.Func
+	//}{
+	//	PkgName: path.Base(dest),
+	//	ReginsterMap: ReginsterMap,
+	//})
+	//if err != nil {
+	//	log.Fatalln(err.Error())
+	//}
+	//assets.files = append(assets.files, file{
+	//	path: filepath.Join(dest, path.Base("role_method.go")),
+	//	content: b.Bytes(),
+	//})
 
 	if err := assets.write(); err != nil {
 		log.Fatalln(err.Error())

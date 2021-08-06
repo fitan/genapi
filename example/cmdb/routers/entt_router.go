@@ -15,17 +15,13 @@ import (
 func init() {
 	db := public.GetDB()
 	entrest.NewCURDALL(db)
-	ent.Register(GetDefaultRouter())
-	user.Register(GetAuthRouter())
-	tree.Register(GetDefaultRouter())
-	//casbin.Register(GetAuthRouter())
-	casbin.Register(GetDefaultRouter())
-
 	role_method := make([]public2.CasbinRoleMethod,0,0)
-	role_method = append(role_method, casbin.RoleMethod()...)
-	role_method = append(role_method, tree.RoleMethod()...)
-	role_method = append(role_method, user.RoleMethod()...)
-	role_method = append(role_method, ent.RoleMethod()...)
+	ent.Register(GetDefaultRouter(), &role_method)
+	user.Register(GetAuthRouter(), &role_method)
+	tree.Register(GetDefaultRouter(), &role_method)
+	//casbin.Register(GetAuthRouter())
+	casbin.Register(GetDefaultRouter(), &role_method)
+
 	GetDefaultRouter().GET("/role_method", func(c *gin.Context) {
 		c.JSON(200, role_method)
 	})
