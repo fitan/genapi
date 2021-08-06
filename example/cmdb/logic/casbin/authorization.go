@@ -54,18 +54,6 @@ func GetRoles(c *gin.Context, in *GetRolesIn) ([]Role, error) {
 		}).Get()
 		out = append(out, mergeV.V.(Role))
 	})
-	//.DoOnNext(func(i interface{}) {
-	//	out = append(out, i.(Role))
-	//})
-
-	//for _, g := range gs {
-	//	Name := g[1]
-	//	if l, ok := out[Name]; ok {
-	//		out[Name] = append(l, g[0])
-	//	} else {
-	//		out[Name] = []string{g[0]}
-	//	}
-	//}
 	return out, nil
 }
 
@@ -118,10 +106,12 @@ func (r RawPolicies) ToPolicies() []Policy {
 	for _, raw := range r {
 		resources := strings.Split(raw[1][1:], "/")
 		policies = append(policies, Policy{
-			User:      raw[0],
-			ProjectId: resources[0],
-			ServiceId: resources[1],
-			Role:      raw[2],
+			User:     raw[0],
+			Resource: Resource{
+				ProjectId: resources[0],
+				ServiceId: resources[1],
+			},
+			Role:     raw[2],
 		})
 	}
 	return policies

@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+const Casbin string = "Casbin"
 
 
 func GetCasbinPluginTemplate(docFields []string, inFieldType types.Type, outFieldType types.Type) PointTemplate {
@@ -14,9 +15,9 @@ func GetCasbinPluginTemplate(docFields []string, inFieldType types.Type, outFiel
 		panic(nil)
 	}
 
-	pt := PointTemplate{Has: true, BindBefor: HandlerTemplate{}, BindAfter: HandlerTemplate{}}
-	pt.Keys = map[string]string{"key": docFields[2], "annotation": docFields[3]}
-	pointConf := public2.GetConfKey().GetPoint("Casbin")
+	pt := PointTemplate{Name: Casbin,Has: true, BindBefor: HandlerTemplate{}, BindAfter: HandlerTemplate{}}
+	pt.Keys = map[string]string{"key": docFields[2], "note": docFields[3]}
+	pointConf := public2.GetConfKey().GetPoint(Casbin)
 
 	for _, mount := range pointConf.Point.Mount {
 		if CheckMatch(mount.Match, docFields, inFieldType, outFieldType) {

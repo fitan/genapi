@@ -111,6 +111,7 @@ func CheckHasInterface(t types.Type, interfaceNames []string) bool {
 }
 
 type PointTemplate struct {
+	Name string
 	Has bool
 	Keys map[string]string
 	BindBefor HandlerTemplate

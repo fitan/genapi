@@ -8,6 +8,8 @@ import (
 	"cmdb/gen/handler/logic/user"
 	"cmdb/middleware/jwt"
 	"cmdb/public"
+	public2 "github.com/fitan/genapi/public"
+	"github.com/gin-gonic/gin"
 )
 
 func init() {
@@ -18,6 +20,15 @@ func init() {
 	tree.Register(GetDefaultRouter())
 	//casbin.Register(GetAuthRouter())
 	casbin.Register(GetDefaultRouter())
+
+	role_method := make([]public2.CasbinRoleMethod,0,0)
+	role_method = append(role_method, casbin.RoleMethod()...)
+	role_method = append(role_method, tree.RoleMethod()...)
+	role_method = append(role_method, user.RoleMethod()...)
+	role_method = append(role_method, ent.RoleMethod()...)
+	GetDefaultRouter().GET("/role_method", func(c *gin.Context) {
+		c.JSON(200, role_method)
+	})
 	GetDefaultRouter().POST("/login", jwt.GetMyJwtMid().LoginHandler)
 	GetDefaultRouter().POST("/logout", jwt.GetMyJwtMid().LogoutHandler)
 	GetAuthRouter().GET("/refresh_token", jwt.GetMyJwtMid().RefreshHandler)

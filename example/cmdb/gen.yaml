@@ -51,7 +51,7 @@ Plugin:
             ImportPath: |
               "cmdb/public"
             Template: |
-              data,err = public.CheckListKeysCasbin(c,"%s",in.GetCasbinKeys())
+              data,err = public.CheckListKeysCasbin(c,"{{.key}}",in.GetCasbinKeys())
               if err != nil {return data, err}
           MountBindBefor:
             ImportPath:
@@ -64,7 +64,7 @@ Plugin:
             ImportPath: |
               "cmdb/public"
             Template: |
-              data,err = public.CheckKeysCasbin(c,"%s",in.GetCasbinKeys())
+              data,err = public.CheckKeysCasbin(c,"{{.key}}",in.GetCasbinKeys())
               if err != nil {return data, err}
           MountBindBefor:
             ImportPath:

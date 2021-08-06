@@ -1,0 +1,18 @@
+{{template "pkg_name" $.PkgName}}
+import (
+    "github.com/fitan/genapi/public"
+)
+
+func RoleMethod() ([]public.CasbinRoleMethod) {
+    return []public.CasbinRoleMethod{
+{{range $key,$funcs := $.ReginsterMap}}
+        {{range $index, $fc := $funcs}}
+        {{range $t := $fc.Plugins.Point}}
+        {{if and (eq $t.Name "Casbin")  $t.Has}}
+        {"{{$t.Keys.key}}", "{{$t.Keys.note}}"},
+        {{end}}
+        {{end}}
+        {{end}}
+{{end}}
+    }
+}

@@ -43,7 +43,7 @@ type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
 func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
 	{{range $tmp := $fc.Plugins.Point}}
 	{{if $tmp.Has}}
-	{{$tmp.BindBefor.Template}}
+	{{ForMat $tmp.BindBefor.Template $tmp.Keys}}
 	{{end}}
 	{{end}}
 
@@ -75,7 +75,7 @@ func {{$fc.FuncName}}(c *gin.Context) (data interface{},err error) {
 
 	{{range $tmp := $fc.Plugins.Point}}
 	{{if $tmp.Has}}
-	{{$tmp.BindAfter.Template}}
+	{{ForMat $tmp.BindAfter.Template $tmp.Keys}}
 	{{end}}
 	{{end}}
 
