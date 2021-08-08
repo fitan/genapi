@@ -19,12 +19,8 @@ var gen_api_tmplV2 string
 //go:embed gin_api_template/register.tmpl
 var register_tmplV2 string
 
-//go:embed gin_api_template/role_method.tmpl
-var role_method string
-
 //go:embed ent_fn_template/pkg_name.tmpl
 var pkg_name_tmpl string
-
 
 func genApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string][]gen_apiV2.Func, baseConf public.BaseConf, dest string) {
 	parse, err := template.New("gen_api").Funcs(gen.Funcs).Funcs(FM).Parse(pkg_name_tmpl)
@@ -47,13 +43,12 @@ func genApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 		}
 		b := bytes.NewBuffer(nil)
 		err = tpl.Execute(b, struct {
-			PkgName string
-			Funcs   []gen_apiV2.Func
+			PkgName  string
+			Funcs    []gen_apiV2.Func
 			BaseConf public.BaseConf
-
 		}{
-			PkgName: path.Base(dest),
-			Funcs:   fileContext.Funcs,
+			PkgName:  path.Base(dest),
+			Funcs:    fileContext.Funcs,
 			BaseConf: baseConf,
 		})
 
@@ -75,12 +70,12 @@ func genApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 		PkgName      string
 		ApiMap       map[string]*gen_apiV2.FileContext
 		ReginsterMap map[string][]gen_apiV2.Func
-		BaseConf public.BaseConf
+		BaseConf     public.BaseConf
 	}{
 		PkgName:      path.Base(dest),
 		ApiMap:       apiMap,
 		ReginsterMap: ReginsterMap,
-		BaseConf: baseConf,
+		BaseConf:     baseConf,
 	})
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -121,20 +116,19 @@ func genApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 	}
 }
 
-func GenApi(src, dest string)  {
+func GenApi(src, dest string) {
 	context := gen_apiV2.NewApiContext()
 	context.Load(src)
 	context.Parse(gen_apiV2.ParseOption{false})
 	for _, file := range context.Files {
 		if len(file.Funcs) != 0 {
-			genApiV2(context.Files, context.ReginsterMap, public.GetGenConf().BaseConf,dest)
+			genApiV2(context.Files, context.ReginsterMap, public.GetGenConf().BaseConf, dest)
 			break
 		}
 	}
 }
 
-
-func DepthGen(src, dest string, fn func(src,dest string))  {
+func DepthGen(src, dest string, fn func(src, dest string)) {
 	tree, err := directory_tree.NewTree(src)
 	if err != nil {
 		log.Panicln(err)
@@ -143,7 +137,7 @@ func DepthGen(src, dest string, fn func(src,dest string))  {
 	depthGen(tree, dest, fn)
 }
 
-func depthGen(tree *directory_tree.Node, dest string, fn func(src,dest string)) {
+func depthGen(tree *directory_tree.Node, dest string, fn func(src, dest string)) {
 	//context := gen_apiV2.NewApiContext()
 	//context.Load(tree.FullPath)
 	//context.Parse()

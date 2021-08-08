@@ -1,0 +1,53 @@
+import { Injectable } from '@angular/core';
+import { _HttpClient } from '@delon/theme';
+import { Observable } from 'rxjs';
+import { HttpHeaders, HttpParams } from '@angular/common/http';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class {{$.ServiceName}} {
+  constructor(private http: _HttpClient) {}
+  {{range $index, $fc := $.Funcs}}
+  {{$fc.FuncName}}({{$fc.FuncName}}In: {{$fc.FuncName}}In): Observable<{{$fc.FuncName}}Out> {
+    {{if $fc.Bind.Uri.Has}}
+    {{range $TagMsg := $fc.Bind.Uri.TagMsgs}}
+    let {{$TagMsg.TagValue}} = {{$fc.FuncName}}In.uri.{{$TagMsg.TagValue}};
+    {{end}}
+    {{end}}
+    let url = `{{$fc.Router.TsPath}}`;
+    {{if $fc.Bind.Query.Has}}
+    const params = {{$fc.FuncName}}In.query;
+{{/*    const params = new HttpParams({ fromObject: {{$fc.FuncName}}In.query });*/}}
+    {{- end}}
+    {{if $fc.Bind.Header.Has}}
+    const headers = new HttpHeaders(params.header);
+    {{- end}}
+
+    {{if eq $fc.Router.Method "GET"}}
+    return this.http.{{lower $fc.Router.Method}}<{{$fc.FuncName}}Out>(url, {{if $fc.Bind.Query.Has}}params{{else}}null{{end}}{{if $fc.Bind.Header.Has}},{headers: headers}{{end}});
+    {{end}}
+    {{if eq $fc.Router.Method "POST"}}
+    return this.http.{{lower $fc.Router.Method}}<{{$fc.FuncName}}Out>(url, {{if $fc.Bind.Body.Has}}{{$fc.FuncName}}In.body{{else}}null{{end}},{{if $fc.Bind.Query.Has}}params{{else}}null{{end}}{{if $fc.Bind.Header.Has}},{headers: headers}{{end}});
+    {{end}}
+    {{if eq $fc.Router.Method "PUT"}}
+    return this.http.{{lower $fc.Router.Method}}<{{$fc.FuncName}}Out>(url, {{if $fc.Bind.Body.Has}}{{$fc.FuncName}}In.body{{else}}null{{end}},{{if $fc.Bind.Query.Has}}params{{else}}null{{end}}{{if $fc.Bind.Header.Has}},{headers: headers}{{end}});
+    {{end}}
+    {{if eq $fc.Router.Method "DELETE"}}
+    return this.http.{{lower $fc.Router.Method}}<{{$fc.FuncName}}Out>(url, {{if $fc.Bind.Query.Has}}params{{else}}null{{end}}{{if $fc.Bind.Header.Has}},{headers: headers}{{end}});
+    {{end}}
+  }
+  {{end}}
+}
+
+{{range $index, $fc := $.Funcs}}
+{{range  $v := $fc.ParamIn1Ts}}
+{{$v}}
+{{end}}
+
+{{range $v := $fc.ResOut0Ts}}
+{{$v}}
+{{end}}
+
+
+{{end}}

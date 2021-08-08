@@ -10,9 +10,9 @@ import (
 )
 
 type GetServiceTreeIn struct {
-	Query struct{
+	Query struct {
 		entrest.ServiceTreePaging
-	}
+	} `json:"query"`
 }
 
 // @Description
@@ -36,11 +36,12 @@ func CreateProject(c *gin.Context, in *CreateProjectIn) (*ent.ServiceTree, error
 }
 
 type CreateServiceIn struct {
-	Uri struct{
+	Uri struct {
 		Id int `json:"id" uri:"id"`
-	}
+	} `json:"uri"`
 	Body ent.ServiceTree `json:"body"`
 }
+
 // @Summary 创建服务
 // @GenApi /api/project/{id}/service [post]
 func CreateService(c *gin.Context, in *CreateServiceIn) (*ent.ServiceTree, error) {

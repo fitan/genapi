@@ -13,7 +13,8 @@ import (
 	"text/template"
 )
 
-//go:embed ts_template/client.tmpl
+// go:embed ts_template/client.tmpl
+//go:embed ts_template/angular_http.tmpl
 var gen_ts_client_tmpl string
 
 func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, dest string) {
@@ -37,21 +38,22 @@ func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, d
 		}
 		b := bytes.NewBuffer(nil)
 		err = tpl.Execute(b, struct {
-			PkgName string
-			Funcs   []gen_apiV2.Func
-			BaseConf public.BaseConf
-
+			PkgName     string
+			ServiceName string
+			Funcs       []gen_apiV2.Func
+			BaseConf    public.BaseConf
 		}{
-			PkgName: path.Base(dest),
-			Funcs:   fileContext.Funcs,
-			BaseConf: baseConf,
+			PkgName:     path.Base(dest),
+			ServiceName: strings.Replace(path.Base(fileName), ".go", "", -1),
+			Funcs:       fileContext.Funcs,
+			BaseConf:    baseConf,
 		})
 
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
 		assets.files = append(assets.files, file{
-			path:    filepath.Join(dest, strings.Replace(path.Base(fileName),".go", ".ts", -1)),
+			path:    filepath.Join(dest, strings.Replace(path.Base(fileName), ".go", ".service.ts", -1)),
 			content: b.Bytes(),
 		})
 	}
@@ -86,15 +88,14 @@ func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, d
 	//}
 }
 
-func GenTs(src, dest string)  {
+func GenTs(src, dest string) {
 	context := gen_apiV2.NewApiContext()
 	context.Load(src)
 	context.Parse(gen_apiV2.ParseOption{true})
 	for _, file := range context.Files {
 		if len(file.Funcs) != 0 {
-			genTs(context.Files, public.GetGenConf().BaseConf,dest)
+			genTs(context.Files, public.GetGenConf().BaseConf, dest)
 			break
 		}
 	}
 }
-

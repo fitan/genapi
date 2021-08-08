@@ -8,6 +8,7 @@ import (
 	"go/token"
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/packages"
+	"log"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -380,6 +381,7 @@ func (e *ExtractStruct2Ts) Temp2ResolveNodes() {
 }
 
 func (e *ExtractStruct2Ts) MergePkg(pkg *packages.Package) {
+	log.Println("mergePkg", pkg)
 	if pkg.Imports != nil {
 		for index, importPath := range pkg.Imports {
 			e.TempNodeInfo.Pkg.Imports[index] = importPath
@@ -426,8 +428,8 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 			if tags, ok := reflect.StructTag(t.Tag.Value[1 : len(t.Tag.Value)-1]).Lookup("json"); ok {
 				for _, tag := range strings.Split(tags, ",") {
 					if tag == "-" {
-							return false
-						}
+						return false
+					}
 				}
 			}
 			return true
@@ -462,12 +464,26 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 				return false
 			}
 
-			fmt.Println(t.End() + t.Pos(), Node2String(e.TempNodeInfo.Pkg.Fset, t))
+			fmt.Println(t.End()+t.Pos(), Node2String(e.TempNodeInfo.Pkg.Fset, t))
+			//if t.End() + t.Pos() == 6 {
+			//	fmt.Println(t.End()+t.Pos(), Node2String(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File))
+			//}
 
-			findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, t)
-			fmt.Println("find need merge pkg: ", e.TempNodeInfo.Pkg.Name, t.X.(*ast.Ident).Name,t.Sel.Name)
+			var findPkg *packages.Package
+
+			if e.TempNodeInfo.Pkg.Name != t.X.(*ast.Ident).Name {
+				findPkg = FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, t)
+				e.MergePkg(findPkg)
+			} else {
+				findPkg = e.TempNodeInfo.Pkg
+			}
+
+			//fmt.Println("this pkg name: ", e.TempNodeInfo.Pkg.Name)
+			//findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, t)
+
+			//fmt.Println("find need merge pkg: ", e.TempNodeInfo.Pkg.Name, t.X.(*ast.Ident).Name,t.Sel.Name)
 			//fmt.Println(Node2String(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File))
-			e.MergePkg(findPkg)
+			//e.MergePkg(findPkg)
 			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
 			if _, ok := findTs.Type.(*ast.StructType); ok {
 				e.AddPendNodes(findPkg, f, findTs)

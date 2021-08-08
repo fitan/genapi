@@ -16,8 +16,8 @@ type GetRolesIn struct {
 type GetRolesOut []Role
 
 type Role struct {
-	RoleName string `json:"role_name"`
-	Methods []string `json:"methods"`
+	RoleName string   `json:"role_name"`
+	Methods  []string `json:"methods"`
 }
 
 // @Summary 获取所有角色
@@ -98,7 +98,6 @@ func DeleteRoles(c *gin.Context, in *DeleteRolesIn) (bool, error) {
 	return public.GetCasbin().RemoveFilteredGroupingPolicy(1, in.Uri.Name)
 }
 
-
 type RawPolicies [][]string
 
 func (r RawPolicies) ToPolicies() []Policy {
@@ -106,21 +105,21 @@ func (r RawPolicies) ToPolicies() []Policy {
 	for _, raw := range r {
 		resources := strings.Split(raw[1][1:], "/")
 		policies = append(policies, Policy{
-			User:     raw[0],
+			User: raw[0],
 			Resource: Resource{
 				ProjectId: resources[0],
 				ServiceId: resources[1],
 			},
-			Role:     raw[2],
+			Role: raw[2],
 		})
 	}
 	return policies
 }
 
 type Policy struct {
-	User      string `json:"user" binding:"required"`
+	User string `json:"user" binding:"required"`
 	Resource
-	Role      string `json:"role" binding:"required"`
+	Role string `json:"role" binding:"required"`
 }
 
 type Resource struct {
@@ -132,15 +131,12 @@ func (r *Resource) EncodeCasbinResource() string {
 	return "/" + r.ProjectId + "/" + r.ServiceId
 }
 
-
-
-
 type PoliciesIn struct {
 	Body []Policy `json:"body"`
 }
 
 func (p *PoliciesIn) GetCasbinListKeys() [][]interface{} {
-	keys := make([][]interface{}, 0 ,0)
+	keys := make([][]interface{}, 0, 0)
 	for _, b := range p.Body {
 		keys = append(keys, []interface{}{b.EncodeCasbinResource()})
 	}
@@ -162,9 +158,9 @@ func AddPolicies(c *gin.Context, in *PoliciesIn) (bool, error) {
 }
 
 type GetPoliciesIn struct {
-	Query struct{
+	Query struct {
 		Username string `json:"username" form:"user_name" binding:"required"`
-	}
+	} `json:"query"`
 }
 
 // @Summary 获取授权
@@ -183,5 +179,3 @@ func GetPolicies(c *gin.Context, in *GetPoliciesIn) ([]Policy, error) {
 func DeletePolicies(c *gin.Context, in *PoliciesIn) (bool, error) {
 	return public.GetCasbin().RemovePolicies(in.ToPolicies())
 }
-
-
