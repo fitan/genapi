@@ -421,6 +421,40 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 	newNode := astutil.Apply(e.TempNodeInfo.Node, func(c *astutil.Cursor) bool {
 		switch t := c.Node().(type) {
 		case *ast.Field:
+
+			if t.Names == nil {
+				switch tt := t.Type.(type) {
+				case *ast.SelectorExpr:
+					findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, tt)
+					f, findTs := FindTypeByName(findPkg, tt.Sel.Name)
+
+				case *ast.Ident:
+					_, findTs := FindTypeByName(e.TempNodeInfo.Pkg, tt.Name)
+					//fmt.Println("匿名",Node2String(e.TempNodeInfo.Pkg.Fset, findTs))
+					//fmt.Println("findTs name:", findTs.Name)
+					//field := ast.Field{
+					//	Doc:     t.Doc,
+					//	Names:   []*ast.Ident{ast.NewIdent("Hello")},
+					//	Type:    findTs.Type,
+					//	Tag:     t.Tag,
+					//	Comment: t.Comment,
+					//}
+					ct := t
+					//fmt.Println("ctt",ct.Type)
+					//fmt.Println("findtst", findTs.Type)
+					ident := ast.NewIdent(findTs.Name.Name)
+					ident.Obj = ast.NewObj(ast.Var, findTs.Name.Name)
+					ct.Names = []*ast.Ident{ident}
+					ct.Type = findTs.Type
+					c.Replace(ct)
+					replace = true
+					return false
+					//case *ast.SelectorExpr:
+					//	_, findTs := findtype
+					//
+				}
+			}
+
 			if t.Tag == nil {
 				return false
 			}

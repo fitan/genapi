@@ -26,7 +26,7 @@ import (
 var genCmd = &cobra.Command{
 	Use:   "gen",
 	Short: "",
-	Long: ``,
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		switch *genType {
 		case "ent":
@@ -41,13 +41,13 @@ var genCmd = &cobra.Command{
 			if ent == nil {
 				log.Panicln("Unknown ent name" + *genName)
 			}
-			gen_mgr.LoadV2(ent.Src,ent.Dest)
+			gen_mgr.LoadV2(ent.Src, ent.Dest)
 		case "api":
 			//b , _ := json.Marshal(public2.GetGenConf())
 			//spew.Dump(string(b))
 			if *genName == "" {
 				for _, api := range public2.GetGenConf().Gen.API {
-					gen_mgr.DepthGen(api.Src,api.Dest, gen_mgr.GenApi)
+					gen_mgr.DepthGen(api.Src, api.Dest, gen_mgr.GenApi)
 				}
 				return
 			}
@@ -60,7 +60,9 @@ var genCmd = &cobra.Command{
 		case "ts":
 			if *genName == "" {
 				for _, ts := range public2.GetGenConf().Gen.Ts {
-					gen_mgr.DepthGen(ts.Src, ts.Dest, gen_mgr.GenTs)
+					gen_mgr.DepthGen(ts.Src, ts.Dest, func(src, dest string) {
+						gen_mgr.GenTs(src, dest, ts.Prefix)
+					})
 				}
 				return
 			}
@@ -69,7 +71,9 @@ var genCmd = &cobra.Command{
 				log.Panicln("Unknown ts name" + *genName)
 			}
 
-			gen_mgr.DepthGen(ts.Src, ts.Dest, gen_mgr.GenTs)
+			gen_mgr.DepthGen(ts.Src, ts.Dest, func(src, dest string) {
+				gen_mgr.GenTs(src, dest, ts.Prefix)
+			})
 
 		default:
 		}
@@ -79,12 +83,12 @@ var genCmd = &cobra.Command{
 
 var genType *string
 var genName *string
+
 func init() {
 	rootCmd.AddCommand(genCmd)
 	genType = genCmd.Flags().StringP("type", "t", "", "gen type: ent,api")
 	genCmd.MarkFlagRequired("type")
 	genName = genCmd.Flags().StringP("name", "n", "", "gen name")
-
 
 	// Here you will define your flags and configuration settings.
 

@@ -94,7 +94,9 @@ Gen:
       Name: "logic"
       Src: "./logic"
       Dest: "/mnt/c/Users/boweian/project/my-project/src/app/gen/service/logic"
+      Prefix: "cmdb"
     -
       Name: "ent"
       Src: "./gen/entrest"
       Dest: "/mnt/c/Users/boweian/project/my-project/src/app/gen/service/ent"
+      Prefix: "cmdb"

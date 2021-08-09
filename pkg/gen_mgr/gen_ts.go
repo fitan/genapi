@@ -17,7 +17,7 @@ import (
 //go:embed ts_template/angular_http.tmpl
 var gen_ts_client_tmpl string
 
-func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, dest string) {
+func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, dest string, prefix string) {
 	parse, err := template.New("gen_ts_client").Funcs(gen.Funcs).Funcs(FM).Parse("")
 	if err != nil {
 		log.Panicln(err.Error())
@@ -42,11 +42,13 @@ func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, d
 			ServiceName string
 			Funcs       []gen_apiV2.Func
 			BaseConf    public.BaseConf
+			Prefix      string
 		}{
 			PkgName:     path.Base(dest),
 			ServiceName: strings.Replace(path.Base(fileName), ".go", "", -1),
 			Funcs:       fileContext.Funcs,
 			BaseConf:    baseConf,
+			Prefix:      prefix,
 		})
 
 		if err != nil {
@@ -88,13 +90,13 @@ func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, d
 	//}
 }
 
-func GenTs(src, dest string) {
+func GenTs(src, dest, prefix string) {
 	context := gen_apiV2.NewApiContext()
 	context.Load(src)
 	context.Parse(gen_apiV2.ParseOption{true})
 	for _, file := range context.Files {
 		if len(file.Funcs) != 0 {
-			genTs(context.Files, public.GetGenConf().BaseConf, dest)
+			genTs(context.Files, public.GetGenConf().BaseConf, dest, prefix)
 			break
 		}
 	}

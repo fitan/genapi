@@ -7,78 +7,79 @@ import (
 
 type GenConf struct {
 	BaseConf BaseConf `json:"BaseConf"`
-	Plugin Plugin `json:"Plugin"`
-	Gen Gen `json:"Gen"`
+	Plugin   Plugin   `json:"Plugin"`
+	Gen      Gen      `json:"Gen"`
 }
 type WrapResult struct {
-	ImportPath string `json:"ImportPath"`
-	WrapFunc string `json:"WrapFunc"`
+	ImportPath     string `json:"ImportPath"`
+	WrapFunc       string `json:"WrapFunc"`
 	WrapResultType string `json:"WrapResultType"`
 }
 type BaseConf struct {
 	WrapResult WrapResult `json:"WrapResult"`
 }
 type Match struct {
-	Param []string `json:"Param"`
+	Param            []string `json:"Param"`
 	OutInterfaceName []string `json:"OutInterfaceName"`
-	InInterfaceName []string `json:"InInterfaceName"`
+	InInterfaceName  []string `json:"InInterfaceName"`
 }
 type Cover struct {
-	Match Match `json:"Match"`
+	Match      Match  `json:"Match"`
 	ImportPath string `json:"ImportPath"`
-	Template string `json:"Template"`
+	Template   string `json:"Template"`
 }
 type CallBack struct {
-	TagName string `json:"TagName"`
-	Cover []Cover `json:"Cover"`
+	TagName string  `json:"TagName"`
+	Cover   []Cover `json:"Cover"`
 }
 type MountBindBefor struct {
 	ImportPath string `json:"ImportPath"`
-	Template string `json:"Template"`
+	Template   string `json:"Template"`
 }
 type MountBindAfter struct {
 	ImportPath string `json:"ImportPath"`
-	Template string `json:"Template"`
+	Template   string `json:"Template"`
 }
 type Mount struct {
-	Match Match `json:"Match"`
+	Match          Match          `json:"Match"`
 	MountBindBefor MountBindBefor `json:"MountBindBefor"`
 	MountBindAfter MountBindAfter `json:"MountBindAfter"`
 }
 type Point struct {
-	TagName string `json:"TagName"`
-	Mount []Mount `json:"Mount"`
+	TagName string  `json:"TagName"`
+	Mount   []Mount `json:"Mount"`
 }
 type Plugin struct {
 	CallBack []CallBack `json:"CallBack"`
-	Point []Point `json:"Point"`
+	Point    []Point    `json:"Point"`
 }
 type Ent struct {
 	Name string `json:"Name"`
-	Src string `json:"Src"`
+	Src  string `json:"Src"`
 	Dest string `json:"Dest"`
 }
 
 type Ts struct {
-	Name string `json:"Name"`
-	Src string `json:"Src"`
-	Dest string `json:"Dest"`
+	Name   string `json:"Name"`
+	Src    string `json:"Src"`
+	Dest   string `json:"Dest"`
+	Prefix string `json:"Prefix"`
 }
 type API struct {
 	Name string `json:"Name"`
-	Src string `json:"Src"`
+	Src  string `json:"Src"`
 	Dest string `json:"Dest"`
 }
 type Gen struct {
 	Ent []Ent `json:"Ent"`
 	API []API `json:"Api"`
-	Ts []Ts `json:"Ts"`
+	Ts  []Ts  `json:"Ts"`
 }
 
 var genConf *GenConf
 var viperConf *viper.Viper
 
-func init()  {
+func init() {
 	viperConf, genConf = ReadConf()
 }
 
@@ -104,5 +105,3 @@ func ReadConf() (*viper.Viper, *GenConf) {
 
 	return v, genConf
 }
-
-

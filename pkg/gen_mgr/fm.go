@@ -6,6 +6,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	gen_apiV2 "github.com/fitan/genapi/pkg/gin_api"
 	"log"
+	"path"
 	"strings"
 	"text/template"
 )
@@ -28,19 +29,20 @@ var FM = template.FuncMap{
 	"PaseFieldsOrderOp":        PaseFieldsOrderOp,
 	"Join":                     strings.Join,
 	"ForMat":                   GenForMat,
-	"FuncImportUnique": FuncImportUnique,
-	"Dump": Dump,
+	"FuncImportUnique":         FuncImportUnique,
+	"Dump":                     Dump,
+	"PathJoin":                 path.Join,
 }
 
 func FuncImportUnique(fs []gen_apiV2.Func) string {
-	importList := make([]string,0,0)
+	importList := make([]string, 0, 0)
 	for _, f := range fs {
 		if f.Plugins.CallBack.Has {
 			if !SliceContains(importList, f.Plugins.CallBack.Template.ImportPath) {
 				importList = append(importList, f.Plugins.CallBack.Template.ImportPath)
 			}
 		}
-		for _,p := range f.Plugins.Point {
+		for _, p := range f.Plugins.Point {
 			if p.Has {
 				if !SliceContains(importList, p.BindAfter.ImportPath) {
 					importList = append(importList, p.BindAfter.ImportPath)
@@ -116,14 +118,6 @@ const GenRestDefault GenRestSwitch = 0
 const GenRestTrue GenRestSwitch = 1
 const GenRestFalse GenRestSwitch = 2
 
-
-
-
-
-
-
-
-
 type RestFieldOp struct {
 	FieldQueryable   FieldQueryable   `json:"field_queryable"`
 	FieldOperability FieldOperability `json:"field_operability"`
@@ -160,11 +154,11 @@ type FieldOperability struct {
 
 type OrderOp struct {
 	OrderField []string
-	Has bool
+	Has        bool
 }
 
 func PaseFieldsOrderOp(fs []*gen.Field) OrderOp {
-	orderField := make([]string,0,0)
+	orderField := make([]string, 0, 0)
 	has := false
 	for _, f := range fs {
 		a := PaseRestFieldQueryOp(f.Annotations)
@@ -308,7 +302,6 @@ func PaseRestFieldOperability(m map[string]interface{}, o string) string {
 	return "true"
 }
 
-
 func SliceContains(l []string, s string) bool {
 	for _, t := range l {
 		if t == s {
@@ -407,8 +400,6 @@ func PaseRestEdgeInclude(m map[string]interface{}) bool {
 	return true
 }
 
-
-
 func PaseRestEdgeMethod(m map[string]interface{}) EdgeMethod {
 	op := RestEdgeOp{}
 	if _, ok := m[RestEdgeType]; ok {
@@ -469,7 +460,6 @@ type RestNodeOp struct {
 func (r RestNodeOp) Name() string {
 	return RestNodeType
 }
-
 
 type NodeMethod struct {
 	GetOne     NodeMethodOp
@@ -547,7 +537,6 @@ func PaseRestNodeMethod(m map[string]interface{}) NodeMethod {
 
 type TempString string
 
-
 func (s TempString) Format(data interface{}) (out string, err error) {
 	t := template.Must(template.New("").Parse(string(s)))
 	builder := &strings.Builder{}
@@ -559,7 +548,7 @@ func (s TempString) Format(data interface{}) (out string, err error) {
 }
 
 func GenForMat(s string, data interface{}) string {
-	res,_ := TempString(s).Format(data)
+	res, _ := TempString(s).Format(data)
 	return res
 }
 

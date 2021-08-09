@@ -33,10 +33,13 @@ func TestNewExtractStruct2Ts(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewExtractStruct2Ts(tt.args.pkg, tt.args.file, tt.args.node)
+			got := NewExtractStruct2Ts(tt.args.pkg, tt.args.file, tt.args.node, make(map[string]struct{}, 0))
 			got.Parse()
-			for index, v := range got.ToTs("MainIn") {
-				fmt.Println(index, v)
+			for _ = range got.ToTs(func(s string) string {
+				fmt.Println(s)
+				return s
+			}) {
+				//fmt.Println(index, v)
 			}
 		})
 	}
