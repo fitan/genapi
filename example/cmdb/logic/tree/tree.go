@@ -11,7 +11,7 @@ import (
 
 type GetServiceTreeIn struct {
 	Query struct {
-		entrest.ServiceTreePaging
+		entrest.ServiceTreePaging 
 	} `json:"query"`
 }
 
@@ -28,6 +28,7 @@ func GetServiceTree(c *gin.Context, in *GetServiceTreeIn) ([]*ent.ServiceTree, e
 type CreateProjectIn struct {
 	Body ent.ServiceTree `json:"body"`
 }
+
 
 // @Summary 创建project
 // @GenApi /api/project [post]

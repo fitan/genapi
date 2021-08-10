@@ -31,17 +31,21 @@ func getIdent(s string) string {
 	return s
 }
 
-func writeType(s *strings.Builder, t ast.Expr, depth int) {
+func writeType(s *strings.Builder, t ast.Expr, depth int, opt ...string) {
 	switch t := t.(type) {
 	case *ast.StarExpr:
 		writeType(s, t.X, depth)
-		s.WriteString(" | undefined")
+		if len(opt) != 0 {
+			s.WriteString(opt[0] + " | undefined")
+		} else {
+			s.WriteString(" | undefined")
+		}
 	case *ast.ArrayType:
 		if v, ok := t.Elt.(*ast.Ident); ok && v.String() == "byte" {
 			s.WriteString("string")
 			break
 		}
-		writeType(s, t.Elt, depth)
+		writeType(s, t.Elt, depth, "[]")
 		s.WriteString("[]")
 	case *ast.StructType:
 		s.WriteString("{\n")
@@ -86,7 +90,15 @@ func validJSName(n string) bool {
 
 func writeFields(s *strings.Builder, fields []*ast.Field, depth int) {
 	for _, f := range fields {
-		optional := false
+		optional := true
+
+		if f.Doc != nil {
+			for _, m := range f.Doc.List {
+				s.WriteString( Indent + m.Text)
+				s.WriteString("\n")
+				fmt.Println("doc: ", m.Text)
+			}
+		}
 
 		var fieldName string
 		if len(f.Names) != 0 && f.Names[0] != nil && len(f.Names[0].Name) != 0 {
@@ -110,7 +122,12 @@ func writeFields(s *strings.Builder, fields []*ast.Field, depth int) {
 					continue
 				}
 
-				optional = jsonTag.HasOption("omitempty")
+				//optional = jsonTag.HasOption("omitempty")
+			}
+
+			bindingTag, err := tags.Get("binding")
+			if err == nil {
+				optional = !bindingTag.HasOption("required")
 			}
 		}
 
@@ -157,7 +174,7 @@ func Convert(s string) string {
 	}
 
 	var f ast.Node
-	f, err := parser.ParseExprFrom(token.NewFileSet(), "editor.go", s, parser.SpuriousErrors)
+	f, err := parser.ParseExprFrom(token.NewFileSet(), "editor.go", s, parser.SpuriousErrors | parser.ParseComments)
 	if err != nil {
 		s = fmt.Sprintf(`package main
 func main() {
@@ -201,145 +218,6 @@ func main() {
 	})
 
 	return w.String()
-}
-
-func SpliceTypeV2(pkg *packages.Package, file *ast.File, node ast.Node) bool {
-	replace := false
-	astutil.Apply(node, func(c *astutil.Cursor) bool {
-		switch t := c.Node().(type) {
-		case *ast.Field:
-			fmt.Println("ent ast field")
-			if t.Tag == nil {
-				fmt.Println("out ast field")
-				return false
-			}
-
-			if tags, ok := reflect.StructTag(t.Tag.Value[1 : len(t.Tag.Value)-1]).Lookup("json"); ok {
-				for _, tag := range strings.Split(tags, ",") {
-					if tag == "-" {
-						fmt.Println("out ast field")
-						return false
-					}
-				}
-			}
-			fmt.Println("out ast field")
-			return true
-
-		case *ast.Ident:
-			//if pkg.TypesInfo.TypeOf(t) != nil {
-			//	switch InfoT := pkg.TypesInfo.TypeOf(t).Underlying().(type) {
-			//	case *types.Struct:
-			//		fmt.Println("struct: ", t.Name, InfoT.String())
-			//	case *types.Basic:
-			//		switch tt := c.Parent().(type) {
-			//		case *ast.Field:
-			//			fmt.Println("t: ", t.Name, "parent: ", tt.Names)
-			//			fmt.Println("basic: ", t.Name, InfoT.String())
-			//		default:
-			//			fmt.Println("basic: ", t.Name, InfoT.String())
-			//
-			//		}
-			//	case *types.Named:
-			//		fmt.Println("named: ",  t.Name, InfoT.String())
-			//
-			//
-			//
-			//
-			//
-			//	}
-			//}
-			fmt.Println("t name: ", t.Name, "t obj: ", t.Obj)
-			if t.Obj != nil {
-				if t.Obj.Kind.String() == "type" {
-
-					//fmt.Println("ident name: ", t.Name)
-					fmt.Println("find need name: ", t.Name)
-					f, findTs := FindTypeByName(pkg, t.Name)
-					if _, ok := findTs.Type.(*ast.StructType); ok {
-						return false
-					}
-
-					file.Imports = append(file.Imports, f.Imports...)
-					fmt.Println("find: ", findTs)
-					fmt.Println("find ident type: ", findTs.Type, "name: ", t.Name)
-					replace = true
-					c.Replace(findTs.Type)
-				}
-			} else {
-				if !JudgeBuiltInType(t.Name) {
-					f, findTs := FindTypeByName(pkg, t.Name)
-					if _, ok := findTs.Type.(*ast.StructType); ok {
-						return false
-					}
-					file.Imports = append(file.Imports, f.Imports...)
-					replace = true
-					c.Replace(findTs.Type)
-				}
-			}
-			//if t.Name == "Code" {
-			//	fmt.Println("code obj ", t.Obj)
-			//}
-			//if t.Name == "AliaseInt" {
-			//	fmt.Println("AliaseInt obj", t.Obj)
-			//}
-			//fmt.Println("enter ident: ", t.Name)
-			//if t.Obj == nil {
-			//	fmt.Println("obj is nil: ", t.Name)
-			//	if !JudgeBuiltInType(t.Name) {
-			//		fmt.Println("ident name: ", t.Name)
-			//		_, findTs := FindTypeByName(pkg, t.Name)
-			//		//	fmt.Println("find ident type: ", findTs.Type)
-			//		c.Replace(findTs.Type)
-			//	}
-			//}
-			//if _,ok := c.Parent().(*ast.Field);ok {
-			//	return true
-			//}
-			//fmt.Println("ident Name ", t.Name)
-			//if !JudgeBuiltInType(t.Name) {
-			//	_, findTs := FindTypeByName(pkg, t.Name)
-			//	fmt.Println("find ident type: ", findTs.Type)
-			//	c.Replace(findTs.Type)
-			//}
-		//
-		//
-		//
-		case *ast.SelectorExpr:
-			defer fmt.Println("ent ast selector expr")
-			fmt.Println("ent ast selector expr")
-			if t.X.(*ast.Ident).Name == "time" && t.Sel.Name == "Time" {
-				return false
-			}
-			path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
-			fmt.Println("file name: ", file.Name, "find pkg path: ", t.X.(*ast.Ident).Name)
-			findPkg := pkg.Imports[path]
-			fmt.Println("find pkg : ", path)
-			if findPkg.Imports != nil {
-				for index, importPath := range findPkg.Imports {
-					pkg.Imports[index] = importPath
-				}
-			}
-			for _, synx := range findPkg.Syntax {
-				pkg.Syntax = append(pkg.Syntax, synx)
-			}
-			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
-			if _, ok := findTs.Type.(*ast.StructType); ok {
-				return false
-			}
-
-			file.Imports = append(file.Imports, f.Imports...)
-
-			replace = true
-			c.Replace(findTs.Type)
-			return false
-		}
-		return true
-	}, func(c *astutil.Cursor) bool {
-		return true
-	})
-
-	//fmt.Println("splice struct :   ", Node2String(pkg.Fset, node))
-	return replace
 }
 
 type NodeInfo struct {
@@ -426,26 +304,46 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 				switch tt := t.Type.(type) {
 				case *ast.SelectorExpr:
 					findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, tt)
-					f, findTs := FindTypeByName(findPkg, tt.Sel.Name)
-
-				case *ast.Ident:
-					_, findTs := FindTypeByName(e.TempNodeInfo.Pkg, tt.Name)
-					//fmt.Println("匿名",Node2String(e.TempNodeInfo.Pkg.Fset, findTs))
-					//fmt.Println("findTs name:", findTs.Name)
-					//field := ast.Field{
-					//	Doc:     t.Doc,
-					//	Names:   []*ast.Ident{ast.NewIdent("Hello")},
-					//	Type:    findTs.Type,
-					//	Tag:     t.Tag,
-					//	Comment: t.Comment,
-					//}
+					_, findTs := FindTypeByName(findPkg, tt.Sel.Name)
+					if e.TempNodeInfo.Pkg.Name != findPkg.Name {
+						e.MergePkg(findPkg)
+					}
+					structType, ok := findTs.Type.(*ast.StructType)
+					if ok {
+						for _, f := range structType.Fields.List {
+							c.InsertBefore(f)
+						}
+						c.Delete()
+						replace = true
+						return false
+					}
 					ct := t
-					//fmt.Println("ctt",ct.Type)
-					//fmt.Println("findtst", findTs.Type)
 					ident := ast.NewIdent(findTs.Name.Name)
 					ident.Obj = ast.NewObj(ast.Var, findTs.Name.Name)
 					ct.Names = []*ast.Ident{ident}
 					ct.Type = findTs.Type
+					ct.Doc = findTs.Doc
+					c.Replace(ct)
+					replace = true
+					return false
+
+				case *ast.Ident:
+					_, findTs := FindTypeByName(e.TempNodeInfo.Pkg, tt.Name)
+					structType,ok := findTs.Type.(*ast.StructType)
+					if ok {
+						for _, f := range structType.Fields.List {
+							c.InsertBefore(f)
+						}
+						c.Delete()
+						replace = true
+						return false
+					}
+					ct := t
+					ident := ast.NewIdent(findTs.Name.Name)
+					ident.Obj = ast.NewObj(ast.Var, findTs.Name.Name)
+					ct.Names = []*ast.Ident{ident}
+					ct.Type = findTs.Type
+					ct.Doc = findTs.Doc
 					c.Replace(ct)
 					replace = true
 					return false

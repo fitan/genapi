@@ -11,8 +11,13 @@ type UserResult struct {
 	M         map[nest.Fater]nest.Fater `json:"m"`
 	N         nest.Nest                 `json:"n"`
 	Err       interface{}               `json:"err"`
-	User      User                      `json:"user"`
+	User      []*User                      `json:"user"`
 	AliaseInt `json:"aint"`
+	UserIncludes
+	//this is nest
+	nest.Nest
+	// this is fater
+	nest.Fater
 	//UserIncludes
 	//ATime time.Time
 }
