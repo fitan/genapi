@@ -30,6 +30,58 @@ func getIdent(s string) string {
 
 	return s
 }
+//func writeType(s *strings.Builder, t ast.Expr, depth int, optionalParens bool) {
+//	switch t := t.(type) {
+//	case *ast.StarExpr:
+//		if optionalParens {
+//			s.WriteByte('(')
+//		}
+//		writeType(s, t.X, depth, false)
+//		s.WriteString(" | undefined")
+//		if optionalParens {
+//			s.WriteByte(')')
+//		}
+//	case *ast.ArrayType:
+//		if v, ok := t.Elt.(*ast.Ident); ok && v.String() == "byte" {
+//			s.WriteString("string")
+//			break
+//		}
+//		writeType(s, t.Elt, depth, true)
+//		s.WriteString("[]")
+//	case *ast.StructType:
+//		s.WriteString("{\n")
+//		writeFields(s, t.Fields.List, depth+1)
+//
+//		for i := 0; i < depth+1; i++ {
+//			s.WriteString(Indent)
+//		}
+//		s.WriteByte('}')
+//	case *ast.Ident:
+//		s.WriteString(getIdent(t.String()))
+//	case *ast.SelectorExpr:
+//		longType := fmt.Sprintf("%s.%s", t.X, t.Sel)
+//		switch longType {
+//		case "time.Time":
+//			s.WriteString("string")
+//		case "decimal.Decimal":
+//			s.WriteString("number")
+//		default:
+//			s.WriteString(longType)
+//		}
+//	case *ast.MapType:
+//		s.WriteString("{ [key: ")
+//		writeType(s, t.Key, depth, false)
+//		s.WriteString("]: ")
+//		writeType(s, t.Value, depth, false)
+//		s.WriteByte('}')
+//	case *ast.InterfaceType:
+//		s.WriteString("any")
+//	default:
+//		err := fmt.Errorf("unhandled: %s, %T", t, t)
+//		fmt.Println(err)
+//		panic(err)
+//	}
+//}
 
 func writeType(s *strings.Builder, t ast.Expr, depth int, opt ...string) {
 	switch t := t.(type) {
@@ -161,7 +213,7 @@ func writeFields(s *strings.Builder, fields []*ast.Field, depth int) {
 
 		s.WriteString(": ")
 
-		writeType(s, f.Type, depth)
+		writeType(s, f.Type, depth )
 
 		s.WriteString(";\n")
 	}

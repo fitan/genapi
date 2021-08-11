@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+type Form struct {
+	Name string `json:"name"`
+	Age int `json:"age"`
+	Notes struct{
+		Node string `json:"node"`
+	}
+}
+
 type UserResult struct {
 	//Code AliaseInt                 `json:"code"`
 	Data      map[string]nest.Nest      `json:"data"`
