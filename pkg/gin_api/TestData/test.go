@@ -8,7 +8,7 @@ import (
 type Form struct {
 	Name string `json:"name"`
 	Age int `json:"age"`
-	Notes struct{
+	Notes []struct{
 		Node string `json:"node"`
 	}
 }

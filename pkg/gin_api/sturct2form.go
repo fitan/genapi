@@ -12,38 +12,31 @@ import (
 
 func formWriteType(name string, s *strings.Builder, t ast.Expr, depth int, opt ...string) {
 	switch t := t.(type) {
-	//case *ast.StarExpr:
-	//	writeType(s, t.X, depth)
-	//	if len(opt) != 0 {
-	//		s.WriteString(opt[0] + " | undefined")
-	//	} else {
-	//		s.WriteString(" | undefined")
-	//	}
+
+	case *ast.StarExpr:
+		formWriteType(name,s, t.X, depth)
+
 	case *ast.ArrayType:
+		switch  {
+		
+		}
+
 		s.WriteString(fmt.Sprintf(`"%s": {
 		  "type": "array",
 		  "title": "%s",
-		  "items": %s	
-		}`, name,name))
-		if v, ok := t.Elt.(*ast.Ident); ok && v.String() == "byte" {
-			s.WriteString("string")
-			break
-		}
-		writeType(s, t.Elt, depth, "[]")
-		s.WriteString("[]")
-	//case *ast.StructType:
-	//	s.WriteString("{\n")
-	//	writeFields(s, t.Fields.List, depth+1)
-	//
-	//	for i := 0; i < depth+1; i++ {
-	//		s.WriteString(Indent)
-	//	}
-	//	s.WriteByte('}')
+		  "items":`, name, name))
+		formWriteType(name, s, t.Elt, depth+1)
+		s.WriteString(`}`)
+
+	case *ast.StructType:
+		s.WriteString(fmt.Sprintf(`{"type": "object","properties": {`))
+		formWriteFields(s, t.Fields.List, depth+1)
+		s.WriteString(`}}`)
 	case *ast.Ident:
 		s.WriteString(fmt.Sprintf(`"%s": {
 		  "type": "%s",	
 		  "title": "%s"	
-		},`, name, getIdent(t.String()), name))
+		},`,name, getIdent(t.String()), name))
 	//case *ast.SelectorExpr:
 	//	longType := fmt.Sprintf("%s.%s", t.X, t.Sel)
 	//	switch longType {
@@ -68,6 +61,8 @@ func formWriteType(name string, s *strings.Builder, t ast.Expr, depth int, opt .
 		//panic(err)
 	}
 }
+
+
 
 
 
@@ -160,31 +155,16 @@ func main() {
 	}
 
 	w := new(strings.Builder)
-	name := "MyInterface"
 
-	first := true
 
 	ast.Inspect(f, func(n ast.Node) bool {
 		switch x := n.(type) {
 		case *ast.Ident:
-			name = x.Name
 		case *ast.StructType:
-			if !first {
-				w.WriteString("\n\n")
-			}
+			formWriteType("", w, x, 0)
 
-			w.WriteString("export interface ")
-			w.WriteString(name)
-			w.WriteString(" {\n")
-			w.WriteString(Indent + `"properties":{`)
 
-			formWriteFields(w, x.Fields.List, 0)
 
-			w.WriteString("}}")
-
-			first = false
-
-			// TODO: allow multiple structs
 			return false
 		}
 		return true
