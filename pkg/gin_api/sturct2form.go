@@ -8,35 +8,34 @@ import (
 	"strings"
 )
 
-
-
-func formWriteType(name string, s *strings.Builder, t ast.Expr, depth int, opt ...string) {
+func formWriteType(name string, s *strings.Builder, t ast.Expr, opt ...string) {
 	switch t := t.(type) {
 
 	case *ast.StarExpr:
-		formWriteType(name,s, t.X, depth)
+		formWriteType(name, s, t.X)
 
 	case *ast.ArrayType:
-		switch  {
-		
-		}
-
-		s.WriteString(fmt.Sprintf(`"%s": {
-		  "type": "array",
-		  "title": "%s",
-		  "items":`, name, name))
-		formWriteType(name, s, t.Elt, depth+1)
+		s.WriteString(fmt.Sprintf(`%s: {
+		  type: 'array',
+		  title: '%s',
+		  items:`, name, name))
+		formWriteType(name, s, t.Elt)
 		s.WriteString(`}`)
 
 	case *ast.StructType:
-		s.WriteString(fmt.Sprintf(`{"type": "object","properties": {`))
-		formWriteFields(s, t.Fields.List, depth+1)
+		s.WriteString(fmt.Sprintf(`{
+		type: 'object',
+		properties: {`))
+		formWriteFields(s, t.Fields.List)
 		s.WriteString(`}}`)
 	case *ast.Ident:
-		s.WriteString(fmt.Sprintf(`"%s": {
-		  "type": "%s",	
-		  "title": "%s"	
-		},`,name, getIdent(t.String()), name))
+		s.WriteString(fmt.Sprintf(`%s: {
+		  type: '%s',	
+		  title: '%s'	
+		}`, name, getIdent(t.String()), name))
+		if len(opt) == 0 {
+			s.WriteString(",")
+		}
 	//case *ast.SelectorExpr:
 	//	longType := fmt.Sprintf("%s.%s", t.X, t.Sel)
 	//	switch longType {
@@ -62,19 +61,19 @@ func formWriteType(name string, s *strings.Builder, t ast.Expr, depth int, opt .
 	}
 }
 
-
-
-
-
-func formWriteFields(s *strings.Builder, fields []*ast.Field, depth int) {
+func formWriteFields(s *strings.Builder, fields []*ast.Field) {
+	fLen := len(fields)
 	for _, f := range fields {
 
-		for _,nameIdent := range f.Names {
+		for index, nameIdent := range f.Names {
 			if nameIdent.IsExported() {
-				formWriteType(nameIdent.Name,s,f.Type,depth+1)
+				if fLen-1 == index {
+					formWriteType(nameIdent.Name, s, f.Type, "last")
+				} else {
+					formWriteType(nameIdent.Name, s, f.Type)
+				}
 			}
 		}
-
 
 		//var fieldName string
 		//if len(f.Names) != 0 && f.Names[0] != nil && len(f.Names[0].Name) != 0 {
@@ -156,14 +155,11 @@ func main() {
 
 	w := new(strings.Builder)
 
-
 	ast.Inspect(f, func(n ast.Node) bool {
 		switch x := n.(type) {
 		case *ast.Ident:
 		case *ast.StructType:
-			formWriteType("", w, x, 0)
-
-
+			formWriteType("", w, x)
 
 			return false
 		}
