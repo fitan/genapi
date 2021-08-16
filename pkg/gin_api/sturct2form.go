@@ -5,22 +5,74 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"reflect"
 	"strings"
 )
 
-func formWriteType(name string, s *strings.Builder, t ast.Expr, opt ...string) {
+const NGForm = "ngform"
+
+type ngTag struct {
+	tagS string
+	nameField string
+	typeField string
+	titleField string
+	formatField string
+}
+
+func (n *ngTag) parse() {
+
+	jsonFormTag := reflect.StructTag(n.tagS).Get("json")
+	for _, v := range strings.Split(jsonFormTag, ",") {
+		n.nameField = v
+		break
+	}
+	ngFormTag := reflect.StructTag(n.tagS).Get(NGForm)
+	if ngFormTag != "" {
+		l := strings.Split(ngFormTag, ",")
+		for _, v := range l {
+			field := strings.Split(v, "=")
+			if len(field) >= 2 {
+				switch field[0] {
+				case "type":
+					n.typeField = field[1]
+				case "title":
+					n.titleField = field[1]
+					if n.titleField == "" {
+						n.titleField = n.nameField
+					}
+				case "format":
+					n.formatField = field[1]
+				}
+			}
+		}
+	}
+
+}
+
+func NGTAG(s string) ngTag {
+	t := ngTag{tagS: s}
+	t.parse()
+	return t
+}
+
+func formWriteType(tag ngTag, s *strings.Builder, t ast.Expr,  opt ...string) {
 	switch t := t.(type) {
 
 	case *ast.StarExpr:
-		formWriteType(name, s, t.X)
+		formWriteType(tag, s, t.X)
 
 	case *ast.ArrayType:
-		s.WriteString(fmt.Sprintf(`%s: {
-		  type: 'array',
-		  title: '%s',
-		  items:`, name, name))
-		formWriteType(name, s, t.Elt)
-		s.WriteString(`}`)
+		switch tt := t.Elt.(type) {
+		case *ast.StructType:
+			s.WriteString(fmt.Sprintf(`%s: {
+			type: 'array',
+			title: '%s',
+			items:`, tag.nameField, tag.titleField))
+			formWriteType(tag, s, t.Elt)
+			s.WriteString(`}`)
+		case *ast.Ident:
+			formWriteType(tag, s, tt)
+		}
 
 	case *ast.StructType:
 		s.WriteString(fmt.Sprintf(`{
@@ -29,31 +81,27 @@ func formWriteType(name string, s *strings.Builder, t ast.Expr, opt ...string) {
 		formWriteFields(s, t.Fields.List)
 		s.WriteString(`}}`)
 	case *ast.Ident:
+		ty := tag.typeField
+		title := tag.titleField
+		format := tag.formatField
+		name := tag.nameField
+
+		if ty == "" {
+			ty = getIdent(t.String())
+		}
+
+
 		s.WriteString(fmt.Sprintf(`%s: {
 		  type: '%s',	
-		  title: '%s'	
-		}`, name, getIdent(t.String()), name))
+		  title: '%s'`, name, ty, title))
+		if format != "" {
+			s.WriteString(fmt.Sprintf(`,format: '%s'`, format))
+		}
+		s.WriteString(`}`)
 		if len(opt) == 0 {
 			s.WriteString(",")
 		}
-	//case *ast.SelectorExpr:
-	//	longType := fmt.Sprintf("%s.%s", t.X, t.Sel)
-	//	switch longType {
-	//	case "time.Time":
-	//		s.WriteString("string")
-	//	case "decimal.Decimal":
-	//		s.WriteString("number")
-	//	default:
-	//		s.WriteString(longType)
-	//	}
-	//case *ast.MapType:
-	//	s.WriteString("{ [key: ")
-	//	writeType(s, t.Key, depth)
-	//	s.WriteString("]: ")
-	//	writeType(s, t.Value, depth)
-	//	s.WriteByte('}')
-	//case *ast.InterfaceType:
-	//	s.WriteString("any")
+
 	default:
 		//err := fmt.Errorf("unhandled: %s, %T", t, t)
 		//fmt.Println(err)
@@ -64,13 +112,19 @@ func formWriteType(name string, s *strings.Builder, t ast.Expr, opt ...string) {
 func formWriteFields(s *strings.Builder, fields []*ast.Field) {
 	fLen := len(fields)
 	for _, f := range fields {
+		var ngTag ngTag
+		if f.Tag == nil {
+			ngTag = NGTAG("")
+		} else {
+			ngTag = NGTAG(f.Tag.Value[1 : len(f.Tag.Value)-1])
+		}
 
 		for index, nameIdent := range f.Names {
 			if nameIdent.IsExported() {
 				if fLen-1 == index {
-					formWriteType(nameIdent.Name, s, f.Type, "last")
+					formWriteType(ngTag, s, f.Type, "last")
 				} else {
-					formWriteType(nameIdent.Name, s, f.Type)
+					formWriteType(ngTag, s, f.Type)
 				}
 			}
 		}
@@ -159,7 +213,7 @@ func main() {
 		switch x := n.(type) {
 		case *ast.Ident:
 		case *ast.StructType:
-			formWriteType("", w, x)
+			formWriteType(NGTAG(""), w, x)
 
 			return false
 		}

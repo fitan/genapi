@@ -6,11 +6,11 @@ import (
 )
 
 type Form struct {
-	Name string `json:"name"`
+	Name string `json:"name" ngform:"title=邮箱,format=id-card"`
 	Age int `json:"age"`
 	Notes []struct{
 		Node string `json:"node"`
-	}
+	} `json:"notes" ngform:"title=笔记"`
 }
 
 type UserResult struct {
