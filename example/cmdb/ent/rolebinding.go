@@ -4,7 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/rolebinding"
-	"cmdb/ent/user"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -17,39 +17,19 @@ type RoleBinding struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
-	// Role holds the value of the "role" field.
-	Role rolebinding.Role `json:"role,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the RoleBindingQuery when eager-loading is set.
-	Edges          RoleBindingEdges `json:"edges"`
+	// RoleName holds the value of the "role_name" field.
+	RoleName string `json:"role_name,omitempty"`
+	// RoleID holds the value of the "role_id" field.
+	RoleID string `json:"role_id,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Note holds the value of the "note" field.
+	Note string `json:"note,omitempty"`
+	// Permissions holds the value of the "permissions" field.
+	Permissions    []string `json:"permissions,omitempty"`
 	user_role_bind *int
-}
-
-// RoleBindingEdges holds the relations/edges for other nodes in the graph.
-type RoleBindingEdges struct {
-	// User holds the value of the user edge.
-	User *User `json:"user,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
-}
-
-// UserOrErr returns the User value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e RoleBindingEdges) UserOrErr() (*User, error) {
-	if e.loadedTypes[0] {
-		if e.User == nil {
-			// The edge user was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: user.Label}
-		}
-		return e.User, nil
-	}
-	return nil, &NotLoadedError{edge: "user"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -57,11 +37,13 @@ func (*RoleBinding) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case rolebinding.FieldPermissions:
+			values[i] = &[]byte{}
 		case rolebinding.FieldID:
 			values[i] = &sql.NullInt64{}
-		case rolebinding.FieldRole:
+		case rolebinding.FieldRoleName, rolebinding.FieldRoleID, rolebinding.FieldStatus, rolebinding.FieldNote:
 			values[i] = &sql.NullString{}
-		case rolebinding.FieldCreateTime, rolebinding.FieldUpdateTime:
+		case rolebinding.FieldCreatedAt:
 			values[i] = &sql.NullTime{}
 		case rolebinding.ForeignKeys[0]: // user_role_bind
 			values[i] = &sql.NullInt64{}
@@ -86,23 +68,44 @@ func (rb *RoleBinding) assignValues(columns []string, values []interface{}) erro
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			rb.ID = int(value.Int64)
-		case rolebinding.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
-			} else if value.Valid {
-				rb.CreateTime = value.Time
-			}
-		case rolebinding.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				rb.UpdateTime = value.Time
-			}
-		case rolebinding.FieldRole:
+		case rolebinding.FieldRoleName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field role", values[i])
+				return fmt.Errorf("unexpected type %T for field role_name", values[i])
 			} else if value.Valid {
-				rb.Role = rolebinding.Role(value.String)
+				rb.RoleName = value.String
+			}
+		case rolebinding.FieldRoleID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field role_id", values[i])
+			} else if value.Valid {
+				rb.RoleID = value.String
+			}
+		case rolebinding.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				rb.Status = value.String
+			}
+		case rolebinding.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				rb.CreatedAt = value.Time
+			}
+		case rolebinding.FieldNote:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field note", values[i])
+			} else if value.Valid {
+				rb.Note = value.String
+			}
+		case rolebinding.FieldPermissions:
+
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field permissions", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &rb.Permissions); err != nil {
+					return fmt.Errorf("unmarshal field permissions: %v", err)
+				}
 			}
 		case rolebinding.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -114,11 +117,6 @@ func (rb *RoleBinding) assignValues(columns []string, values []interface{}) erro
 		}
 	}
 	return nil
-}
-
-// QueryUser queries the "user" edge of the RoleBinding entity.
-func (rb *RoleBinding) QueryUser() *UserQuery {
-	return (&RoleBindingClient{config: rb.config}).QueryUser(rb)
 }
 
 // Update returns a builder for updating this RoleBinding.
@@ -144,12 +142,18 @@ func (rb *RoleBinding) String() string {
 	var builder strings.Builder
 	builder.WriteString("RoleBinding(")
 	builder.WriteString(fmt.Sprintf("id=%v", rb.ID))
-	builder.WriteString(", create_time=")
-	builder.WriteString(rb.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", update_time=")
-	builder.WriteString(rb.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", role=")
-	builder.WriteString(fmt.Sprintf("%v", rb.Role))
+	builder.WriteString(", role_name=")
+	builder.WriteString(rb.RoleName)
+	builder.WriteString(", role_id=")
+	builder.WriteString(rb.RoleID)
+	builder.WriteString(", status=")
+	builder.WriteString(rb.Status)
+	builder.WriteString(", created_at=")
+	builder.WriteString(rb.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", note=")
+	builder.WriteString(rb.Note)
+	builder.WriteString(", permissions=")
+	builder.WriteString(fmt.Sprintf("%v", rb.Permissions))
 	builder.WriteByte(')')
 	return builder.String()
 }

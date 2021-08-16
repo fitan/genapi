@@ -79,7 +79,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	}
 	tx, err := newTx(ctx, c.driver)
 	if err != nil {
-		return nil, fmt.Errorf("ent: starting a transaction: %w", err)
+		return nil, fmt.Errorf("ent: starting a transaction: %v", err)
 	}
 	cfg := c.config
 	cfg.driver = tx
@@ -103,7 +103,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		BeginTx(context.Context, *sql.TxOptions) (dialect.Tx, error)
 	}).BeginTx(ctx, opts)
 	if err != nil {
-		return nil, fmt.Errorf("ent: starting a transaction: %w", err)
+		return nil, fmt.Errorf("ent: starting a transaction: %v", err)
 	}
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
@@ -319,22 +319,6 @@ func (c *RoleBindingClient) GetX(ctx context.Context, id int) *RoleBinding {
 		panic(err)
 	}
 	return obj
-}
-
-// QueryUser queries the user edge of a RoleBinding.
-func (c *RoleBindingClient) QueryUser(rb *RoleBinding) *UserQuery {
-	query := &UserQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := rb.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(rolebinding.Table, rolebinding.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, rolebinding.UserTable, rolebinding.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(rb.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
 }
 
 // Hooks returns the client hooks.

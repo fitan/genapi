@@ -5,10 +5,9 @@ package ent
 import (
 	"cmdb/ent/predicate"
 	"cmdb/ent/rolebinding"
-	"cmdb/ent/user"
 	"context"
-	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -28,32 +27,53 @@ func (rbu *RoleBindingUpdate) Where(ps ...predicate.RoleBinding) *RoleBindingUpd
 	return rbu
 }
 
-// SetRole sets the "role" field.
-func (rbu *RoleBindingUpdate) SetRole(r rolebinding.Role) *RoleBindingUpdate {
-	rbu.mutation.SetRole(r)
+// SetRoleName sets the "role_name" field.
+func (rbu *RoleBindingUpdate) SetRoleName(s string) *RoleBindingUpdate {
+	rbu.mutation.SetRoleName(s)
 	return rbu
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (rbu *RoleBindingUpdate) SetUserID(id int) *RoleBindingUpdate {
-	rbu.mutation.SetUserID(id)
+// SetRoleID sets the "role_id" field.
+func (rbu *RoleBindingUpdate) SetRoleID(s string) *RoleBindingUpdate {
+	rbu.mutation.SetRoleID(s)
 	return rbu
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (rbu *RoleBindingUpdate) SetUser(u *User) *RoleBindingUpdate {
-	return rbu.SetUserID(u.ID)
+// SetStatus sets the "status" field.
+func (rbu *RoleBindingUpdate) SetStatus(s string) *RoleBindingUpdate {
+	rbu.mutation.SetStatus(s)
+	return rbu
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (rbu *RoleBindingUpdate) SetCreatedAt(t time.Time) *RoleBindingUpdate {
+	rbu.mutation.SetCreatedAt(t)
+	return rbu
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (rbu *RoleBindingUpdate) SetNillableCreatedAt(t *time.Time) *RoleBindingUpdate {
+	if t != nil {
+		rbu.SetCreatedAt(*t)
+	}
+	return rbu
+}
+
+// SetNote sets the "note" field.
+func (rbu *RoleBindingUpdate) SetNote(s string) *RoleBindingUpdate {
+	rbu.mutation.SetNote(s)
+	return rbu
+}
+
+// SetPermissions sets the "permissions" field.
+func (rbu *RoleBindingUpdate) SetPermissions(s []string) *RoleBindingUpdate {
+	rbu.mutation.SetPermissions(s)
+	return rbu
 }
 
 // Mutation returns the RoleBindingMutation object of the builder.
 func (rbu *RoleBindingUpdate) Mutation() *RoleBindingMutation {
 	return rbu.mutation
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (rbu *RoleBindingUpdate) ClearUser() *RoleBindingUpdate {
-	rbu.mutation.ClearUser()
-	return rbu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -62,20 +82,13 @@ func (rbu *RoleBindingUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
-	rbu.defaults()
 	if len(rbu.hooks) == 0 {
-		if err = rbu.check(); err != nil {
-			return 0, err
-		}
 		affected, err = rbu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*RoleBindingMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = rbu.check(); err != nil {
-				return 0, err
 			}
 			rbu.mutation = mutation
 			affected, err = rbu.sqlSave(ctx)
@@ -114,27 +127,6 @@ func (rbu *RoleBindingUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (rbu *RoleBindingUpdate) defaults() {
-	if _, ok := rbu.mutation.UpdateTime(); !ok {
-		v := rolebinding.UpdateDefaultUpdateTime()
-		rbu.mutation.SetUpdateTime(v)
-	}
-}
-
-// check runs all checks and user-defined validators on the builder.
-func (rbu *RoleBindingUpdate) check() error {
-	if v, ok := rbu.mutation.Role(); ok {
-		if err := rolebinding.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf("ent: validator failed for field \"role\": %w", err)}
-		}
-	}
-	if _, ok := rbu.mutation.UserID(); rbu.mutation.UserCleared() && !ok {
-		return errors.New("ent: clearing a required unique edge \"user\"")
-	}
-	return nil
-}
-
 func (rbu *RoleBindingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -153,54 +145,47 @@ func (rbu *RoleBindingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := rbu.mutation.UpdateTime(); ok {
+	if value, ok := rbu.mutation.RoleName(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldRoleName,
+		})
+	}
+	if value, ok := rbu.mutation.RoleID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldRoleID,
+		})
+	}
+	if value, ok := rbu.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldStatus,
+		})
+	}
+	if value, ok := rbu.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: rolebinding.FieldUpdateTime,
+			Column: rolebinding.FieldCreatedAt,
 		})
 	}
-	if value, ok := rbu.mutation.Role(); ok {
+	if value, ok := rbu.mutation.Note(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: rolebinding.FieldRole,
+			Column: rolebinding.FieldNote,
 		})
 	}
-	if rbu.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   rolebinding.UserTable,
-			Columns: []string{rolebinding.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := rbu.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   rolebinding.UserTable,
-			Columns: []string{rolebinding.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := rbu.mutation.Permissions(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: rolebinding.FieldPermissions,
+		})
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, rbu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -220,32 +205,53 @@ type RoleBindingUpdateOne struct {
 	mutation *RoleBindingMutation
 }
 
-// SetRole sets the "role" field.
-func (rbuo *RoleBindingUpdateOne) SetRole(r rolebinding.Role) *RoleBindingUpdateOne {
-	rbuo.mutation.SetRole(r)
+// SetRoleName sets the "role_name" field.
+func (rbuo *RoleBindingUpdateOne) SetRoleName(s string) *RoleBindingUpdateOne {
+	rbuo.mutation.SetRoleName(s)
 	return rbuo
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (rbuo *RoleBindingUpdateOne) SetUserID(id int) *RoleBindingUpdateOne {
-	rbuo.mutation.SetUserID(id)
+// SetRoleID sets the "role_id" field.
+func (rbuo *RoleBindingUpdateOne) SetRoleID(s string) *RoleBindingUpdateOne {
+	rbuo.mutation.SetRoleID(s)
 	return rbuo
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (rbuo *RoleBindingUpdateOne) SetUser(u *User) *RoleBindingUpdateOne {
-	return rbuo.SetUserID(u.ID)
+// SetStatus sets the "status" field.
+func (rbuo *RoleBindingUpdateOne) SetStatus(s string) *RoleBindingUpdateOne {
+	rbuo.mutation.SetStatus(s)
+	return rbuo
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (rbuo *RoleBindingUpdateOne) SetCreatedAt(t time.Time) *RoleBindingUpdateOne {
+	rbuo.mutation.SetCreatedAt(t)
+	return rbuo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (rbuo *RoleBindingUpdateOne) SetNillableCreatedAt(t *time.Time) *RoleBindingUpdateOne {
+	if t != nil {
+		rbuo.SetCreatedAt(*t)
+	}
+	return rbuo
+}
+
+// SetNote sets the "note" field.
+func (rbuo *RoleBindingUpdateOne) SetNote(s string) *RoleBindingUpdateOne {
+	rbuo.mutation.SetNote(s)
+	return rbuo
+}
+
+// SetPermissions sets the "permissions" field.
+func (rbuo *RoleBindingUpdateOne) SetPermissions(s []string) *RoleBindingUpdateOne {
+	rbuo.mutation.SetPermissions(s)
+	return rbuo
 }
 
 // Mutation returns the RoleBindingMutation object of the builder.
 func (rbuo *RoleBindingUpdateOne) Mutation() *RoleBindingMutation {
 	return rbuo.mutation
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (rbuo *RoleBindingUpdateOne) ClearUser() *RoleBindingUpdateOne {
-	rbuo.mutation.ClearUser()
-	return rbuo
 }
 
 // Save executes the query and returns the updated RoleBinding entity.
@@ -254,20 +260,13 @@ func (rbuo *RoleBindingUpdateOne) Save(ctx context.Context) (*RoleBinding, error
 		err  error
 		node *RoleBinding
 	)
-	rbuo.defaults()
 	if len(rbuo.hooks) == 0 {
-		if err = rbuo.check(); err != nil {
-			return nil, err
-		}
 		node, err = rbuo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*RoleBindingMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = rbuo.check(); err != nil {
-				return nil, err
 			}
 			rbuo.mutation = mutation
 			node, err = rbuo.sqlSave(ctx)
@@ -306,27 +305,6 @@ func (rbuo *RoleBindingUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (rbuo *RoleBindingUpdateOne) defaults() {
-	if _, ok := rbuo.mutation.UpdateTime(); !ok {
-		v := rolebinding.UpdateDefaultUpdateTime()
-		rbuo.mutation.SetUpdateTime(v)
-	}
-}
-
-// check runs all checks and user-defined validators on the builder.
-func (rbuo *RoleBindingUpdateOne) check() error {
-	if v, ok := rbuo.mutation.Role(); ok {
-		if err := rolebinding.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf("ent: validator failed for field \"role\": %w", err)}
-		}
-	}
-	if _, ok := rbuo.mutation.UserID(); rbuo.mutation.UserCleared() && !ok {
-		return errors.New("ent: clearing a required unique edge \"user\"")
-	}
-	return nil
-}
-
 func (rbuo *RoleBindingUpdateOne) sqlSave(ctx context.Context) (_node *RoleBinding, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -350,54 +328,47 @@ func (rbuo *RoleBindingUpdateOne) sqlSave(ctx context.Context) (_node *RoleBindi
 			}
 		}
 	}
-	if value, ok := rbuo.mutation.UpdateTime(); ok {
+	if value, ok := rbuo.mutation.RoleName(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldRoleName,
+		})
+	}
+	if value, ok := rbuo.mutation.RoleID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldRoleID,
+		})
+	}
+	if value, ok := rbuo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldStatus,
+		})
+	}
+	if value, ok := rbuo.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: rolebinding.FieldUpdateTime,
+			Column: rolebinding.FieldCreatedAt,
 		})
 	}
-	if value, ok := rbuo.mutation.Role(); ok {
+	if value, ok := rbuo.mutation.Note(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: rolebinding.FieldRole,
+			Column: rolebinding.FieldNote,
 		})
 	}
-	if rbuo.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   rolebinding.UserTable,
-			Columns: []string{rolebinding.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := rbuo.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   rolebinding.UserTable,
-			Columns: []string{rolebinding.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := rbuo.mutation.Permissions(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: rolebinding.FieldPermissions,
+		})
 	}
 	_node = &RoleBinding{config: rbuo.config}
 	_spec.Assign = _node.assignValues

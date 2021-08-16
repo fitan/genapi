@@ -19,8 +19,10 @@ const (
 	FieldPlatformType = "platform_type"
 	// FieldSystemType holds the string denoting the system_type field in the database.
 	FieldSystemType = "system_type"
+
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
+
 	// Table holds the table name of the server in the database.
 	Table = "servers"
 	// OwnerTable is the table the holds the owner relation/edge.
@@ -41,8 +43,7 @@ var Columns = []string{
 	FieldSystemType,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "servers"
-// table and are not defined as standalone fields in the schema.
+// ForeignKeys holds the SQL foreign-keys that are owned by the Server type.
 var ForeignKeys = []string{
 	"service_tree_servers",
 }

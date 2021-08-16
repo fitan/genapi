@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -93,36 +92,57 @@ func IDLTE(id int) predicate.RoleBinding {
 	})
 }
 
-// CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
-func CreateTime(v time.Time) predicate.RoleBinding {
+// RoleName applies equality check predicate on the "role_name" field. It's identical to RoleNameEQ.
+func RoleName(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreateTime), v))
+		s.Where(sql.EQ(s.C(FieldRoleName), v))
 	})
 }
 
-// UpdateTime applies equality check predicate on the "update_time" field. It's identical to UpdateTimeEQ.
-func UpdateTime(v time.Time) predicate.RoleBinding {
+// RoleID applies equality check predicate on the "role_id" field. It's identical to RoleIDEQ.
+func RoleID(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdateTime), v))
+		s.Where(sql.EQ(s.C(FieldRoleID), v))
 	})
 }
 
-// CreateTimeEQ applies the EQ predicate on the "create_time" field.
-func CreateTimeEQ(v time.Time) predicate.RoleBinding {
+// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
+func Status(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreateTime), v))
+		s.Where(sql.EQ(s.C(FieldStatus), v))
 	})
 }
 
-// CreateTimeNEQ applies the NEQ predicate on the "create_time" field.
-func CreateTimeNEQ(v time.Time) predicate.RoleBinding {
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldCreateTime), v))
+		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
 	})
 }
 
-// CreateTimeIn applies the In predicate on the "create_time" field.
-func CreateTimeIn(vs ...time.Time) predicate.RoleBinding {
+// Note applies equality check predicate on the "note" field. It's identical to NoteEQ.
+func Note(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNote), v))
+	})
+}
+
+// RoleNameEQ applies the EQ predicate on the "role_name" field.
+func RoleNameEQ(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldRoleName), v))
+	})
+}
+
+// RoleNameNEQ applies the NEQ predicate on the "role_name" field.
+func RoleNameNEQ(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldRoleName), v))
+	})
+}
+
+// RoleNameIn applies the In predicate on the "role_name" field.
+func RoleNameIn(vs ...string) predicate.RoleBinding {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -134,12 +154,12 @@ func CreateTimeIn(vs ...time.Time) predicate.RoleBinding {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldCreateTime), v...))
+		s.Where(sql.In(s.C(FieldRoleName), v...))
 	})
 }
 
-// CreateTimeNotIn applies the NotIn predicate on the "create_time" field.
-func CreateTimeNotIn(vs ...time.Time) predicate.RoleBinding {
+// RoleNameNotIn applies the NotIn predicate on the "role_name" field.
+func RoleNameNotIn(vs ...string) predicate.RoleBinding {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -151,54 +171,89 @@ func CreateTimeNotIn(vs ...time.Time) predicate.RoleBinding {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldCreateTime), v...))
+		s.Where(sql.NotIn(s.C(FieldRoleName), v...))
 	})
 }
 
-// CreateTimeGT applies the GT predicate on the "create_time" field.
-func CreateTimeGT(v time.Time) predicate.RoleBinding {
+// RoleNameGT applies the GT predicate on the "role_name" field.
+func RoleNameGT(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldCreateTime), v))
+		s.Where(sql.GT(s.C(FieldRoleName), v))
 	})
 }
 
-// CreateTimeGTE applies the GTE predicate on the "create_time" field.
-func CreateTimeGTE(v time.Time) predicate.RoleBinding {
+// RoleNameGTE applies the GTE predicate on the "role_name" field.
+func RoleNameGTE(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldCreateTime), v))
+		s.Where(sql.GTE(s.C(FieldRoleName), v))
 	})
 }
 
-// CreateTimeLT applies the LT predicate on the "create_time" field.
-func CreateTimeLT(v time.Time) predicate.RoleBinding {
+// RoleNameLT applies the LT predicate on the "role_name" field.
+func RoleNameLT(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldCreateTime), v))
+		s.Where(sql.LT(s.C(FieldRoleName), v))
 	})
 }
 
-// CreateTimeLTE applies the LTE predicate on the "create_time" field.
-func CreateTimeLTE(v time.Time) predicate.RoleBinding {
+// RoleNameLTE applies the LTE predicate on the "role_name" field.
+func RoleNameLTE(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldCreateTime), v))
+		s.Where(sql.LTE(s.C(FieldRoleName), v))
 	})
 }
 
-// UpdateTimeEQ applies the EQ predicate on the "update_time" field.
-func UpdateTimeEQ(v time.Time) predicate.RoleBinding {
+// RoleNameContains applies the Contains predicate on the "role_name" field.
+func RoleNameContains(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdateTime), v))
+		s.Where(sql.Contains(s.C(FieldRoleName), v))
 	})
 }
 
-// UpdateTimeNEQ applies the NEQ predicate on the "update_time" field.
-func UpdateTimeNEQ(v time.Time) predicate.RoleBinding {
+// RoleNameHasPrefix applies the HasPrefix predicate on the "role_name" field.
+func RoleNameHasPrefix(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUpdateTime), v))
+		s.Where(sql.HasPrefix(s.C(FieldRoleName), v))
 	})
 }
 
-// UpdateTimeIn applies the In predicate on the "update_time" field.
-func UpdateTimeIn(vs ...time.Time) predicate.RoleBinding {
+// RoleNameHasSuffix applies the HasSuffix predicate on the "role_name" field.
+func RoleNameHasSuffix(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldRoleName), v))
+	})
+}
+
+// RoleNameEqualFold applies the EqualFold predicate on the "role_name" field.
+func RoleNameEqualFold(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldRoleName), v))
+	})
+}
+
+// RoleNameContainsFold applies the ContainsFold predicate on the "role_name" field.
+func RoleNameContainsFold(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldRoleName), v))
+	})
+}
+
+// RoleIDEQ applies the EQ predicate on the "role_id" field.
+func RoleIDEQ(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldRoleID), v))
+	})
+}
+
+// RoleIDNEQ applies the NEQ predicate on the "role_id" field.
+func RoleIDNEQ(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldRoleID), v))
+	})
+}
+
+// RoleIDIn applies the In predicate on the "role_id" field.
+func RoleIDIn(vs ...string) predicate.RoleBinding {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -210,12 +265,12 @@ func UpdateTimeIn(vs ...time.Time) predicate.RoleBinding {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldUpdateTime), v...))
+		s.Where(sql.In(s.C(FieldRoleID), v...))
 	})
 }
 
-// UpdateTimeNotIn applies the NotIn predicate on the "update_time" field.
-func UpdateTimeNotIn(vs ...time.Time) predicate.RoleBinding {
+// RoleIDNotIn applies the NotIn predicate on the "role_id" field.
+func RoleIDNotIn(vs ...string) predicate.RoleBinding {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -227,54 +282,89 @@ func UpdateTimeNotIn(vs ...time.Time) predicate.RoleBinding {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldUpdateTime), v...))
+		s.Where(sql.NotIn(s.C(FieldRoleID), v...))
 	})
 }
 
-// UpdateTimeGT applies the GT predicate on the "update_time" field.
-func UpdateTimeGT(v time.Time) predicate.RoleBinding {
+// RoleIDGT applies the GT predicate on the "role_id" field.
+func RoleIDGT(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUpdateTime), v))
+		s.Where(sql.GT(s.C(FieldRoleID), v))
 	})
 }
 
-// UpdateTimeGTE applies the GTE predicate on the "update_time" field.
-func UpdateTimeGTE(v time.Time) predicate.RoleBinding {
+// RoleIDGTE applies the GTE predicate on the "role_id" field.
+func RoleIDGTE(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUpdateTime), v))
+		s.Where(sql.GTE(s.C(FieldRoleID), v))
 	})
 }
 
-// UpdateTimeLT applies the LT predicate on the "update_time" field.
-func UpdateTimeLT(v time.Time) predicate.RoleBinding {
+// RoleIDLT applies the LT predicate on the "role_id" field.
+func RoleIDLT(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUpdateTime), v))
+		s.Where(sql.LT(s.C(FieldRoleID), v))
 	})
 }
 
-// UpdateTimeLTE applies the LTE predicate on the "update_time" field.
-func UpdateTimeLTE(v time.Time) predicate.RoleBinding {
+// RoleIDLTE applies the LTE predicate on the "role_id" field.
+func RoleIDLTE(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUpdateTime), v))
+		s.Where(sql.LTE(s.C(FieldRoleID), v))
 	})
 }
 
-// RoleEQ applies the EQ predicate on the "role" field.
-func RoleEQ(v Role) predicate.RoleBinding {
+// RoleIDContains applies the Contains predicate on the "role_id" field.
+func RoleIDContains(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldRole), v))
+		s.Where(sql.Contains(s.C(FieldRoleID), v))
 	})
 }
 
-// RoleNEQ applies the NEQ predicate on the "role" field.
-func RoleNEQ(v Role) predicate.RoleBinding {
+// RoleIDHasPrefix applies the HasPrefix predicate on the "role_id" field.
+func RoleIDHasPrefix(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldRole), v))
+		s.Where(sql.HasPrefix(s.C(FieldRoleID), v))
 	})
 }
 
-// RoleIn applies the In predicate on the "role" field.
-func RoleIn(vs ...Role) predicate.RoleBinding {
+// RoleIDHasSuffix applies the HasSuffix predicate on the "role_id" field.
+func RoleIDHasSuffix(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldRoleID), v))
+	})
+}
+
+// RoleIDEqualFold applies the EqualFold predicate on the "role_id" field.
+func RoleIDEqualFold(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldRoleID), v))
+	})
+}
+
+// RoleIDContainsFold applies the ContainsFold predicate on the "role_id" field.
+func RoleIDContainsFold(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldRoleID), v))
+	})
+}
+
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldStatus), v))
+	})
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldStatus), v))
+	})
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...string) predicate.RoleBinding {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -286,12 +376,12 @@ func RoleIn(vs ...Role) predicate.RoleBinding {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldRole), v...))
+		s.Where(sql.In(s.C(FieldStatus), v...))
 	})
 }
 
-// RoleNotIn applies the NotIn predicate on the "role" field.
-func RoleNotIn(vs ...Role) predicate.RoleBinding {
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...string) predicate.RoleBinding {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -303,35 +393,257 @@ func RoleNotIn(vs ...Role) predicate.RoleBinding {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldRole), v...))
+		s.Where(sql.NotIn(s.C(FieldStatus), v...))
 	})
 }
 
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.RoleBinding {
+// StatusGT applies the GT predicate on the "status" field.
+func StatusGT(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(UserTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
+		s.Where(sql.GT(s.C(FieldStatus), v))
 	})
 }
 
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.RoleBinding {
+// StatusGTE applies the GTE predicate on the "status" field.
+func StatusGTE(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(UserInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
-		)
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
+		s.Where(sql.GTE(s.C(FieldStatus), v))
+	})
+}
+
+// StatusLT applies the LT predicate on the "status" field.
+func StatusLT(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldStatus), v))
+	})
+}
+
+// StatusLTE applies the LTE predicate on the "status" field.
+func StatusLTE(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldStatus), v))
+	})
+}
+
+// StatusContains applies the Contains predicate on the "status" field.
+func StatusContains(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldStatus), v))
+	})
+}
+
+// StatusHasPrefix applies the HasPrefix predicate on the "status" field.
+func StatusHasPrefix(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldStatus), v))
+	})
+}
+
+// StatusHasSuffix applies the HasSuffix predicate on the "status" field.
+func StatusHasSuffix(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldStatus), v))
+	})
+}
+
+// StatusEqualFold applies the EqualFold predicate on the "status" field.
+func StatusEqualFold(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldStatus), v))
+	})
+}
+
+// StatusContainsFold applies the ContainsFold predicate on the "status" field.
+func StatusContainsFold(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldStatus), v))
+	})
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.RoleBinding {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldCreatedAt), v...))
+	})
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.RoleBinding {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldCreatedAt), v...))
+	})
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCreatedAt), v))
+	})
+}
+
+// NoteEQ applies the EQ predicate on the "note" field.
+func NoteEQ(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNote), v))
+	})
+}
+
+// NoteNEQ applies the NEQ predicate on the "note" field.
+func NoteNEQ(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldNote), v))
+	})
+}
+
+// NoteIn applies the In predicate on the "note" field.
+func NoteIn(vs ...string) predicate.RoleBinding {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldNote), v...))
+	})
+}
+
+// NoteNotIn applies the NotIn predicate on the "note" field.
+func NoteNotIn(vs ...string) predicate.RoleBinding {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldNote), v...))
+	})
+}
+
+// NoteGT applies the GT predicate on the "note" field.
+func NoteGT(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldNote), v))
+	})
+}
+
+// NoteGTE applies the GTE predicate on the "note" field.
+func NoteGTE(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldNote), v))
+	})
+}
+
+// NoteLT applies the LT predicate on the "note" field.
+func NoteLT(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldNote), v))
+	})
+}
+
+// NoteLTE applies the LTE predicate on the "note" field.
+func NoteLTE(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldNote), v))
+	})
+}
+
+// NoteContains applies the Contains predicate on the "note" field.
+func NoteContains(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldNote), v))
+	})
+}
+
+// NoteHasPrefix applies the HasPrefix predicate on the "note" field.
+func NoteHasPrefix(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldNote), v))
+	})
+}
+
+// NoteHasSuffix applies the HasSuffix predicate on the "note" field.
+func NoteHasSuffix(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldNote), v))
+	})
+}
+
+// NoteEqualFold applies the EqualFold predicate on the "note" field.
+func NoteEqualFold(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldNote), v))
+	})
+}
+
+// NoteContainsFold applies the ContainsFold predicate on the "note" field.
+func NoteContainsFold(v string) predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldNote), v))
 	})
 }
 

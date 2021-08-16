@@ -326,12 +326,13 @@ type RoleBindingMutation struct {
 	op            Op
 	typ           string
 	id            *int
-	create_time   *time.Time
-	update_time   *time.Time
-	role          *rolebinding.Role
+	role_name     *string
+	role_id       *string
+	status        *string
+	created_at    *time.Time
+	note          *string
+	permissions   *[]string
 	clearedFields map[string]struct{}
-	user          *int
-	cleareduser   bool
 	done          bool
 	oldValue      func(context.Context) (*RoleBinding, error)
 	predicates    []predicate.RoleBinding
@@ -416,151 +417,220 @@ func (m *RoleBindingMutation) ID() (id int, exists bool) {
 	return *m.id, true
 }
 
-// SetCreateTime sets the "create_time" field.
-func (m *RoleBindingMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
+// SetRoleName sets the "role_name" field.
+func (m *RoleBindingMutation) SetRoleName(s string) {
+	m.role_name = &s
 }
 
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *RoleBindingMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
+// RoleName returns the value of the "role_name" field in the mutation.
+func (m *RoleBindingMutation) RoleName() (r string, exists bool) {
+	v := m.role_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCreateTime returns the old "create_time" field's value of the RoleBinding entity.
+// OldRoleName returns the old "role_name" field's value of the RoleBinding entity.
 // If the RoleBinding object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleBindingMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+func (m *RoleBindingMutation) OldRoleName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldCreateTime is only allowed on UpdateOne operations")
+		return v, fmt.Errorf("OldRoleName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldCreateTime requires an ID field in the mutation")
+		return v, fmt.Errorf("OldRoleName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+		return v, fmt.Errorf("querying old value for OldRoleName: %w", err)
 	}
-	return oldValue.CreateTime, nil
+	return oldValue.RoleName, nil
 }
 
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *RoleBindingMutation) ResetCreateTime() {
-	m.create_time = nil
+// ResetRoleName resets all changes to the "role_name" field.
+func (m *RoleBindingMutation) ResetRoleName() {
+	m.role_name = nil
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (m *RoleBindingMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
+// SetRoleID sets the "role_id" field.
+func (m *RoleBindingMutation) SetRoleID(s string) {
+	m.role_id = &s
 }
 
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *RoleBindingMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
+// RoleID returns the value of the "role_id" field in the mutation.
+func (m *RoleBindingMutation) RoleID() (r string, exists bool) {
+	v := m.role_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUpdateTime returns the old "update_time" field's value of the RoleBinding entity.
+// OldRoleID returns the old "role_id" field's value of the RoleBinding entity.
 // If the RoleBinding object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleBindingMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
+func (m *RoleBindingMutation) OldRoleID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldUpdateTime is only allowed on UpdateOne operations")
+		return v, fmt.Errorf("OldRoleID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldUpdateTime requires an ID field in the mutation")
+		return v, fmt.Errorf("OldRoleID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+		return v, fmt.Errorf("querying old value for OldRoleID: %w", err)
 	}
-	return oldValue.UpdateTime, nil
+	return oldValue.RoleID, nil
 }
 
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *RoleBindingMutation) ResetUpdateTime() {
-	m.update_time = nil
+// ResetRoleID resets all changes to the "role_id" field.
+func (m *RoleBindingMutation) ResetRoleID() {
+	m.role_id = nil
 }
 
-// SetRole sets the "role" field.
-func (m *RoleBindingMutation) SetRole(r rolebinding.Role) {
-	m.role = &r
+// SetStatus sets the "status" field.
+func (m *RoleBindingMutation) SetStatus(s string) {
+	m.status = &s
 }
 
-// Role returns the value of the "role" field in the mutation.
-func (m *RoleBindingMutation) Role() (r rolebinding.Role, exists bool) {
-	v := m.role
+// Status returns the value of the "status" field in the mutation.
+func (m *RoleBindingMutation) Status() (r string, exists bool) {
+	v := m.status
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldRole returns the old "role" field's value of the RoleBinding entity.
+// OldStatus returns the old "status" field's value of the RoleBinding entity.
 // If the RoleBinding object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleBindingMutation) OldRole(ctx context.Context) (v rolebinding.Role, err error) {
+func (m *RoleBindingMutation) OldStatus(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldRole is only allowed on UpdateOne operations")
+		return v, fmt.Errorf("OldStatus is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldRole requires an ID field in the mutation")
+		return v, fmt.Errorf("OldStatus requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRole: %w", err)
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
 	}
-	return oldValue.Role, nil
+	return oldValue.Status, nil
 }
 
-// ResetRole resets all changes to the "role" field.
-func (m *RoleBindingMutation) ResetRole() {
-	m.role = nil
+// ResetStatus resets all changes to the "status" field.
+func (m *RoleBindingMutation) ResetStatus() {
+	m.status = nil
 }
 
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *RoleBindingMutation) SetUserID(id int) {
-	m.user = &id
+// SetCreatedAt sets the "created_at" field.
+func (m *RoleBindingMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (m *RoleBindingMutation) ClearUser() {
-	m.cleareduser = true
-}
-
-// UserCleared returns if the "user" edge to the User entity was cleared.
-func (m *RoleBindingMutation) UserCleared() bool {
-	return m.cleareduser
-}
-
-// UserID returns the "user" edge ID in the mutation.
-func (m *RoleBindingMutation) UserID() (id int, exists bool) {
-	if m.user != nil {
-		return *m.user, true
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *RoleBindingMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
 	}
-	return
+	return *v, true
 }
 
-// UserIDs returns the "user" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// UserID instead. It exists only for internal usage by the builders.
-func (m *RoleBindingMutation) UserIDs() (ids []int) {
-	if id := m.user; id != nil {
-		ids = append(ids, *id)
+// OldCreatedAt returns the old "created_at" field's value of the RoleBinding entity.
+// If the RoleBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoleBindingMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
 	}
-	return
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
 }
 
-// ResetUser resets all changes to the "user" edge.
-func (m *RoleBindingMutation) ResetUser() {
-	m.user = nil
-	m.cleareduser = false
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *RoleBindingMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetNote sets the "note" field.
+func (m *RoleBindingMutation) SetNote(s string) {
+	m.note = &s
+}
+
+// Note returns the value of the "note" field in the mutation.
+func (m *RoleBindingMutation) Note() (r string, exists bool) {
+	v := m.note
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNote returns the old "note" field's value of the RoleBinding entity.
+// If the RoleBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoleBindingMutation) OldNote(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldNote is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldNote requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNote: %w", err)
+	}
+	return oldValue.Note, nil
+}
+
+// ResetNote resets all changes to the "note" field.
+func (m *RoleBindingMutation) ResetNote() {
+	m.note = nil
+}
+
+// SetPermissions sets the "permissions" field.
+func (m *RoleBindingMutation) SetPermissions(s []string) {
+	m.permissions = &s
+}
+
+// Permissions returns the value of the "permissions" field in the mutation.
+func (m *RoleBindingMutation) Permissions() (r []string, exists bool) {
+	v := m.permissions
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPermissions returns the old "permissions" field's value of the RoleBinding entity.
+// If the RoleBinding object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoleBindingMutation) OldPermissions(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldPermissions is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldPermissions requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPermissions: %w", err)
+	}
+	return oldValue.Permissions, nil
+}
+
+// ResetPermissions resets all changes to the "permissions" field.
+func (m *RoleBindingMutation) ResetPermissions() {
+	m.permissions = nil
 }
 
 // Op returns the operation name.
@@ -577,15 +647,24 @@ func (m *RoleBindingMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RoleBindingMutation) Fields() []string {
-	fields := make([]string, 0, 3)
-	if m.create_time != nil {
-		fields = append(fields, rolebinding.FieldCreateTime)
+	fields := make([]string, 0, 6)
+	if m.role_name != nil {
+		fields = append(fields, rolebinding.FieldRoleName)
 	}
-	if m.update_time != nil {
-		fields = append(fields, rolebinding.FieldUpdateTime)
+	if m.role_id != nil {
+		fields = append(fields, rolebinding.FieldRoleID)
 	}
-	if m.role != nil {
-		fields = append(fields, rolebinding.FieldRole)
+	if m.status != nil {
+		fields = append(fields, rolebinding.FieldStatus)
+	}
+	if m.created_at != nil {
+		fields = append(fields, rolebinding.FieldCreatedAt)
+	}
+	if m.note != nil {
+		fields = append(fields, rolebinding.FieldNote)
+	}
+	if m.permissions != nil {
+		fields = append(fields, rolebinding.FieldPermissions)
 	}
 	return fields
 }
@@ -595,12 +674,18 @@ func (m *RoleBindingMutation) Fields() []string {
 // schema.
 func (m *RoleBindingMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case rolebinding.FieldCreateTime:
-		return m.CreateTime()
-	case rolebinding.FieldUpdateTime:
-		return m.UpdateTime()
-	case rolebinding.FieldRole:
-		return m.Role()
+	case rolebinding.FieldRoleName:
+		return m.RoleName()
+	case rolebinding.FieldRoleID:
+		return m.RoleID()
+	case rolebinding.FieldStatus:
+		return m.Status()
+	case rolebinding.FieldCreatedAt:
+		return m.CreatedAt()
+	case rolebinding.FieldNote:
+		return m.Note()
+	case rolebinding.FieldPermissions:
+		return m.Permissions()
 	}
 	return nil, false
 }
@@ -610,12 +695,18 @@ func (m *RoleBindingMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *RoleBindingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case rolebinding.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case rolebinding.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
-	case rolebinding.FieldRole:
-		return m.OldRole(ctx)
+	case rolebinding.FieldRoleName:
+		return m.OldRoleName(ctx)
+	case rolebinding.FieldRoleID:
+		return m.OldRoleID(ctx)
+	case rolebinding.FieldStatus:
+		return m.OldStatus(ctx)
+	case rolebinding.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case rolebinding.FieldNote:
+		return m.OldNote(ctx)
+	case rolebinding.FieldPermissions:
+		return m.OldPermissions(ctx)
 	}
 	return nil, fmt.Errorf("unknown RoleBinding field %s", name)
 }
@@ -625,26 +716,47 @@ func (m *RoleBindingMutation) OldField(ctx context.Context, name string) (ent.Va
 // type.
 func (m *RoleBindingMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case rolebinding.FieldCreateTime:
+	case rolebinding.FieldRoleName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRoleName(v)
+		return nil
+	case rolebinding.FieldRoleID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRoleID(v)
+		return nil
+	case rolebinding.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case rolebinding.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCreateTime(v)
+		m.SetCreatedAt(v)
 		return nil
-	case rolebinding.FieldUpdateTime:
-		v, ok := value.(time.Time)
+	case rolebinding.FieldNote:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUpdateTime(v)
+		m.SetNote(v)
 		return nil
-	case rolebinding.FieldRole:
-		v, ok := value.(rolebinding.Role)
+	case rolebinding.FieldPermissions:
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRole(v)
+		m.SetPermissions(v)
 		return nil
 	}
 	return fmt.Errorf("unknown RoleBinding field %s", name)
@@ -695,14 +807,23 @@ func (m *RoleBindingMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *RoleBindingMutation) ResetField(name string) error {
 	switch name {
-	case rolebinding.FieldCreateTime:
-		m.ResetCreateTime()
+	case rolebinding.FieldRoleName:
+		m.ResetRoleName()
 		return nil
-	case rolebinding.FieldUpdateTime:
-		m.ResetUpdateTime()
+	case rolebinding.FieldRoleID:
+		m.ResetRoleID()
 		return nil
-	case rolebinding.FieldRole:
-		m.ResetRole()
+	case rolebinding.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case rolebinding.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case rolebinding.FieldNote:
+		m.ResetNote()
+		return nil
+	case rolebinding.FieldPermissions:
+		m.ResetPermissions()
 		return nil
 	}
 	return fmt.Errorf("unknown RoleBinding field %s", name)
@@ -710,77 +831,49 @@ func (m *RoleBindingMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RoleBindingMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.user != nil {
-		edges = append(edges, rolebinding.EdgeUser)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *RoleBindingMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case rolebinding.EdgeUser:
-		if id := m.user; id != nil {
-			return []ent.Value{*id}
-		}
-	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RoleBindingMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *RoleBindingMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RoleBindingMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
-	if m.cleareduser {
-		edges = append(edges, rolebinding.EdgeUser)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *RoleBindingMutation) EdgeCleared(name string) bool {
-	switch name {
-	case rolebinding.EdgeUser:
-		return m.cleareduser
-	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *RoleBindingMutation) ClearEdge(name string) error {
-	switch name {
-	case rolebinding.EdgeUser:
-		m.ClearUser()
-		return nil
-	}
 	return fmt.Errorf("unknown RoleBinding unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *RoleBindingMutation) ResetEdge(name string) error {
-	switch name {
-	case rolebinding.EdgeUser:
-		m.ResetUser()
-		return nil
-	}
 	return fmt.Errorf("unknown RoleBinding edge %s", name)
 }
 

@@ -17,12 +17,14 @@ const (
 	FieldNote = "note"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
+
 	// EdgeProject holds the string denoting the project edge name in mutations.
 	EdgeProject = "project"
 	// EdgeService holds the string denoting the service edge name in mutations.
 	EdgeService = "service"
 	// EdgeServers holds the string denoting the servers edge name in mutations.
 	EdgeServers = "servers"
+
 	// Table holds the table name of the servicetree in the database.
 	Table = "service_trees"
 	// ProjectTable is the table the holds the project relation/edge.
@@ -50,8 +52,7 @@ var Columns = []string{
 	FieldType,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "service_trees"
-// table and are not defined as standalone fields in the schema.
+// ForeignKeys holds the SQL foreign-keys that are owned by the ServiceTree type.
 var ForeignKeys = []string{
 	"service_tree_service",
 }

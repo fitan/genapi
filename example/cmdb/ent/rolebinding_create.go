@@ -4,7 +4,6 @@ package ent
 
 import (
 	"cmdb/ent/rolebinding"
-	"cmdb/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -21,49 +20,48 @@ type RoleBindingCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (rbc *RoleBindingCreate) SetCreateTime(t time.Time) *RoleBindingCreate {
-	rbc.mutation.SetCreateTime(t)
+// SetRoleName sets the "role_name" field.
+func (rbc *RoleBindingCreate) SetRoleName(s string) *RoleBindingCreate {
+	rbc.mutation.SetRoleName(s)
 	return rbc
 }
 
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (rbc *RoleBindingCreate) SetNillableCreateTime(t *time.Time) *RoleBindingCreate {
+// SetRoleID sets the "role_id" field.
+func (rbc *RoleBindingCreate) SetRoleID(s string) *RoleBindingCreate {
+	rbc.mutation.SetRoleID(s)
+	return rbc
+}
+
+// SetStatus sets the "status" field.
+func (rbc *RoleBindingCreate) SetStatus(s string) *RoleBindingCreate {
+	rbc.mutation.SetStatus(s)
+	return rbc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (rbc *RoleBindingCreate) SetCreatedAt(t time.Time) *RoleBindingCreate {
+	rbc.mutation.SetCreatedAt(t)
+	return rbc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (rbc *RoleBindingCreate) SetNillableCreatedAt(t *time.Time) *RoleBindingCreate {
 	if t != nil {
-		rbc.SetCreateTime(*t)
+		rbc.SetCreatedAt(*t)
 	}
 	return rbc
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (rbc *RoleBindingCreate) SetUpdateTime(t time.Time) *RoleBindingCreate {
-	rbc.mutation.SetUpdateTime(t)
+// SetNote sets the "note" field.
+func (rbc *RoleBindingCreate) SetNote(s string) *RoleBindingCreate {
+	rbc.mutation.SetNote(s)
 	return rbc
 }
 
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (rbc *RoleBindingCreate) SetNillableUpdateTime(t *time.Time) *RoleBindingCreate {
-	if t != nil {
-		rbc.SetUpdateTime(*t)
-	}
+// SetPermissions sets the "permissions" field.
+func (rbc *RoleBindingCreate) SetPermissions(s []string) *RoleBindingCreate {
+	rbc.mutation.SetPermissions(s)
 	return rbc
-}
-
-// SetRole sets the "role" field.
-func (rbc *RoleBindingCreate) SetRole(r rolebinding.Role) *RoleBindingCreate {
-	rbc.mutation.SetRole(r)
-	return rbc
-}
-
-// SetUserID sets the "user" edge to the User entity by ID.
-func (rbc *RoleBindingCreate) SetUserID(id int) *RoleBindingCreate {
-	rbc.mutation.SetUserID(id)
-	return rbc
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (rbc *RoleBindingCreate) SetUser(u *User) *RoleBindingCreate {
-	return rbc.SetUserID(u.ID)
 }
 
 // Mutation returns the RoleBindingMutation object of the builder.
@@ -118,34 +116,31 @@ func (rbc *RoleBindingCreate) SaveX(ctx context.Context) *RoleBinding {
 
 // defaults sets the default values of the builder before save.
 func (rbc *RoleBindingCreate) defaults() {
-	if _, ok := rbc.mutation.CreateTime(); !ok {
-		v := rolebinding.DefaultCreateTime()
-		rbc.mutation.SetCreateTime(v)
-	}
-	if _, ok := rbc.mutation.UpdateTime(); !ok {
-		v := rolebinding.DefaultUpdateTime()
-		rbc.mutation.SetUpdateTime(v)
+	if _, ok := rbc.mutation.CreatedAt(); !ok {
+		v := rolebinding.DefaultCreatedAt()
+		rbc.mutation.SetCreatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (rbc *RoleBindingCreate) check() error {
-	if _, ok := rbc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New("ent: missing required field \"create_time\"")}
+	if _, ok := rbc.mutation.RoleName(); !ok {
+		return &ValidationError{Name: "role_name", err: errors.New("ent: missing required field \"role_name\"")}
 	}
-	if _, ok := rbc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New("ent: missing required field \"update_time\"")}
+	if _, ok := rbc.mutation.RoleID(); !ok {
+		return &ValidationError{Name: "role_id", err: errors.New("ent: missing required field \"role_id\"")}
 	}
-	if _, ok := rbc.mutation.Role(); !ok {
-		return &ValidationError{Name: "role", err: errors.New("ent: missing required field \"role\"")}
+	if _, ok := rbc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New("ent: missing required field \"status\"")}
 	}
-	if v, ok := rbc.mutation.Role(); ok {
-		if err := rolebinding.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf("ent: validator failed for field \"role\": %w", err)}
-		}
+	if _, ok := rbc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
 	}
-	if _, ok := rbc.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user", err: errors.New("ent: missing required edge \"user\"")}
+	if _, ok := rbc.mutation.Note(); !ok {
+		return &ValidationError{Name: "note", err: errors.New("ent: missing required field \"note\"")}
+	}
+	if _, ok := rbc.mutation.Permissions(); !ok {
+		return &ValidationError{Name: "permissions", err: errors.New("ent: missing required field \"permissions\"")}
 	}
 	return nil
 }
@@ -174,49 +169,53 @@ func (rbc *RoleBindingCreate) createSpec() (*RoleBinding, *sqlgraph.CreateSpec) 
 			},
 		}
 	)
-	if value, ok := rbc.mutation.CreateTime(); ok {
+	if value, ok := rbc.mutation.RoleName(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldRoleName,
+		})
+		_node.RoleName = value
+	}
+	if value, ok := rbc.mutation.RoleID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldRoleID,
+		})
+		_node.RoleID = value
+	}
+	if value, ok := rbc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: rolebinding.FieldStatus,
+		})
+		_node.Status = value
+	}
+	if value, ok := rbc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: rolebinding.FieldCreateTime,
+			Column: rolebinding.FieldCreatedAt,
 		})
-		_node.CreateTime = value
+		_node.CreatedAt = value
 	}
-	if value, ok := rbc.mutation.UpdateTime(); ok {
+	if value, ok := rbc.mutation.Note(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: rolebinding.FieldUpdateTime,
+			Column: rolebinding.FieldNote,
 		})
-		_node.UpdateTime = value
+		_node.Note = value
 	}
-	if value, ok := rbc.mutation.Role(); ok {
+	if value, ok := rbc.mutation.Permissions(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
+			Type:   field.TypeJSON,
 			Value:  value,
-			Column: rolebinding.FieldRole,
+			Column: rolebinding.FieldPermissions,
 		})
-		_node.Role = value
-	}
-	if nodes := rbc.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   rolebinding.UserTable,
-			Columns: []string{rolebinding.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: user.FieldID,
-				},
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.user_role_bind = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
+		_node.Permissions = value
 	}
 	return _node, _spec
 }

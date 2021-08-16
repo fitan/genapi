@@ -450,8 +450,7 @@ func (stq *ServiceTreeQuery) sqlAll(ctx context.Context) ([]*ServiceTree, error)
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*ServiceTree)
 		for i := range nodes {
-			fk := nodes[i].service_tree_service
-			if fk != nil {
+			if fk := nodes[i].service_tree_service; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -541,7 +540,7 @@ func (stq *ServiceTreeQuery) sqlCount(ctx context.Context) (int, error) {
 func (stq *ServiceTreeQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := stq.sqlCount(ctx)
 	if err != nil {
-		return false, fmt.Errorf("ent: check existence: %w", err)
+		return false, fmt.Errorf("ent: check existence: %v", err)
 	}
 	return n > 0, nil
 }

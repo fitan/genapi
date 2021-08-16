@@ -5,7 +5,6 @@ package ent
 import (
 	"cmdb/ent/predicate"
 	"cmdb/ent/rolebinding"
-	"cmdb/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -24,9 +23,7 @@ type RoleBindingQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.RoleBinding
-	// eager-loading edges.
-	withUser *UserQuery
-	withFKs  bool
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -54,28 +51,6 @@ func (rbq *RoleBindingQuery) Offset(offset int) *RoleBindingQuery {
 func (rbq *RoleBindingQuery) Order(o ...OrderFunc) *RoleBindingQuery {
 	rbq.order = append(rbq.order, o...)
 	return rbq
-}
-
-// QueryUser chains the current query on the "user" edge.
-func (rbq *RoleBindingQuery) QueryUser() *UserQuery {
-	query := &UserQuery{config: rbq.config}
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := rbq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := rbq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(rolebinding.Table, rolebinding.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, rolebinding.UserTable, rolebinding.UserColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(rbq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first RoleBinding entity from the query.
@@ -259,22 +234,10 @@ func (rbq *RoleBindingQuery) Clone() *RoleBindingQuery {
 		offset:     rbq.offset,
 		order:      append([]OrderFunc{}, rbq.order...),
 		predicates: append([]predicate.RoleBinding{}, rbq.predicates...),
-		withUser:   rbq.withUser.Clone(),
 		// clone intermediate query.
 		sql:  rbq.sql.Clone(),
 		path: rbq.path,
 	}
-}
-
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (rbq *RoleBindingQuery) WithUser(opts ...func(*UserQuery)) *RoleBindingQuery {
-	query := &UserQuery{config: rbq.config}
-	for _, opt := range opts {
-		opt(query)
-	}
-	rbq.withUser = query
-	return rbq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -283,12 +246,12 @@ func (rbq *RoleBindingQuery) WithUser(opts ...func(*UserQuery)) *RoleBindingQuer
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		RoleName string `json:"role_name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.RoleBinding.Query().
-//		GroupBy(rolebinding.FieldCreateTime).
+//		GroupBy(rolebinding.FieldRoleName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -310,11 +273,11 @@ func (rbq *RoleBindingQuery) GroupBy(field string, fields ...string) *RoleBindin
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		RoleName string `json:"role_name,omitempty"`
 //	}
 //
 //	client.RoleBinding.Query().
-//		Select(rolebinding.FieldCreateTime).
+//		Select(rolebinding.FieldRoleName).
 //		Scan(ctx, &v)
 //
 func (rbq *RoleBindingQuery) Select(field string, fields ...string) *RoleBindingSelect {
@@ -340,16 +303,10 @@ func (rbq *RoleBindingQuery) prepareQuery(ctx context.Context) error {
 
 func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error) {
 	var (
-		nodes       = []*RoleBinding{}
-		withFKs     = rbq.withFKs
-		_spec       = rbq.querySpec()
-		loadedTypes = [1]bool{
-			rbq.withUser != nil,
-		}
+		nodes   = []*RoleBinding{}
+		withFKs = rbq.withFKs
+		_spec   = rbq.querySpec()
 	)
-	if rbq.withUser != nil {
-		withFKs = true
-	}
 	if withFKs {
 		_spec.Node.Columns = append(_spec.Node.Columns, rolebinding.ForeignKeys...)
 	}
@@ -363,7 +320,6 @@ func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error)
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, rbq.driver, _spec); err != nil {
@@ -372,33 +328,6 @@ func (rbq *RoleBindingQuery) sqlAll(ctx context.Context) ([]*RoleBinding, error)
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-
-	if query := rbq.withUser; query != nil {
-		ids := make([]int, 0, len(nodes))
-		nodeids := make(map[int][]*RoleBinding)
-		for i := range nodes {
-			fk := nodes[i].user_role_bind
-			if fk != nil {
-				ids = append(ids, *fk)
-				nodeids[*fk] = append(nodeids[*fk], nodes[i])
-			}
-		}
-		query.Where(user.IDIn(ids...))
-		neighbors, err := query.All(ctx)
-		if err != nil {
-			return nil, err
-		}
-		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
-			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_role_bind" returned %v`, n.ID)
-			}
-			for i := range nodes {
-				nodes[i].Edges.User = n
-			}
-		}
-	}
-
 	return nodes, nil
 }
 
@@ -410,7 +339,7 @@ func (rbq *RoleBindingQuery) sqlCount(ctx context.Context) (int, error) {
 func (rbq *RoleBindingQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := rbq.sqlCount(ctx)
 	if err != nil {
-		return false, fmt.Errorf("ent: check existence: %w", err)
+		return false, fmt.Errorf("ent: check existence: %v", err)
 	}
 	return n > 0, nil
 }

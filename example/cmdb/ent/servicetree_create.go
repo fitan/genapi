@@ -220,7 +220,6 @@ func (stc *ServiceTreeCreate) createSpec() (*ServiceTree, *sqlgraph.CreateSpec) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.service_tree_service = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := stc.mutation.ServiceIDs(); len(nodes) > 0 {

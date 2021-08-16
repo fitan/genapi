@@ -377,8 +377,7 @@ func (sq *ServerQuery) sqlAll(ctx context.Context) ([]*Server, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Server)
 		for i := range nodes {
-			fk := nodes[i].service_tree_servers
-			if fk != nil {
+			if fk := nodes[i].service_tree_servers; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -410,7 +409,7 @@ func (sq *ServerQuery) sqlCount(ctx context.Context) (int, error) {
 func (sq *ServerQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := sq.sqlCount(ctx)
 	if err != nil {
-		return false, fmt.Errorf("ent: check existence: %w", err)
+		return false, fmt.Errorf("ent: check existence: %v", err)
 	}
 	return n > 0, nil
 }

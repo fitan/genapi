@@ -2,9 +2,8 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
+	"time"
 )
 
 // RoleBinding holds the schema definition for the RoleBinding entity.
@@ -12,22 +11,19 @@ type RoleBinding struct {
 	ent.Schema
 }
 
-func (RoleBinding) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.Time{},
-	}
-}
-
 // Fields of the RoleBinding.
 func (RoleBinding) Fields() []ent.Field {
 	return []ent.Field{
-		field.Enum("role").Values("admin", "user"),
+		field.String("role_name"),
+		field.String("role_id"),
+		field.String("status"),
+		field.Time("created_at").Default(time.Now),
+		field.Text("note"),
+		field.Strings("permissions"),
 	}
 }
 
 // Edges of the RoleBinding.
 func (RoleBinding) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.From("user", User.Type).Ref("role_bind").Required().Unique(),
-	}
+	return []ent.Edge{}
 }

@@ -22,7 +22,6 @@ type User struct {
 	Password string `json:"-"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
-	// Phone holds the value of the "phone" field.
 	// 这是我的电话
 	Phone string `json:"phone,omitempty"`
 	// Role holds the value of the "role" field.
