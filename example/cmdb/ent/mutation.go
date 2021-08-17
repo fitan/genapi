@@ -547,7 +547,7 @@ func (m *RoleBindingMutation) CreatedAt() (r time.Time, exists bool) {
 // OldCreatedAt returns the old "created_at" field's value of the RoleBinding entity.
 // If the RoleBinding object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleBindingMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+func (m *RoleBindingMutation) OldCreatedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
 	}
@@ -561,9 +561,22 @@ func (m *RoleBindingMutation) OldCreatedAt(ctx context.Context) (v time.Time, er
 	return oldValue.CreatedAt, nil
 }
 
+// ClearCreatedAt clears the value of the "created_at" field.
+func (m *RoleBindingMutation) ClearCreatedAt() {
+	m.created_at = nil
+	m.clearedFields[rolebinding.FieldCreatedAt] = struct{}{}
+}
+
+// CreatedAtCleared returns if the "created_at" field was cleared in this mutation.
+func (m *RoleBindingMutation) CreatedAtCleared() bool {
+	_, ok := m.clearedFields[rolebinding.FieldCreatedAt]
+	return ok
+}
+
 // ResetCreatedAt resets all changes to the "created_at" field.
 func (m *RoleBindingMutation) ResetCreatedAt() {
 	m.created_at = nil
+	delete(m.clearedFields, rolebinding.FieldCreatedAt)
 }
 
 // SetNote sets the "note" field.
@@ -797,7 +810,11 @@ func (m *RoleBindingMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *RoleBindingMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(rolebinding.FieldCreatedAt) {
+		fields = append(fields, rolebinding.FieldCreatedAt)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -810,6 +827,11 @@ func (m *RoleBindingMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *RoleBindingMutation) ClearField(name string) error {
+	switch name {
+	case rolebinding.FieldCreatedAt:
+		m.ClearCreatedAt()
+		return nil
+	}
 	return fmt.Errorf("unknown RoleBinding nullable field %s", name)
 }
 

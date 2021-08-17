@@ -24,7 +24,7 @@ type RoleBinding struct {
 	// Status holds the value of the "status" field.
 	Status bool `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"created_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// Note holds the value of the "note" field.
 	Note string `json:"note,omitempty"`
 	// Permissions holds the value of the "permissions" field.
@@ -92,7 +92,8 @@ func (rb *RoleBinding) assignValues(columns []string, values []interface{}) erro
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				rb.CreatedAt = value.Time
+				rb.CreatedAt = new(time.Time)
+				*rb.CreatedAt = value.Time
 			}
 		case rolebinding.FieldNote:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -149,8 +150,10 @@ func (rb *RoleBinding) String() string {
 	builder.WriteString(rb.RoleID)
 	builder.WriteString(", status=")
 	builder.WriteString(fmt.Sprintf("%v", rb.Status))
-	builder.WriteString(", created_at=")
-	builder.WriteString(rb.CreatedAt.Format(time.ANSIC))
+	if v := rb.CreatedAt; v != nil {
+		builder.WriteString(", created_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", note=")
 	builder.WriteString(rb.Note)
 	builder.WriteString(", permissions=")

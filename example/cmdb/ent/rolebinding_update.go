@@ -154,6 +154,12 @@ func (rbu *RoleBindingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: rolebinding.FieldStatus,
 		})
 	}
+	if rbu.mutation.CreatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: rolebinding.FieldCreatedAt,
+		})
+	}
 	if value, ok := rbu.mutation.Note(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -337,6 +343,12 @@ func (rbuo *RoleBindingUpdateOne) sqlSave(ctx context.Context) (_node *RoleBindi
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: rolebinding.FieldStatus,
+		})
+	}
+	if rbuo.mutation.CreatedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: rolebinding.FieldCreatedAt,
 		})
 	}
 	if value, ok := rbuo.mutation.Note(); ok {

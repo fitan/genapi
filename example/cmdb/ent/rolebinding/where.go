@@ -439,6 +439,20 @@ func CreatedAtLTE(v time.Time) predicate.RoleBinding {
 	})
 }
 
+// CreatedAtIsNil applies the IsNil predicate on the "created_at" field.
+func CreatedAtIsNil() predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCreatedAt)))
+	})
+}
+
+// CreatedAtNotNil applies the NotNil predicate on the "created_at" field.
+func CreatedAtNotNil() predicate.RoleBinding {
+	return predicate.RoleBinding(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCreatedAt)))
+	})
+}
+
 // NoteEQ applies the EQ predicate on the "note" field.
 func NoteEQ(v string) predicate.RoleBinding {
 	return predicate.RoleBinding(func(s *sql.Selector) {

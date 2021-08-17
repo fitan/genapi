@@ -25,7 +25,7 @@ var (
 		{Name: "role_name", Type: field.TypeString, Unique: true},
 		{Name: "role_id", Type: field.TypeString, Unique: true},
 		{Name: "status", Type: field.TypeBool},
-		{Name: "created_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Nullable: true},
 		{Name: "note", Type: field.TypeString, Size: 2147483647},
 		{Name: "permissions", Type: field.TypeJSON},
 		{Name: "user_role_bind", Type: field.TypeInt, Nullable: true},

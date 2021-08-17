@@ -17,7 +17,7 @@ func (RoleBinding) Fields() []ent.Field {
 		field.String("role_name").Unique(),
 		field.String("role_id").Unique(),
 		field.Bool("status"),
-		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("created_at").Default(time.Now).Immutable().Optional().Nillable(),
 		field.Text("note"),
 		field.Strings("permissions"),
 	}

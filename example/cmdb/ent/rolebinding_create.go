@@ -152,9 +152,6 @@ func (rbc *RoleBindingCreate) check() error {
 	if _, ok := rbc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "status"`)}
 	}
-	if _, ok := rbc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
-	}
 	if _, ok := rbc.mutation.Note(); !ok {
 		return &ValidationError{Name: "note", err: errors.New(`ent: missing required field "note"`)}
 	}
@@ -218,7 +215,7 @@ func (rbc *RoleBindingCreate) createSpec() (*RoleBinding, *sqlgraph.CreateSpec) 
 			Value:  value,
 			Column: rolebinding.FieldCreatedAt,
 		})
-		_node.CreatedAt = value
+		_node.CreatedAt = &value
 	}
 	if value, ok := rbc.mutation.Note(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

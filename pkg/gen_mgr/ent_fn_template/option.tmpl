@@ -43,7 +43,13 @@ func GetIDsBy{{$n.Name}}({{snake (plural $n.Name)}} ent.{{plural $n.Name}}) []in
 func {{$n.Name}}CreateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{range $f := $n.Fields}}
 	{{if eq (PaseRestFieldOperability $f.Annotations "Create") "true"}}
-	m.Set{{$f.StructField}}(v.{{$f.StructField}})
+    {{if $f.Nillable}}
+    if v.{{$f.StructField}} != nil {
+        m.Set{{$f.StructField}}(*v.{{$f.StructField}})
+    }
+    {{else}}
+    m.Set{{$f.StructField}}(v.{{$f.StructField}})
+    {{end}}
 	{{end}}
     {{end}}
 
@@ -85,7 +91,11 @@ func {{$n.Name}}CreateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 func {{$n.Name}}UpdateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{range $f := $n.Fields}}
 	{{if eq (PaseRestFieldOperability $f.Annotations "Create") "true"}}
-	m.Set{{$f.StructField}}(v.{{$f.StructField}})
+    {{if $f.Nillable}}
+    m.Set{{$f.StructField}}(*v.{{$f.StructField}})
+    {{else}}
+    m.Set{{$f.StructField}}(v.{{$f.StructField}})
+    {{end}}
 	{{end}}
 	{{end}}
 	{{range $e := $n.Edges}}
