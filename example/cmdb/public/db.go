@@ -2,6 +2,7 @@ package public
 
 import (
 	"cmdb/ent"
+	_ "cmdb/ent/runtime"
 	_ "github.com/go-sql-driver/mysql"
 	"sync"
 )

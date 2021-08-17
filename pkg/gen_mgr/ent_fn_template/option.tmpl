@@ -47,42 +47,39 @@ func {{$n.Name}}CreateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
 	{{end}}
     {{end}}
 
-    {{range $e := $n.Edges}}
+{{/*    {{range $e := $n.Edges}}*/}}
 {{/*        {{if $e.Ref}}*/}}
 {{/*        ref {{$e.Ref.Name}}*/}}
-{{/*            {{end}}*/}}
-{{/*            {{if $e.Owner}}*/}}
+{{/*        {{end}}*/}}
+{{/*        {{if $e.Owner}}*/}}
 {{/*        owner {{$e.Owner.Name}}*/}}
-{{/*            {{end}}*/}}
+{{/*        {{end}}*/}}
 {{/*        inverse {{$e.Inverse}}*/}}
-{{/*    {{if ne $n.Name $e.Type.Name}}*/}}
-{{/*    {{if $e.Inverse}}*/}}
-    {{if $e.Ref}}
-	{{if $e.Unique}}
-    m.Add{{pascal $e.Ref.Name}}IDs(GetIDsBy{{$n.Name}}(v.Edges.{{pascal $e.Ref.Name}})...)
-
-    {{else}}
-    m.Set{{pascal $e.Ref.Name}}ID(v.Edges.{{pascal $e.Ref.Name}}.ID)
-    {{end}}
-{{/*    {{if $e.Unique}}*/}}
-{{/*    m.Add{{pascal $e.Ref.Name}}IDs(GetIDsBy{{$n.Name}}(v.Edges.{{pascal $e.Ref.Name}})...)*/}}
-{{/*    {{else}}*/}}
+{{/*        nName {{$n.Name}}*/}}
+{{/*        eName {{$e.Name}}*/}}
+{{/*        eTypeName {{$e.Type.Name}}*/}}
+{{/*    {{if eq $n.Name $e.Type.Name}}*/}}
+{{/*    {{if $e.Ref}}*/}}
+{{/*    {{if $e.Ref.Unique}}*/}}
 {{/*    m.Set{{pascal $e.Ref.Name}}ID(v.Edges.{{pascal $e.Ref.Name}}.ID)*/}}
+{{/*    {{else}}*/}}
+{{/*    m.Add{{pascal $e.Ref.Name}}IDs(GetIDsBy{{$n.Name}}(v.Edges.{{pascal $e.Ref.Name}})...)*/}}
 {{/*    {{end}}*/}}
-    {{end}}
-    {{end}}
+{{/*    {{end}}*/}}
+{{/*    {{else}}*/}}
+
+{{/*    {{if $e.Ref}}*/}}
+{{/*	{{if $e.Unique}}*/}}
+{{/*    m.Set{{pascal $e.Name}}ID(v.Edges.{{pascal $e.Name}}.ID)*/}}
+{{/*    {{else}}*/}}
+{{/*    m.Add{{plural (pascal $e.Name)}}IDs(GetIDsBy{{$n.Name}}(v.Edges.{{plural (pascal $e.Name)}})...)*/}}
+{{/*    {{end}}*/}}
 
 {{/*    {{end}}*/}}
 {{/*    {{end}}*/}}
-{{/*	{{range $e := $n.Edges}}*/}}
-{{/*    {{if $e.Inverse}}*/}}
-{{/*	{{if $e.Unique}}*/}}
-{{/*	m.Set{{$e.Type.Name}}ID(v.Edges.{{pascal $e.Name}}.ID)*/}}
-{{/*	{{else}}*/}}
-{{/*	m.Add{{$e.Type.Name}}IDs(GetIDsBy{{$e.Type.Name}}(v.Edges.{{plural (pascal $e.Name)}})...)*/}}
 {{/*    {{end}}*/}}
-{{/*	{{end}}*/}}
-{{/*	{{end}}*/}}
+
+
 }
 
 func {{$n.Name}}UpdateMutation(m *ent.{{$n.Name}}Mutation,v *ent.{{$n.Name}}) {
