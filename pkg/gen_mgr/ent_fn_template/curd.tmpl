@@ -22,41 +22,46 @@ type {{$n.Name}}CURD struct {
 	{{end}}
 	{{ end }}
 }
+
+func (curd *{{$n.Name}}CURD) GetClient() *ent.{{$n.Name}}Client {
+	return curd.Db.{{$n.Name}}
+}
 	
-func (curd *{{$n.Name}}CURD) GetTx() (*ent.Tx, error) {
-	return curd.Db.Tx(context.Background())
+func (curd *{{$n.Name}}CURD) GetTx() (*ent.Tx, *ent.{{$n.Name}}Client,error) {
+	tx, err := curd.Db.Tx(context.Background())
+	return tx, tx.{{$n.Name}}, err
 }
 
 func (curd *{{$n.Name}}CURD) GetTxQueryer() (*ent.Tx, *ent.{{$n.Name}}Query, error) {
-	tx, err := curd.GetTx()
+	tx,client,err := curd.GetTx()
 	if err != nil {
 		return nil,nil, err
 	}
-	return tx,tx.{{$n.Name}}.Query(), nil
+	return tx,client.Query(), nil
 }
 
 func (curd *{{$n.Name}}CURD) GetTxCreater() (*ent.Tx, *ent.{{$n.Name}}Create, error) {
-	tx, err := curd.GetTx()
+	tx, client,err := curd.GetTx()
 	if err != nil {
 		return nil, nil, err
 	}
-	return tx,tx.{{$n.Name}}.Create(), nil
+	return tx,client.Create(), nil
 }
 
 func (curd *{{$n.Name}}CURD) GetTxDeleter() (*ent.Tx, *ent.{{$n.Name}}Delete, error) {
-	tx, err := curd.GetTx()
+	tx, client, err := curd.GetTx()
 	if err != nil {
 		return nil, nil, err
 	}
-	return tx,tx.{{$n.Name}}.Delete(), nil
+	return tx,client.Delete(), nil
 }
 
 func (curd *{{$n.Name}}CURD) GetTxUpdaterById(id int) (*ent.Tx, *ent.{{$n.Name}}UpdateOne, error) {
-	tx, err := curd.GetTx()
+	tx,client, err := curd.GetTx()
 	if err != nil {
 		return nil, nil, err
 	}
-	return tx, tx.{{$n.Name}}.UpdateOneID(id), nil
+	return tx, client.UpdateOneID(id), nil
 }	
 
 func (curd *{{$n.Name}}CURD) GetQueryer() *ent.{{$n.Name}}Query {
@@ -130,57 +135,49 @@ func (curd *{{$n.Name}}CURD) GetListByQueryer(listQueryer, countQueryer *ent.{{$
 	return &Get{{$n.Name}}ListData{count, list}, nil
 }
 
-func (curd *{{$n.Name}}CURD) CreateOne({{lower $n.Name}} *ent.{{$n.Name}}) (*ent.{{$n.Name}}, error) {
-	creater := curd.GetCreater()
+func (curd *{{$n.Name}}CURD) CreateOne(creater *ent.{{$n.Name}}Create,{{lower $n.Name}} *ent.{{$n.Name}}) (*ent.{{$n.Name}}, error) {
 	{{$n.Name}}CreateMutation(creater.Mutation(), {{lower $n.Name}})
 	return creater.Save(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) GetBulk({{lower $n.Name}}s []*ent.{{$n.Name}}) []*ent.{{$n.Name}}Create {
+func (curd *{{$n.Name}}CURD) GetBulk(client *ent.{{$n.Name}}Client ,{{lower $n.Name}}s []*ent.{{$n.Name}}) []*ent.{{$n.Name}}Create {
 	bulk := make([]*ent.{{$n.Name}}Create, 0, len({{lower $n.Name}}s))
 	for _, v := range {{lower $n.Name}}s {
-		creater := curd.GetCreater()
+		creater := client.Create()
 		{{$n.Name}}CreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
 	}
 	return bulk
 }
 
-func (curd *{{$n.Name}}CURD) CreateList({{lower $n.Name}}s []*ent.{{$n.Name}}) ([]*ent.{{$n.Name}}, error) {
-	return curd.Db.{{$n.Name}}.CreateBulk(curd.GetBulk({{lower $n.Name}}s)...).Save(context.Background())
+func (curd *{{$n.Name}}CURD) CreateList(client *ent.{{$n.Name}}Client, {{lower $n.Name}}s []*ent.{{$n.Name}}) ([]*ent.{{$n.Name}}, error) {
+	return client.CreateBulk(curd.GetBulk(client,{{lower $n.Name}}s)...).Save(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) UpdateOne({{lower $n.Name}} *ent.{{$n.Name}}) (*ent.{{$n.Name}}, error) {
-	updater := curd.GetUpdaterById({{lower $n.Name}}.ID)
+func (curd *{{$n.Name}}CURD) UpdateOne(updater *ent.{{$n.Name}}UpdateOne,{{lower $n.Name}} *ent.{{$n.Name}}) (*ent.{{$n.Name}}, error) {
 	{{$n.Name}}UpdateMutation(updater.Mutation(), {{lower $n.Name}})
 	return updater.Save(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) UpdateList({{lower $n.Name}}s []*ent.{{$n.Name}}) (string, error) {
+func (curd *{{$n.Name}}CURD) UpdateList(tx *ent.Tx,{{lower $n.Name}}s []*ent.{{$n.Name}}) error {
 	bg := context.Background()
-	tx, err := curd.Db.Tx(bg)
-	if err != nil {
-		return "", err
-	}
 	for _, v := range {{lower $n.Name}}s {
 		updater := tx.{{$n.Name}}.UpdateOneID(v.ID)
 		{{$n.Name}}UpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(bg)
 		if err != nil {
-			if rerr := tx.Rollback(); rerr != nil {
-				return "", fmt.Errorf("$v: %v", err, rerr)
-			}
+			return err
 		}
 	}
-	return "ok", tx.Commit()
+    return nil
 }
 
-func (curd *{{$n.Name}}CURD) DeleteOne(id int) (int, error) {
-	return curd.GetDeleter().Where({{lower $n.Name}}.IDEQ(id)).Exec(context.Background())
+func (curd *{{$n.Name}}CURD) DeleteOne(deleter *ent.{{$n.Name}}Delete ,id int) (int, error) {
+	return deleter.Where({{lower $n.Name}}.IDEQ(id)).Exec(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) DeleteList(ids []int) (int, error) {
-	return curd.Db.{{$n.Name}}.Delete().Where({{lower $n.Name}}.IDIn(ids...)).Exec(context.Background())
+func (curd *{{$n.Name}}CURD) DeleteList(deleter *ent.{{$n.Name}}Delete, ids []int) (int, error) {
+	return deleter.Where({{lower $n.Name}}.IDIn(ids...)).Exec(context.Background())
 }
 
 {{ range $e := $n.Edges}}
@@ -194,42 +191,28 @@ func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}Id(id int) (*ent
 	return queryer.Only(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(id int, alert *ent.{{$e.Type.Name}}) (*ent.{{$e.Type.Name}}, error) {
+func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(tx *ent.Tx,id int, alert *ent.{{$e.Type.Name}}) (*ent.{{$e.Type.Name}}, error) {
 	bg := context.Background()
-	tx, err := curd.Db.Tx(bg)
+	creater := tx.{{$e.Type.Name}}.Create()
+	{{$e.Type.Name}}CreateMutation(creater.Mutation(), alert)
+	save, err := creater.Save(bg)
 	if err != nil {
 		return nil, err
 	}
-	save, err := func() (*ent.{{$e.Type.Name}}, error) {
-		creater := tx.{{$e.Type.Name}}.Create()
-		{{$e.Type.Name}}CreateMutation(creater.Mutation(), alert)
-		save, err := creater.Save(bg)
-		if err != nil {
-			return nil, err
-		}
-		_, err = tx.{{$n.Name}}.UpdateOneID(id).Set{{pascal $e.Name}}ID(save.ID).Save(bg)
-		if err != nil {
-			return nil, err
-		}
-		return save, nil
-	} ()
-
+	_, err = tx.{{$n.Name}}.UpdateOneID(id).Set{{pascal $e.Name}}ID(save.ID).Save(bg)
 	if err != nil {
-		if rerr := tx.Rollback(); rerr != nil {
-			err = fmt.Errorf("%v: %v", err, rerr)
-		}
 		return nil, err
 	}
-	return save, tx.Commit()
+	return save, nil
 }
 
-func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(id int) (int, error) {
+func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(deleter *ent.{{$e.Type.Name}}Delete, id int) (int, error) {
 	bg := context.Background()
 	onlyID, err := curd.GetQueryerById(id).Query{{pascal $e.Name}}().OnlyID(bg)
 	if err != nil {
 		return onlyID, err
 	}
-	return curd.{{$e.Type.Name}}Obj.DeleteOne(onlyID)
+	return curd.{{$e.Type.Name}}Obj.DeleteOne(deleter, onlyID)
 }    
 
 {{else}}
@@ -240,37 +223,23 @@ func (curd *{{$n.Name}}CURD) GetList{{$e.Type.Name}}By{{$n.Name}}Id(id int, quer
 	return curd.{{$e.Type.Name}}Obj.GetListByQueryer(listQueryer, countQueryer, query)
 }
 
-func (curd *{{$n.Name}}CURD) CreateList{{$e.Type.Name}}By{{$n.Name}}Id(id int, {{lower (plural $e.Type.Name)}} ent.{{plural $e.Type.Name}}) (ent.{{plural $e.Type.Name}}, error) {
-	bulk := curd.{{$e.Type.Name}}Obj.GetBulk({{lower (plural $e.Type.Name)}})
+func (curd *{{$n.Name}}CURD) CreateList{{$e.Type.Name}}By{{$n.Name}}Id(tx *ent.Tx, id int, {{lower (plural $e.Type.Name)}} ent.{{plural $e.Type.Name}}) (ent.{{plural $e.Type.Name}}, error) {
+	bulk := curd.{{$e.Type.Name}}Obj.GetBulk(tx.{{$e.Type.Name}},{{lower (plural $e.Type.Name)}})
 
 	bg := context.Background()
-	tx, err := curd.Db.Tx(bg)
+	save, err := tx.{{$e.Type.Name}}.CreateBulk(bulk...).Save(bg)
 	if err != nil {
 		return nil, err
 	}
-	save, err := func() (ent.{{plural $e.Type.Name}}, error) {
-		save, err := tx.{{$e.Type.Name}}.CreateBulk(bulk...).Save(bg)
-		if err != nil {
-			return nil, err
-		}
-
-		_, err = tx.{{$n.Name}}.UpdateOneID(id).Add{{pascal $e.Name}}(save...).Save(bg)
-		if err != nil {
-			return nil, err
-		}
-		return save, nil
-	}()
+	_, err = tx.{{$n.Name}}.UpdateOneID(id).Add{{pascal $e.Name}}(save...).Save(bg)
 	if err != nil {
-		if rerr := tx.Rollback(); rerr != nil {
-			err = fmt.Errorf("%v: %v", err, rerr)
-		}
 		return nil, err
 	}
 	return save, nil
 
 }
 
-func (curd *{{$n.Name}}CURD) DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(id int, query *{{$e.Type.Name}}QueryOption) (int, error) {
+func (curd *{{$n.Name}}CURD) DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(deleter *ent.{{$e.Type.Name}}Delete, id int, query *{{$e.Type.Name}}QueryOption) (int, error) {
 	queryer := curd.GetQueryerById(id)
 
 	curd.{{$e.Type.Name}}Obj.SetListCountQueryer(queryer.Query{{pascal $e.Name}}(), query)
@@ -279,7 +248,7 @@ func (curd *{{$n.Name}}CURD) DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(id int, q
 	if err != nil {
 		return 0, err
 	}
-	return curd.{{$e.Type.Name}}Obj.DeleteList(ids)
+	return curd.{{$e.Type.Name}}Obj.DeleteList(deleter,ids)
 }	
 
 {{end}}
