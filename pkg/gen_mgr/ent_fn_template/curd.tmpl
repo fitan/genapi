@@ -22,6 +22,42 @@ type {{$n.Name}}CURD struct {
 	{{end}}
 	{{ end }}
 }
+	
+func (curd *{{$n.Name}}CURD) GetTx() (*ent.Tx, error) {
+	return curd.Db.Tx(context.Background())
+}
+
+func (curd *{{$n.Name}}CURD) GetTxQueryer() (*ent.Tx, *ent.{{$n.Name}}Query, error) {
+	tx, err := curd.GetTx()
+	if err != nil {
+		return nil,nil, err
+	}
+	return tx,tx.{{$n.Name}}.Query(), nil
+}
+
+func (curd *{{$n.Name}}CURD) GetTxCreater() (*ent.Tx, *ent.{{$n.Name}}Create, error) {
+	tx, err := curd.GetTx()
+	if err != nil {
+		return nil, nil, err
+	}
+	return tx,tx.{{$n.Name}}.Create(), nil
+}
+
+func (curd *{{$n.Name}}CURD) GetTxDeleter() (*ent.Tx, *ent.{{$n.Name}}Delete, error) {
+	tx, err := curd.GetTx()
+	if err != nil {
+		return nil, nil, err
+	}
+	return tx,tx.{{$n.Name}}.Delete(), nil
+}
+
+func (curd *{{$n.Name}}CURD) GetTxUpdaterById(id int) (*ent.Tx, *ent.{{$n.Name}}UpdateOne, error) {
+	tx, err := curd.GetTx()
+	if err != nil {
+		return nil, nil, err
+	}
+	return tx, tx.{{$n.Name}}.UpdateOneID(id), nil
+}	
 
 func (curd *{{$n.Name}}CURD) GetQueryer() *ent.{{$n.Name}}Query {
 	return curd.Db.{{$n.Name}}.Query()
