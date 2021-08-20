@@ -32,37 +32,37 @@ func (curd *{{$n.Name}}CURD) GetTx() (*ent.Tx, *ent.{{$n.Name}}Client,error) {
 	return tx, tx.{{$n.Name}}, err
 }
 
-func (curd *{{$n.Name}}CURD) GetTxQueryer() (*ent.Tx, *ent.{{$n.Name}}Query, error) {
-	tx,client,err := curd.GetTx()
-	if err != nil {
-		return nil,nil, err
-	}
-	return tx,client.Query(), nil
-}
+{{/*func (curd *{{$n.Name}}CURD) GetTxQueryer() (*ent.Tx, *ent.{{$n.Name}}Query, error) {*/}}
+{{/*	tx,client,err := curd.GetTx()*/}}
+{{/*	if err != nil {*/}}
+{{/*		return nil,nil, err*/}}
+{{/*	}*/}}
+{{/*	return tx,client.Query(), nil*/}}
+{{/*}*/}}
 
-func (curd *{{$n.Name}}CURD) GetTxCreater() (*ent.Tx, *ent.{{$n.Name}}Create, error) {
-	tx, client,err := curd.GetTx()
-	if err != nil {
-		return nil, nil, err
-	}
-	return tx,client.Create(), nil
-}
+{{/*func (curd *{{$n.Name}}CURD) GetTxCreater() (*ent.Tx, *ent.{{$n.Name}}Create, error) {*/}}
+{{/*	tx, client,err := curd.GetTx()*/}}
+{{/*	if err != nil {*/}}
+{{/*		return nil, nil, err*/}}
+{{/*	}*/}}
+{{/*	return tx,client.Create(), nil*/}}
+{{/*}*/}}
 
-func (curd *{{$n.Name}}CURD) GetTxDeleter() (*ent.Tx, *ent.{{$n.Name}}Delete, error) {
-	tx, client, err := curd.GetTx()
-	if err != nil {
-		return nil, nil, err
-	}
-	return tx,client.Delete(), nil
-}
+{{/*func (curd *{{$n.Name}}CURD) GetTxDeleter() (*ent.Tx, *ent.{{$n.Name}}Delete, error) {*/}}
+{{/*	tx, client, err := curd.GetTx()*/}}
+{{/*	if err != nil {*/}}
+{{/*		return nil, nil, err*/}}
+{{/*	}*/}}
+{{/*	return tx,client.Delete(), nil*/}}
+{{/*}*/}}
 
-func (curd *{{$n.Name}}CURD) GetTxUpdaterById(id int) (*ent.Tx, *ent.{{$n.Name}}UpdateOne, error) {
-	tx,client, err := curd.GetTx()
-	if err != nil {
-		return nil, nil, err
-	}
-	return tx, client.UpdateOneID(id), nil
-}	
+{{/*func (curd *{{$n.Name}}CURD) GetTxUpdaterById(id int) (*ent.Tx, *ent.{{$n.Name}}UpdateOne, error) {*/}}
+{{/*	tx,client, err := curd.GetTx()*/}}
+{{/*	if err != nil {*/}}
+{{/*		return nil, nil, err*/}}
+{{/*	}*/}}
+{{/*	return tx, client.UpdateOneID(id), nil*/}}
+{{/*}	*/}}
 
 func (curd *{{$n.Name}}CURD) GetQueryer() *ent.{{$n.Name}}Query {
 	return curd.Db.{{$n.Name}}.Query()
@@ -140,9 +140,9 @@ func (curd *{{$n.Name}}CURD) CreateOne(creater *ent.{{$n.Name}}Create,{{lower $n
 	return creater.Save(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) GetBulk(client *ent.{{$n.Name}}Client ,{{lower $n.Name}}s []*ent.{{$n.Name}}) []*ent.{{$n.Name}}Create {
-	bulk := make([]*ent.{{$n.Name}}Create, 0, len({{lower $n.Name}}s))
-	for _, v := range {{lower $n.Name}}s {
+func (curd *{{$n.Name}}CURD) GetBulk(client *ent.{{$n.Name}}Client ,{{lower (plural $n.Name)}} []*ent.{{$n.Name}}) []*ent.{{$n.Name}}Create {
+	bulk := make([]*ent.{{$n.Name}}Create, 0, len({{lower (plural $n.Name)}}))
+	for _, v := range {{lower (plural $n.Name)}} {
 		creater := client.Create()
 		{{$n.Name}}CreateMutation(creater.Mutation(), v)
 		bulk = append(bulk, creater)
@@ -150,8 +150,8 @@ func (curd *{{$n.Name}}CURD) GetBulk(client *ent.{{$n.Name}}Client ,{{lower $n.N
 	return bulk
 }
 
-func (curd *{{$n.Name}}CURD) CreateList(client *ent.{{$n.Name}}Client, {{lower $n.Name}}s []*ent.{{$n.Name}}) ([]*ent.{{$n.Name}}, error) {
-	return client.CreateBulk(curd.GetBulk(client,{{lower $n.Name}}s)...).Save(context.Background())
+func (curd *{{$n.Name}}CURD) CreateList(client *ent.{{$n.Name}}Client, {{lower (plural $n.Name)}} []*ent.{{$n.Name}}) ([]*ent.{{$n.Name}}, error) {
+	return client.CreateBulk(curd.GetBulk(client,{{lower (plural $n.Name)}})...).Save(context.Background())
 }
 
 func (curd *{{$n.Name}}CURD) UpdateOne(updater *ent.{{$n.Name}}UpdateOne,{{lower $n.Name}} *ent.{{$n.Name}}) (*ent.{{$n.Name}}, error) {
@@ -159,9 +159,9 @@ func (curd *{{$n.Name}}CURD) UpdateOne(updater *ent.{{$n.Name}}UpdateOne,{{lower
 	return updater.Save(context.Background())
 }
 
-func (curd *{{$n.Name}}CURD) UpdateList(tx *ent.Tx,{{lower $n.Name}}s []*ent.{{$n.Name}}) error {
+func (curd *{{$n.Name}}CURD) UpdateList(tx *ent.Tx,{{lower (plural $n.Name)}} []*ent.{{$n.Name}}) error {
 	bg := context.Background()
-	for _, v := range {{lower $n.Name}}s {
+	for _, v := range {{lower (plural $n.Name)}} {
 		updater := tx.{{$n.Name}}.UpdateOneID(v.ID)
 		{{$n.Name}}UpdateMutation(updater.Mutation(), v)
 		_, err := updater.Save(bg)
@@ -181,6 +181,8 @@ func (curd *{{$n.Name}}CURD) DeleteList(deleter *ent.{{$n.Name}}Delete, ids []in
 }
 
 {{ range $e := $n.Edges}}
+// ref: {{PaseRelType $e}} nName: {{$n.Name}} eName: {{$e.Name}} eTypeName: {{$e.Type.Name}} Inverse: {{$e.Inverse}}
+// {{if $e.Ref}}refName: {{$e.Ref.Name}} refTypeName: {{$e.Ref.Type.Name}} {{end}} {{if $e.Owner}} ownerName: {{$e.Owner.Name}} {{end}}
 {{ if ne $n.Name $e.Type.Name}}
 {{$rel := PaseRelType $e}}
 {{if eq $rel.Dest "O"}}
