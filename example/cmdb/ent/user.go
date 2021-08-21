@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"cmdb/ent/alert"
+	"cmdb/ent/message"
 	"cmdb/ent/user"
 	"fmt"
 	"strings"
@@ -29,8 +29,8 @@ type User struct {
 	Role user.Role `json:"role,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges      UserEdges `json:"edges"`
-	user_alert *int
+	Edges    UserEdges `json:"edges"`
+	user_msg *int
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
@@ -38,10 +38,12 @@ type UserEdges struct {
 	// RoleBind holds the value of the role_bind edge.
 	RoleBind []*RoleBinding `json:"role_bind,omitempty"`
 	// Alert holds the value of the alert edge.
-	Alert *Alert `json:"alert,omitempty"`
+	Alert []*Alert `json:"alert,omitempty"`
+	// Msg holds the value of the msg edge.
+	Msg *Message `json:"msg,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // RoleBindOrErr returns the RoleBind value or an error if the edge
@@ -54,17 +56,26 @@ func (e UserEdges) RoleBindOrErr() ([]*RoleBinding, error) {
 }
 
 // AlertOrErr returns the Alert value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) AlertOrErr() (*Alert, error) {
+// was not loaded in eager-loading.
+func (e UserEdges) AlertOrErr() ([]*Alert, error) {
 	if e.loadedTypes[1] {
-		if e.Alert == nil {
-			// The edge alert was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: alert.Label}
-		}
 		return e.Alert, nil
 	}
 	return nil, &NotLoadedError{edge: "alert"}
+}
+
+// MsgOrErr returns the Msg value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) MsgOrErr() (*Message, error) {
+	if e.loadedTypes[2] {
+		if e.Msg == nil {
+			// The edge msg was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: message.Label}
+		}
+		return e.Msg, nil
+	}
+	return nil, &NotLoadedError{edge: "msg"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -76,7 +87,7 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullInt64)
 		case user.FieldName, user.FieldPassword, user.FieldEmail, user.FieldPhone, user.FieldRole:
 			values[i] = new(sql.NullString)
-		case user.ForeignKeys[0]: // user_alert
+		case user.ForeignKeys[0]: // user_msg
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type User", columns[i])
@@ -131,10 +142,10 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 			}
 		case user.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_alert", value)
+				return fmt.Errorf("unexpected type %T for edge-field user_msg", value)
 			} else if value.Valid {
-				u.user_alert = new(int)
-				*u.user_alert = int(value.Int64)
+				u.user_msg = new(int)
+				*u.user_msg = int(value.Int64)
 			}
 		}
 	}
@@ -149,6 +160,11 @@ func (u *User) QueryRoleBind() *RoleBindingQuery {
 // QueryAlert queries the "alert" edge of the User entity.
 func (u *User) QueryAlert() *AlertQuery {
 	return (&UserClient{config: u.config}).QueryAlert(u)
+}
+
+// QueryMsg queries the "msg" edge of the User entity.
+func (u *User) QueryMsg() *MessageQuery {
+	return (&UserClient{config: u.config}).QueryMsg(u)
 }
 
 // Update returns a builder for updating this User.

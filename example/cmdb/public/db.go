@@ -3,6 +3,7 @@ package public
 import (
 	"cmdb/ent"
 	_ "cmdb/ent/runtime"
+	"context"
 	_ "github.com/go-sql-driver/mysql"
 	"sync"
 )
@@ -10,17 +11,17 @@ import (
 var db *ent.Client
 var dbLock sync.Mutex
 
-func NewDB() (*ent.Client, error){
+func NewDB() (*ent.Client, error) {
 	db, err := ent.Open("mysql", GetConf().Mysql.Addr)
 	if err != nil {
 		return nil, err
 	}
 	if GetConf().Mysql.Debug {
-		db.Debug()
+		db = db.Debug()
 	}
-	//if err := db.Schema.Create(context.Background()); err != nil {
-	//	XLog.Error().Msgf("failed creating schema resources: %v", err)
-	//}
+	if err := db.Schema.Create(context.Background()); err != nil {
+		GetXLog().Error().Msgf("failed creating schema resources: %v", err)
+	}
 	return db, nil
 }
 

@@ -21,6 +21,19 @@ func (f AlertFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return f(ctx, mv)
 }
 
+// The MessageFunc type is an adapter to allow the use of ordinary
+// function as Message mutator.
+type MessageFunc func(context.Context, *ent.MessageMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MessageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.MessageMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MessageMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The RoleBindingFunc type is an adapter to allow the use of ordinary
 // function as RoleBinding mutator.
 type RoleBindingFunc func(context.Context, *ent.RoleBindingMutation) (ent.Value, error)

@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Alert is the client for interacting with the Alert builders.
 	Alert *AlertClient
+	// Message is the client for interacting with the Message builders.
+	Message *MessageClient
 	// RoleBinding is the client for interacting with the RoleBinding builders.
 	RoleBinding *RoleBindingClient
 	// Server is the client for interacting with the Server builders.
@@ -158,6 +160,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Alert = NewAlertClient(tx.config)
+	tx.Message = NewMessageClient(tx.config)
 	tx.RoleBinding = NewRoleBindingClient(tx.config)
 	tx.Server = NewServerClient(tx.config)
 	tx.ServiceTree = NewServiceTreeClient(tx.config)

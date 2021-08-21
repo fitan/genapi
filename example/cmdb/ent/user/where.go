@@ -660,7 +660,7 @@ func HasAlert() predicate.User {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(AlertTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, AlertTable, AlertColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, AlertTable, AlertPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -672,7 +672,35 @@ func HasAlertWith(preds ...predicate.Alert) predicate.User {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(AlertInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, AlertTable, AlertColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, AlertTable, AlertPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMsg applies the HasEdge predicate on the "msg" edge.
+func HasMsg() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(MsgTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, MsgTable, MsgColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMsgWith applies the HasEdge predicate on the "msg" edge with a given conditions (other predicates).
+func HasMsgWith(preds ...predicate.Message) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(MsgInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, MsgTable, MsgColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

@@ -17,6 +17,27 @@ type Alert struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the AlertQuery when eager-loading is set.
+	Edges AlertEdges `json:"edges"`
+}
+
+// AlertEdges holds the relations/edges for other nodes in the graph.
+type AlertEdges struct {
+	// User holds the value of the user edge.
+	User []*User `json:"user,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// UserOrErr returns the User value or an error if the edge
+// was not loaded in eager-loading.
+func (e AlertEdges) UserOrErr() ([]*User, error) {
+	if e.loadedTypes[0] {
+		return e.User, nil
+	}
+	return nil, &NotLoadedError{edge: "user"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -58,6 +79,11 @@ func (a *Alert) assignValues(columns []string, values []interface{}) error {
 		}
 	}
 	return nil
+}
+
+// QueryUser queries the "user" edge of the Alert entity.
+func (a *Alert) QueryUser() *UserQuery {
+	return (&AlertClient{config: a.config}).QueryUser(a)
 }
 
 // Update returns a builder for updating this Alert.

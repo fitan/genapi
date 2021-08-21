@@ -5,6 +5,7 @@ package ent
 import (
 	"cmdb/ent/alert"
 	"cmdb/ent/predicate"
+	"cmdb/ent/user"
 	"context"
 	"fmt"
 
@@ -32,9 +33,45 @@ func (au *AlertUpdate) SetName(s string) *AlertUpdate {
 	return au
 }
 
+// AddUserIDs adds the "user" edge to the User entity by IDs.
+func (au *AlertUpdate) AddUserIDs(ids ...int) *AlertUpdate {
+	au.mutation.AddUserIDs(ids...)
+	return au
+}
+
+// AddUser adds the "user" edges to the User entity.
+func (au *AlertUpdate) AddUser(u ...*User) *AlertUpdate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return au.AddUserIDs(ids...)
+}
+
 // Mutation returns the AlertMutation object of the builder.
 func (au *AlertUpdate) Mutation() *AlertMutation {
 	return au.mutation
+}
+
+// ClearUser clears all "user" edges to the User entity.
+func (au *AlertUpdate) ClearUser() *AlertUpdate {
+	au.mutation.ClearUser()
+	return au
+}
+
+// RemoveUserIDs removes the "user" edge to User entities by IDs.
+func (au *AlertUpdate) RemoveUserIDs(ids ...int) *AlertUpdate {
+	au.mutation.RemoveUserIDs(ids...)
+	return au
+}
+
+// RemoveUser removes "user" edges to User entities.
+func (au *AlertUpdate) RemoveUser(u ...*User) *AlertUpdate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return au.RemoveUserIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -116,6 +153,60 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: alert.FieldName,
 		})
 	}
+	if au.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   alert.UserTable,
+			Columns: alert.UserPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedUserIDs(); len(nodes) > 0 && !au.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   alert.UserTable,
+			Columns: alert.UserPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   alert.UserTable,
+			Columns: alert.UserPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{alert.Label}
@@ -141,9 +232,45 @@ func (auo *AlertUpdateOne) SetName(s string) *AlertUpdateOne {
 	return auo
 }
 
+// AddUserIDs adds the "user" edge to the User entity by IDs.
+func (auo *AlertUpdateOne) AddUserIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.AddUserIDs(ids...)
+	return auo
+}
+
+// AddUser adds the "user" edges to the User entity.
+func (auo *AlertUpdateOne) AddUser(u ...*User) *AlertUpdateOne {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return auo.AddUserIDs(ids...)
+}
+
 // Mutation returns the AlertMutation object of the builder.
 func (auo *AlertUpdateOne) Mutation() *AlertMutation {
 	return auo.mutation
+}
+
+// ClearUser clears all "user" edges to the User entity.
+func (auo *AlertUpdateOne) ClearUser() *AlertUpdateOne {
+	auo.mutation.ClearUser()
+	return auo
+}
+
+// RemoveUserIDs removes the "user" edge to User entities by IDs.
+func (auo *AlertUpdateOne) RemoveUserIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.RemoveUserIDs(ids...)
+	return auo
+}
+
+// RemoveUser removes "user" edges to User entities.
+func (auo *AlertUpdateOne) RemoveUser(u ...*User) *AlertUpdateOne {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return auo.RemoveUserIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -248,6 +375,60 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (_node *Alert, err error
 			Value:  value,
 			Column: alert.FieldName,
 		})
+	}
+	if auo.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   alert.UserTable,
+			Columns: alert.UserPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedUserIDs(); len(nodes) > 0 && !auo.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   alert.UserTable,
+			Columns: alert.UserPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   alert.UserTable,
+			Columns: alert.UserPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Alert{config: auo.config}
 	_spec.Assign = _node.assignValues

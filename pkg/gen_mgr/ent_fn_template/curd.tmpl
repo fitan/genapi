@@ -87,7 +87,15 @@ func (curd *{{$n.Name}}CURD) GetQueryerById(id int) *ent.{{$n.Name}}Query {
 func (curd *{{$n.Name}}CURD) GetOne(id int) (*ent.{{$n.Name}}, error) {
 	queryer := curd.GetQueryerById(id)
 	{{$n.Name}}Selete(queryer)
-	return queryer.Only(context.Background())
+	data, err := queryer.Only(context.Background())
+    if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return data, err
 }
 
 func (curd *{{$n.Name}}CURD) SetGetListQueryerOption(queryer *ent.{{$n.Name}}Query, query *{{$n.Name}}QueryOption) error {
@@ -190,9 +198,18 @@ func (curd *{{$n.Name}}CURD) DeleteList(deleter *ent.{{$n.Name}}Delete, ids []in
 func (curd *{{$n.Name}}CURD) GetOne{{$e.Type.Name}}By{{$n.Name}}Id(id int) (*ent.{{$e.Type.Name}}, error) {
 	queryer := curd.GetQueryerById(id).Query{{pascal $e.Name}}()
 	{{$e.Type.Name}}Selete(queryer)
-	return queryer.Only(context.Background())
+	data, err := queryer.Only(context.Background())
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return data, err
 }
 
+{{if eq $e.Inverse ""}}
 func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(tx *ent.Tx,id int, alert *ent.{{$e.Type.Name}}) (*ent.{{$e.Type.Name}}, error) {
 	bg := context.Background()
 	creater := tx.{{$e.Type.Name}}.Create()
@@ -207,6 +224,7 @@ func (curd *{{$n.Name}}CURD) CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(tx *ent.Tx
 	}
 	return save, nil
 }
+{{end}}
 
 func (curd *{{$n.Name}}CURD) DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(deleter *ent.{{$e.Type.Name}}Delete, id int) (int, error) {
 	bg := context.Background()
@@ -224,7 +242,7 @@ func (curd *{{$n.Name}}CURD) GetList{{$e.Type.Name}}By{{$n.Name}}Id(id int, quer
 	countQueryer := curd.GetQueryerById(id).Query{{pascal $e.Name}}()
 	return curd.{{$e.Type.Name}}Obj.GetListByQueryer(listQueryer, countQueryer, query)
 }
-
+{{if eq $e.Inverse ""}}
 func (curd *{{$n.Name}}CURD) CreateList{{$e.Type.Name}}By{{$n.Name}}Id(tx *ent.Tx, id int, {{lower (plural $e.Type.Name)}} ent.{{plural $e.Type.Name}}) (ent.{{plural $e.Type.Name}}, error) {
 	bulk := curd.{{$e.Type.Name}}Obj.GetBulk(tx.{{$e.Type.Name}},{{lower (plural $e.Type.Name)}})
 
@@ -238,8 +256,26 @@ func (curd *{{$n.Name}}CURD) CreateList{{$e.Type.Name}}By{{$n.Name}}Id(tx *ent.T
 		return nil, err
 	}
 	return save, nil
-
 }
+
+{{/*}*/}}
+{{else}}
+{{/*func (curd *{{$n.Name}}CURD) CreateList{{$e.Type.Name}}By{{$n.Name}}Id(tx *ent.Tx, id int, {{lower (plural $e.Type.Name)}} ent.{{plural $e.Type.Name}}) (ent.{{plural $e.Type.Name}}, error) {*/}}
+{{/*	bulk := curd.{{$e.Type.Name}}Obj.GetBulk(tx.{{$e.Type.Name}},{{lower (plural $e.Type.Name)}})*/}}
+
+{{/*	bg := context.Background()*/}}
+{{/*	save, err := tx.{{$e.Type.Name}}.CreateBulk(bulk...).Save(bg)*/}}
+{{/*	if err != nil {*/}}
+{{/*		return nil, err*/}}
+{{/*	}*/}}
+{{/*	_, err = tx.{{$n.Name}}.UpdateOneID(id).Add{{pascal $e.Name}}(save...).Save(bg)*/}}
+{{/*	if err != nil {*/}}
+{{/*		return nil, err*/}}
+{{/*	}*/}}
+{{/*	return save, nil*/}}
+
+{{/*}*/}}
+{{end}}
 
 func (curd *{{$n.Name}}CURD) DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(deleter *ent.{{$e.Type.Name}}Delete, id int, query *{{$e.Type.Name}}QueryOption) (int, error) {
 	queryer := curd.GetQueryerById(id)

@@ -29,11 +29,11 @@ func (User) Annotations() []schema.Annotation {
 				OptionalOrder:     nil,
 			},
 			Method: gen_mgr.NodeMethod{
-				GetOne:     gen_mgr.NodeMethodOp{
-					Has:       gen_mgr.GenRestTrue,
+				GetOne: gen_mgr.NodeMethodOp{
+					Has: gen_mgr.GenRestTrue,
 				},
-				GetList:    gen_mgr.NodeMethodOp{
-					Has:       gen_mgr.GenRestTrue,
+				GetList: gen_mgr.NodeMethodOp{
+					Has: gen_mgr.GenRestTrue,
 				},
 				CreateOne:  gen_mgr.NodeMethodOp{},
 				CreateList: gen_mgr.NodeMethodOp{},
@@ -118,6 +118,7 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("role_bind", RoleBinding.Type).Annotations(entsql.Annotation{}),
-		edge.To("alert", Alert.Type).Unique(),
+		edge.To("alert", Alert.Type),
+		edge.To("msg", Message.Type).Unique(),
 	}
 }

@@ -126,7 +126,7 @@ func DeleteList{{$n.Name}}(c *gin.Context, in *DeleteList{{$n.Name}}In) (int, er
 func GetOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetOne{{$n.Name}}In) (*ent.{{$e.Type.Name}}, error) {
     return Get{{$n.Name}}CURD().GetOne{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID)
 }
-
+{{if eq $e.Inverse ""}}
 type CreateOne{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
 	Uri {{$n.Name}}ID `json:"uri"`
 	Body ent.{{$e.Type.Name}} `json:"body"`
@@ -148,6 +148,7 @@ func CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateOne{{$e.
 
 	return save, tx.Commit()
 }
+{{end}}
 
 {{range $comment := $methodOp.Delete.Comments}}
 // {{$comment}}
@@ -169,7 +170,7 @@ type GetList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
 func GetList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetList{{$e.Type.Name}}By{{$n.Name}}IdIn) (*Get{{$e.Type.Name}}ListData, error) {
 	return Get{{$n.Name}}CURD().GetList{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID, &in.Query)
 }
-
+{{if eq $e.Inverse ""}}
 type CreateList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
 	Uri {{$n.Name}}ID `json:"uri"`
 	Body ent.{{$e.Type.Name}}s `json:"body"`
@@ -191,6 +192,7 @@ func CreateList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateList{{$
 
 	return save, tx.Commit()
 }
+{{end}}
 
 type DeleteList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
 	Uri {{$n.Name}}ID `json:"uri"`

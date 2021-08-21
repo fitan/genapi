@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/alert"
+	"cmdb/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -23,6 +24,21 @@ type AlertCreate struct {
 func (ac *AlertCreate) SetName(s string) *AlertCreate {
 	ac.mutation.SetName(s)
 	return ac
+}
+
+// AddUserIDs adds the "user" edge to the User entity by IDs.
+func (ac *AlertCreate) AddUserIDs(ids ...int) *AlertCreate {
+	ac.mutation.AddUserIDs(ids...)
+	return ac
+}
+
+// AddUser adds the "user" edges to the User entity.
+func (ac *AlertCreate) AddUser(u ...*User) *AlertCreate {
+	ids := make([]int, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return ac.AddUserIDs(ids...)
 }
 
 // Mutation returns the AlertMutation object of the builder.
@@ -132,6 +148,25 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 			Column: alert.FieldName,
 		})
 		_node.Name = value
+	}
+	if nodes := ac.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   alert.UserTable,
+			Columns: alert.UserPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

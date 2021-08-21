@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/alert"
+	"cmdb/ent/message"
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/user"
 	"context"
@@ -74,23 +75,38 @@ func (uc *UserCreate) AddRoleBind(r ...*RoleBinding) *UserCreate {
 	return uc.AddRoleBindIDs(ids...)
 }
 
-// SetAlertID sets the "alert" edge to the Alert entity by ID.
-func (uc *UserCreate) SetAlertID(id int) *UserCreate {
-	uc.mutation.SetAlertID(id)
+// AddAlertIDs adds the "alert" edge to the Alert entity by IDs.
+func (uc *UserCreate) AddAlertIDs(ids ...int) *UserCreate {
+	uc.mutation.AddAlertIDs(ids...)
 	return uc
 }
 
-// SetNillableAlertID sets the "alert" edge to the Alert entity by ID if the given value is not nil.
-func (uc *UserCreate) SetNillableAlertID(id *int) *UserCreate {
+// AddAlert adds the "alert" edges to the Alert entity.
+func (uc *UserCreate) AddAlert(a ...*Alert) *UserCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uc.AddAlertIDs(ids...)
+}
+
+// SetMsgID sets the "msg" edge to the Message entity by ID.
+func (uc *UserCreate) SetMsgID(id int) *UserCreate {
+	uc.mutation.SetMsgID(id)
+	return uc
+}
+
+// SetNillableMsgID sets the "msg" edge to the Message entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableMsgID(id *int) *UserCreate {
 	if id != nil {
-		uc = uc.SetAlertID(*id)
+		uc = uc.SetMsgID(*id)
 	}
 	return uc
 }
 
-// SetAlert sets the "alert" edge to the Alert entity.
-func (uc *UserCreate) SetAlert(a *Alert) *UserCreate {
-	return uc.SetAlertID(a.ID)
+// SetMsg sets the "msg" edge to the Message entity.
+func (uc *UserCreate) SetMsg(m *Message) *UserCreate {
+	return uc.SetMsgID(m.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -268,10 +284,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if nodes := uc.mutation.AlertIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AlertTable,
-			Columns: []string{user.AlertColumn},
+			Columns: user.AlertPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -283,7 +299,26 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_alert = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.MsgIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   user.MsgTable,
+			Columns: []string{user.MsgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: message.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.user_msg = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

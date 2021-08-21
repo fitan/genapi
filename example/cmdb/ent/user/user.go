@@ -25,6 +25,8 @@ const (
 	EdgeRoleBind = "role_bind"
 	// EdgeAlert holds the string denoting the alert edge name in mutations.
 	EdgeAlert = "alert"
+	// EdgeMsg holds the string denoting the msg edge name in mutations.
+	EdgeMsg = "msg"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// RoleBindTable is the table that holds the role_bind relation/edge.
@@ -34,13 +36,18 @@ const (
 	RoleBindInverseTable = "role_bindings"
 	// RoleBindColumn is the table column denoting the role_bind relation/edge.
 	RoleBindColumn = "user_role_bind"
-	// AlertTable is the table that holds the alert relation/edge.
-	AlertTable = "users"
+	// AlertTable is the table that holds the alert relation/edge. The primary key declared below.
+	AlertTable = "user_alert"
 	// AlertInverseTable is the table name for the Alert entity.
 	// It exists in this package in order to avoid circular dependency with the "alert" package.
 	AlertInverseTable = "alerts"
-	// AlertColumn is the table column denoting the alert relation/edge.
-	AlertColumn = "user_alert"
+	// MsgTable is the table that holds the msg relation/edge.
+	MsgTable = "users"
+	// MsgInverseTable is the table name for the Message entity.
+	// It exists in this package in order to avoid circular dependency with the "message" package.
+	MsgInverseTable = "messages"
+	// MsgColumn is the table column denoting the msg relation/edge.
+	MsgColumn = "user_msg"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -56,8 +63,14 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "users"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"user_alert",
+	"user_msg",
 }
+
+var (
+	// AlertPrimaryKey and AlertColumn2 are the table columns denoting the
+	// primary key for the alert relation (M2M).
+	AlertPrimaryKey = []string{"user_id", "alert_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

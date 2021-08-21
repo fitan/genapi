@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/alert"
+	"cmdb/ent/message"
 	"cmdb/ent/predicate"
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/user"
@@ -30,6 +31,7 @@ type UserQuery struct {
 	// eager-loading edges.
 	withRoleBind *RoleBindingQuery
 	withAlert    *AlertQuery
+	withMsg      *MessageQuery
 	withFKs      bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -103,7 +105,29 @@ func (uq *UserQuery) QueryAlert() *AlertQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(alert.Table, alert.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, user.AlertTable, user.AlertColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, user.AlertTable, user.AlertPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMsg chains the current query on the "msg" edge.
+func (uq *UserQuery) QueryMsg() *MessageQuery {
+	query := &MessageQuery{config: uq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(message.Table, message.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, user.MsgTable, user.MsgColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -294,6 +318,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		predicates:   append([]predicate.User{}, uq.predicates...),
 		withRoleBind: uq.withRoleBind.Clone(),
 		withAlert:    uq.withAlert.Clone(),
+		withMsg:      uq.withMsg.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -319,6 +344,17 @@ func (uq *UserQuery) WithAlert(opts ...func(*AlertQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withAlert = query
+	return uq
+}
+
+// WithMsg tells the query-builder to eager-load the nodes that are connected to
+// the "msg" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithMsg(opts ...func(*MessageQuery)) *UserQuery {
+	query := &MessageQuery{config: uq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withMsg = query
 	return uq
 }
 
@@ -388,12 +424,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 		nodes       = []*User{}
 		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			uq.withRoleBind != nil,
 			uq.withAlert != nil,
+			uq.withMsg != nil,
 		}
 	)
-	if uq.withAlert != nil {
+	if uq.withMsg != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -449,19 +486,84 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 	}
 
 	if query := uq.withAlert; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		ids := make(map[int]*User, len(nodes))
+		for _, node := range nodes {
+			ids[node.ID] = node
+			fks = append(fks, node.ID)
+			node.Edges.Alert = []*Alert{}
+		}
+		var (
+			edgeids []int
+			edges   = make(map[int][]*User)
+		)
+		_spec := &sqlgraph.EdgeQuerySpec{
+			Edge: &sqlgraph.EdgeSpec{
+				Inverse: false,
+				Table:   user.AlertTable,
+				Columns: user.AlertPrimaryKey,
+			},
+			Predicate: func(s *sql.Selector) {
+				s.Where(sql.InValues(user.AlertPrimaryKey[0], fks...))
+			},
+			ScanValues: func() [2]interface{} {
+				return [2]interface{}{new(sql.NullInt64), new(sql.NullInt64)}
+			},
+			Assign: func(out, in interface{}) error {
+				eout, ok := out.(*sql.NullInt64)
+				if !ok || eout == nil {
+					return fmt.Errorf("unexpected id value for edge-out")
+				}
+				ein, ok := in.(*sql.NullInt64)
+				if !ok || ein == nil {
+					return fmt.Errorf("unexpected id value for edge-in")
+				}
+				outValue := int(eout.Int64)
+				inValue := int(ein.Int64)
+				node, ok := ids[outValue]
+				if !ok {
+					return fmt.Errorf("unexpected node id in edges: %v", outValue)
+				}
+				if _, ok := edges[inValue]; !ok {
+					edgeids = append(edgeids, inValue)
+				}
+				edges[inValue] = append(edges[inValue], node)
+				return nil
+			},
+		}
+		if err := sqlgraph.QueryEdges(ctx, uq.driver, _spec); err != nil {
+			return nil, fmt.Errorf(`query edges "alert": %w`, err)
+		}
+		query.Where(alert.IDIn(edgeids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := edges[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected "alert" node returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Alert = append(nodes[i].Edges.Alert, n)
+			}
+		}
+	}
+
+	if query := uq.withMsg; query != nil {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*User)
 		for i := range nodes {
-			if nodes[i].user_alert == nil {
+			if nodes[i].user_msg == nil {
 				continue
 			}
-			fk := *nodes[i].user_alert
+			fk := *nodes[i].user_msg
 			if _, ok := nodeids[fk]; !ok {
 				ids = append(ids, fk)
 			}
 			nodeids[fk] = append(nodeids[fk], nodes[i])
 		}
-		query.Where(alert.IDIn(ids...))
+		query.Where(message.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
@@ -469,10 +571,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_alert" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "user_msg" returned %v`, n.ID)
 			}
 			for i := range nodes {
-				nodes[i].Edges.Alert = n
+				nodes[i].Edges.Msg = n
 			}
 		}
 	}

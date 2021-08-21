@@ -19,6 +19,17 @@ var (
 		Columns:    AlertsColumns,
 		PrimaryKey: []*schema.Column{AlertsColumns[0]},
 	}
+	// MessagesColumns holds the columns for the "messages" table.
+	MessagesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "message", Type: field.TypeString},
+	}
+	// MessagesTable holds the schema information for the "messages" table.
+	MessagesTable = &schema.Table{
+		Name:       "messages",
+		Columns:    MessagesColumns,
+		PrimaryKey: []*schema.Column{MessagesColumns[0]},
+	}
 	// RoleBindingsColumns holds the columns for the "role_bindings" table.
 	RoleBindingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -97,7 +108,7 @@ var (
 		{Name: "email", Type: field.TypeString},
 		{Name: "phone", Type: field.TypeString},
 		{Name: "role", Type: field.TypeEnum, Enums: []string{"user", "admin", "tourist"}},
-		{Name: "user_alert", Type: field.TypeInt, Nullable: true},
+		{Name: "user_msg", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -106,20 +117,47 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "users_alerts_alert",
+				Symbol:     "users_messages_msg",
 				Columns:    []*schema.Column{UsersColumns[6]},
-				RefColumns: []*schema.Column{AlertsColumns[0]},
+				RefColumns: []*schema.Column{MessagesColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// UserAlertColumns holds the columns for the "user_alert" table.
+	UserAlertColumns = []*schema.Column{
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "alert_id", Type: field.TypeInt},
+	}
+	// UserAlertTable holds the schema information for the "user_alert" table.
+	UserAlertTable = &schema.Table{
+		Name:       "user_alert",
+		Columns:    UserAlertColumns,
+		PrimaryKey: []*schema.Column{UserAlertColumns[0], UserAlertColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_alert_user_id",
+				Columns:    []*schema.Column{UserAlertColumns[0]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "user_alert_alert_id",
+				Columns:    []*schema.Column{UserAlertColumns[1]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AlertsTable,
+		MessagesTable,
 		RoleBindingsTable,
 		ServersTable,
 		ServiceTreesTable,
 		UsersTable,
+		UserAlertTable,
 	}
 )
 
@@ -127,5 +165,7 @@ func init() {
 	RoleBindingsTable.ForeignKeys[0].RefTable = UsersTable
 	ServersTable.ForeignKeys[0].RefTable = ServiceTreesTable
 	ServiceTreesTable.ForeignKeys[0].RefTable = ServiceTreesTable
-	UsersTable.ForeignKeys[0].RefTable = AlertsTable
+	UsersTable.ForeignKeys[0].RefTable = MessagesTable
+	UserAlertTable.ForeignKeys[0].RefTable = UsersTable
+	UserAlertTable.ForeignKeys[1].RefTable = AlertsTable
 }

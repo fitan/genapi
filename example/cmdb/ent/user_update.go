@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/alert"
+	"cmdb/ent/message"
 	"cmdb/ent/predicate"
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/user"
@@ -87,23 +88,38 @@ func (uu *UserUpdate) AddRoleBind(r ...*RoleBinding) *UserUpdate {
 	return uu.AddRoleBindIDs(ids...)
 }
 
-// SetAlertID sets the "alert" edge to the Alert entity by ID.
-func (uu *UserUpdate) SetAlertID(id int) *UserUpdate {
-	uu.mutation.SetAlertID(id)
+// AddAlertIDs adds the "alert" edge to the Alert entity by IDs.
+func (uu *UserUpdate) AddAlertIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddAlertIDs(ids...)
 	return uu
 }
 
-// SetNillableAlertID sets the "alert" edge to the Alert entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableAlertID(id *int) *UserUpdate {
+// AddAlert adds the "alert" edges to the Alert entity.
+func (uu *UserUpdate) AddAlert(a ...*Alert) *UserUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.AddAlertIDs(ids...)
+}
+
+// SetMsgID sets the "msg" edge to the Message entity by ID.
+func (uu *UserUpdate) SetMsgID(id int) *UserUpdate {
+	uu.mutation.SetMsgID(id)
+	return uu
+}
+
+// SetNillableMsgID sets the "msg" edge to the Message entity by ID if the given value is not nil.
+func (uu *UserUpdate) SetNillableMsgID(id *int) *UserUpdate {
 	if id != nil {
-		uu = uu.SetAlertID(*id)
+		uu = uu.SetMsgID(*id)
 	}
 	return uu
 }
 
-// SetAlert sets the "alert" edge to the Alert entity.
-func (uu *UserUpdate) SetAlert(a *Alert) *UserUpdate {
-	return uu.SetAlertID(a.ID)
+// SetMsg sets the "msg" edge to the Message entity.
+func (uu *UserUpdate) SetMsg(m *Message) *UserUpdate {
+	return uu.SetMsgID(m.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -132,9 +148,30 @@ func (uu *UserUpdate) RemoveRoleBind(r ...*RoleBinding) *UserUpdate {
 	return uu.RemoveRoleBindIDs(ids...)
 }
 
-// ClearAlert clears the "alert" edge to the Alert entity.
+// ClearAlert clears all "alert" edges to the Alert entity.
 func (uu *UserUpdate) ClearAlert() *UserUpdate {
 	uu.mutation.ClearAlert()
+	return uu
+}
+
+// RemoveAlertIDs removes the "alert" edge to Alert entities by IDs.
+func (uu *UserUpdate) RemoveAlertIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveAlertIDs(ids...)
+	return uu
+}
+
+// RemoveAlert removes "alert" edges to Alert entities.
+func (uu *UserUpdate) RemoveAlert(a ...*Alert) *UserUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.RemoveAlertIDs(ids...)
+}
+
+// ClearMsg clears the "msg" edge to the Message entity.
+func (uu *UserUpdate) ClearMsg() *UserUpdate {
+	uu.mutation.ClearMsg()
 	return uu
 }
 
@@ -323,10 +360,10 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if uu.mutation.AlertCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AlertTable,
-			Columns: []string{user.AlertColumn},
+			Columns: user.AlertPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -337,17 +374,71 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.AlertIDs(); len(nodes) > 0 {
+	if nodes := uu.mutation.RemovedAlertIDs(); len(nodes) > 0 && !uu.mutation.AlertCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AlertTable,
-			Columns: []string{user.AlertColumn},
+			Columns: user.AlertPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: alert.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.AlertIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.AlertTable,
+			Columns: user.AlertPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.MsgCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   user.MsgTable,
+			Columns: []string{user.MsgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: message.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.MsgIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   user.MsgTable,
+			Columns: []string{user.MsgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: message.FieldID,
 				},
 			},
 		}
@@ -434,23 +525,38 @@ func (uuo *UserUpdateOne) AddRoleBind(r ...*RoleBinding) *UserUpdateOne {
 	return uuo.AddRoleBindIDs(ids...)
 }
 
-// SetAlertID sets the "alert" edge to the Alert entity by ID.
-func (uuo *UserUpdateOne) SetAlertID(id int) *UserUpdateOne {
-	uuo.mutation.SetAlertID(id)
+// AddAlertIDs adds the "alert" edge to the Alert entity by IDs.
+func (uuo *UserUpdateOne) AddAlertIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddAlertIDs(ids...)
 	return uuo
 }
 
-// SetNillableAlertID sets the "alert" edge to the Alert entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableAlertID(id *int) *UserUpdateOne {
+// AddAlert adds the "alert" edges to the Alert entity.
+func (uuo *UserUpdateOne) AddAlert(a ...*Alert) *UserUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.AddAlertIDs(ids...)
+}
+
+// SetMsgID sets the "msg" edge to the Message entity by ID.
+func (uuo *UserUpdateOne) SetMsgID(id int) *UserUpdateOne {
+	uuo.mutation.SetMsgID(id)
+	return uuo
+}
+
+// SetNillableMsgID sets the "msg" edge to the Message entity by ID if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableMsgID(id *int) *UserUpdateOne {
 	if id != nil {
-		uuo = uuo.SetAlertID(*id)
+		uuo = uuo.SetMsgID(*id)
 	}
 	return uuo
 }
 
-// SetAlert sets the "alert" edge to the Alert entity.
-func (uuo *UserUpdateOne) SetAlert(a *Alert) *UserUpdateOne {
-	return uuo.SetAlertID(a.ID)
+// SetMsg sets the "msg" edge to the Message entity.
+func (uuo *UserUpdateOne) SetMsg(m *Message) *UserUpdateOne {
+	return uuo.SetMsgID(m.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -479,9 +585,30 @@ func (uuo *UserUpdateOne) RemoveRoleBind(r ...*RoleBinding) *UserUpdateOne {
 	return uuo.RemoveRoleBindIDs(ids...)
 }
 
-// ClearAlert clears the "alert" edge to the Alert entity.
+// ClearAlert clears all "alert" edges to the Alert entity.
 func (uuo *UserUpdateOne) ClearAlert() *UserUpdateOne {
 	uuo.mutation.ClearAlert()
+	return uuo
+}
+
+// RemoveAlertIDs removes the "alert" edge to Alert entities by IDs.
+func (uuo *UserUpdateOne) RemoveAlertIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveAlertIDs(ids...)
+	return uuo
+}
+
+// RemoveAlert removes "alert" edges to Alert entities.
+func (uuo *UserUpdateOne) RemoveAlert(a ...*Alert) *UserUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.RemoveAlertIDs(ids...)
+}
+
+// ClearMsg clears the "msg" edge to the Message entity.
+func (uuo *UserUpdateOne) ClearMsg() *UserUpdateOne {
+	uuo.mutation.ClearMsg()
 	return uuo
 }
 
@@ -694,10 +821,10 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if uuo.mutation.AlertCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AlertTable,
-			Columns: []string{user.AlertColumn},
+			Columns: user.AlertPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -708,17 +835,71 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.AlertIDs(); len(nodes) > 0 {
+	if nodes := uuo.mutation.RemovedAlertIDs(); len(nodes) > 0 && !uuo.mutation.AlertCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   user.AlertTable,
-			Columns: []string{user.AlertColumn},
+			Columns: user.AlertPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: alert.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.AlertIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.AlertTable,
+			Columns: user.AlertPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: alert.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.MsgCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   user.MsgTable,
+			Columns: []string{user.MsgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: message.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.MsgIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   user.MsgTable,
+			Columns: []string{user.MsgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: message.FieldID,
 				},
 			},
 		}

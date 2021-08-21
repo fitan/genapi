@@ -4,6 +4,7 @@ package ent
 
 import (
 	"cmdb/ent/alert"
+	"cmdb/ent/message"
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/server"
 	"cmdb/ent/servicetree"
@@ -34,6 +35,7 @@ type OrderFunc func(*sql.Selector)
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
 		alert.Table:       alert.ValidColumn,
+		message.Table:     message.ValidColumn,
 		rolebinding.Table: rolebinding.ValidColumn,
 		server.Table:      server.ValidColumn,
 		servicetree.Table: servicetree.ValidColumn,

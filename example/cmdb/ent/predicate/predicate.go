@@ -9,6 +9,9 @@ import (
 // Alert is the predicate function for alert builders.
 type Alert func(*sql.Selector)
 
+// Message is the predicate function for message builders.
+type Message func(*sql.Selector)
+
 // RoleBinding is the predicate function for rolebinding builders.
 type RoleBinding func(*sql.Selector)
 
