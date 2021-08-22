@@ -16,6 +16,7 @@ type GetOne{{$n.Name}}In struct {
 // {{$comment}}
 {{- end}}{{ if CheckMethodHasSwitch $methodOp.GetOne.Has}}
 // @GenApi /{{snake $n.Name}}/{id} [get] {{$methodOp.GetOne.RouterTag}} {{end}}
+// @Tags {{$n.Name}}
 func GetOne{{$n.Name}}(c *gin.Context, in *GetOne{{$n.Name}}In) (*ent.{{$n.Name}}, error) {
 	return Get{{$n.Name}}CURD().GetOne(in.Uri.ID)
 }
@@ -28,6 +29,7 @@ type GetList{{$n.Name}}In struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.GetList.Has}}
 // @GenApi /{{plural (snake $n.Name)}} [get] {{$methodOp.GetList.RouterTag}} {{end}}
+// @Tags {{$n.Name}}
 func GetList{{$n.Name}}(c *gin.Context, in *GetList{{$n.Name}}In) (*Get{{$n.Name}}ListData, error) {
 	return Get{{$n.Name}}CURD().GetList(&in.Query)
 }
@@ -40,6 +42,7 @@ type CreateOne{{$n.Name}}In struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.CreateOne.Has}}	
 // @GenApi /{{snake $n.Name}} [post] {{$methodOp.CreateOne.RouterTag}} {{end}}
+// @Tags {{$n.Name}}
 func CreateOne{{$n.Name}}(c *gin.Context, in *CreateOne{{$n.Name}}In) (*ent.{{$n.Name}}, error) {
 	return Get{{$n.Name}}CURD().CreateOne(Get{{$n.Name}}CURD().GetCreater(),&in.Body)
 }
@@ -52,20 +55,23 @@ type CreateList{{$n.Name}}In struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.CreateList.Has}}
 // @GenApi /{{plural (snake $n.Name)}} [post] {{$methodOp.CreateList.RouterTag}} {{end}}
+// @Tags {{$n.Name}}
 func CreateList{{$n.Name}}(c *gin.Context, in *CreateList{{$n.Name}}In) (ent.{{$n.Name}}s, error) {
 	return Get{{$n.Name}}CURD().CreateList(Get{{$n.Name}}CURD().GetClient(),in.Body)
 }
 
 type UpdateOne{{$n.Name}}In struct {
+	Uri {{$n.Name}}ID `json:"uri"`
 	Body ent.{{$n.Name}} `json:"body"`
 }
 
 {{range $comment := $methodOp.UpdateOne.Comments}}
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.UpdateOne.Has}}	
-// @GenApi /{{snake $n.Name}} [put] {{$methodOp.UpdateOne.RouterTag}} {{end}}
+// @GenApi /{{snake $n.Name}}/{id} [put] {{$methodOp.UpdateOne.RouterTag}} {{end}}
+// @Tags {{$n.Name}}
 func UpdateOne{{$n.Name}}(c *gin.Context, in *UpdateOne{{$n.Name}}In) (*ent.{{$n.Name}}, error) {
-	return Get{{$n.Name}}CURD().UpdateOne(Get{{$n.Name}}CURD().GetUpdaterById(in.Body.ID),&in.Body)
+	return Get{{$n.Name}}CURD().UpdateOne(Get{{$n.Name}}CURD().GetUpdaterById(in.Uri.ID),&in.Body)
 }
 
 type UpdateList{{$n.Name}}In struct {
@@ -76,6 +82,7 @@ type UpdateList{{$n.Name}}In struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.UpdateList.Has}}
 // @GenApi /{{plural (snake $n.Name)}} [put] {{$methodOp.UpdateList.RouterTag}} {{end}}
+// @Tags {{$n.Name}}
 func UpdateList{{$n.Name}}(c *gin.Context, in *UpdateList{{$n.Name}}In) (bool, error) {
     tx, _, err := GetAlertCURD().GetTx()
 	if err != nil {
@@ -97,6 +104,7 @@ type DeleteOne{{$n.Name}}In struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.DeleteOne.Has}}	
 // @GenApi /{{snake $n.Name}}/{id} [delete] {{$methodOp.DeleteOne.RouterTag}} {{end}}
+// @Tags {{$n.Name}}
 func DeleteOne{{$n.Name}}(c *gin.Context, in *DeleteOne{{$n.Name}}In) (int, error) {
 	return Get{{$n.Name}}CURD().DeleteOne(Get{{$n.Name}}CURD().GetDeleter(),in.Uri.ID)
 }
@@ -109,11 +117,12 @@ type DeleteList{{$n.Name}}In struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.DeleteList.Has}}
 // @GenApi /{{plural (snake $n.Name)}} [delete] {{$methodOp.DeleteList.RouterTag}} {{end}}
+// @Tags {{$n.Name}}
 func DeleteList{{$n.Name}}(c *gin.Context, in *DeleteList{{$n.Name}}In) (int, error) {
 	return Get{{$n.Name}}CURD().DeleteList(Get{{$n.Name}}CURD().GetDeleter(),in.Query.IDs)
 }
 {{ range $e := $n.Edges}}
-{{if ne $e.Type.Name $n.Name}}
+{{/*{{if ne $e.Type.Name $n.Name}}*/}}
 {{$rel := PaseRelType $e}}
 // action {{$e.Type.Name}} by {{$n.Name}}
 {{$methodOp := (PaseRestEdgeMethod $e.Annotations)}}
@@ -123,11 +132,12 @@ func DeleteList{{$n.Name}}(c *gin.Context, in *DeleteList{{$n.Name}}In) (int, er
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.Get.Has}}
 // @GenApi /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [get] {{$methodOp.Get.RouterTag}} {{end}}
-func GetOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetOne{{$n.Name}}In) (*ent.{{$e.Type.Name}}, error) {
-    return Get{{$n.Name}}CURD().GetOne{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID)
+// @Tags {{pascal $e.Name}}By{{$n.Name}}
+func GetOne{{pascal $e.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetOne{{$n.Name}}In) (*ent.{{$e.Type.Name}}, error) {
+    return Get{{$n.Name}}CURD().GetOne{{pascal $e.Name}}By{{$n.Name}}Id(in.Uri.ID)
 }
 {{if eq $e.Inverse ""}}
-type CreateOne{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
+type CreateOne{{pascal $e.Name}}By{{$n.Name}}IdIn struct {
 	Uri {{$n.Name}}ID `json:"uri"`
 	Body ent.{{$e.Type.Name}} `json:"body"`
 }
@@ -136,12 +146,13 @@ type CreateOne{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.Create.Has}}
 // @GenApi /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [post] {{$methodOp.Create.RouterTag}} {{end}}
-func CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateOne{{$e.Type.Name}}By{{$n.Name}}IdIn) (*ent.{{$e.Type.Name}}, error) {
+// @Tags {{pascal $e.Name}}By{{$n.Name}}
+func CreateOne{{pascal $e.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateOne{{pascal $e.Name}}By{{$n.Name}}IdIn) (*ent.{{$e.Type.Name}}, error) {
     tx, _ , err := Get{{$n.Name}}CURD().GetTx()
 	if err != nil {
 		return nil, err
 	}
-	save, err := Get{{$n.Name}}CURD().CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(tx, in.Uri.ID, &in.Body)
+	save, err := Get{{$n.Name}}CURD().CreateOne{{pascal $e.Name}}By{{$n.Name}}Id(tx, in.Uri.ID, &in.Body)
 	if err != nil {
 		return save, rollback(tx, err)
 	}
@@ -154,11 +165,12 @@ func CreateOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateOne{{$e.
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.Delete.Has}}
 // @GenApi /{{snake $n.Name}}/{id}/{{snake $e.Type.Name}} [delete] {{$methodOp.Delete.RouterTag}} {{end}}
-func DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetOne{{$n.Name}}In) (int, error) {
-	return Get{{$n.Name}}CURD().DeleteOne{{$e.Type.Name}}By{{$n.Name}}Id(Get{{$e.Type.Name}}CURD().GetDeleter(),in.Uri.ID)
+// @Tags {{pascal $e.Name}}By{{$n.Name}}
+func DeleteOne{{pascal $e.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetOne{{$n.Name}}In) (int, error) {
+	return Get{{$n.Name}}CURD().DeleteOne{{pascal $e.Name}}By{{$n.Name}}Id(Get{{$e.Type.Name}}CURD().GetDeleter(),in.Uri.ID)
 }
 {{else}}
-type GetList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
+type GetList{{pascal $e.Name}}By{{$n.Name}}IdIn struct {
 	Uri {{$n.Name}}ID `json:"uri"`
 	Query {{$e.Type.Name}}QueryOption `json:"query"`
 }
@@ -167,11 +179,12 @@ type GetList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.Get.Has}}
 // @GenApi /{{snake $n.Name}}/{id}/{{plural (snake $e.Type.Name)}} [get] {{$methodOp.Get.RouterTag}} {{end}}
-func GetList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetList{{$e.Type.Name}}By{{$n.Name}}IdIn) (*Get{{$e.Type.Name}}ListData, error) {
-	return Get{{$n.Name}}CURD().GetList{{$e.Type.Name}}By{{$n.Name}}Id(in.Uri.ID, &in.Query)
+// @Tags {{pascal $e.Name}}By{{$n.Name}}
+func GetList{{pascal $e.Name}}By{{$n.Name}}Id(c *gin.Context, in *GetList{{pascal $e.Name}}By{{$n.Name}}IdIn) (*Get{{$e.Type.Name}}ListData, error) {
+	return Get{{$n.Name}}CURD().GetList{{pascal $e.Name}}By{{$n.Name}}Id(in.Uri.ID, &in.Query)
 }
 {{if eq $e.Inverse ""}}
-type CreateList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
+type CreateList{{pascal $e.Name}}By{{$n.Name}}IdIn struct {
 	Uri {{$n.Name}}ID `json:"uri"`
 	Body ent.{{$e.Type.Name}}s `json:"body"`
 }
@@ -180,12 +193,13 @@ type CreateList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.Create.Has}}
 // @GenApi /{{snake $n.Name}}/{id}/{{plural (snake $e.Type.Name)}} [post] {{$methodOp.Create.RouterTag}} {{end}}
-func CreateList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateList{{$e.Type.Name}}By{{$n.Name}}IdIn) (ent.{{$e.Type.Name}}s, error) {
+// @Tags {{pascal $e.Name}}By{{$n.Name}}
+func CreateList{{pascal $e.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateList{{pascal $e.Name}}By{{$n.Name}}IdIn) (ent.{{$e.Type.Name}}s, error) {
 	tx,_, err := GetUserCURD().GetTx()
 	if err != nil {
 		return nil, err
 	}
-	save, err := Get{{$n.Name}}CURD().CreateList{{$e.Type.Name}}By{{$n.Name}}Id(tx,in.Uri.ID, in.Body)
+	save, err := Get{{$n.Name}}CURD().CreateList{{pascal $e.Name}}By{{$n.Name}}Id(tx,in.Uri.ID, in.Body)
 	if err != nil {
 		return save, rollback(tx, err)
 	}
@@ -194,7 +208,7 @@ func CreateList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateList{{$
 }
 {{end}}
 
-type DeleteList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
+type DeleteList{{pascal $e.Name}}By{{$n.Name}}IdIn struct {
 	Uri {{$n.Name}}ID `json:"uri"`
 	Query {{$e.Type.Name}}QueryOption `json:"query"`
 }
@@ -203,11 +217,12 @@ type DeleteList{{$e.Type.Name}}By{{$n.Name}}IdIn struct {
 // {{$comment}}
 {{- end}} {{ if CheckMethodHasSwitch $methodOp.Delete.Has}}
 // @GenApi /{{snake $n.Name}}/{id}/{{plural (snake $e.Type.Name)}} [delete] {{$methodOp.Delete.RouterTag}} {{end}}
-func DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(c *gin.Context, in *DeleteList{{$e.Type.Name}}By{{$n.Name}}IdIn) (int, error) {
-	return Get{{$n.Name}}CURD().DeleteList{{$e.Type.Name}}By{{$n.Name}}Id(Get{{$e.Type.Name}}CURD().GetDeleter(),in.Uri.ID, &in.Query)
+// @Tags {{pascal $e.Name}}By{{$n.Name}}
+func DeleteList{{pascal $e.Name}}By{{$n.Name}}Id(c *gin.Context, in *DeleteList{{pascal $e.Name}}By{{$n.Name}}IdIn) (int, error) {
+	return Get{{$n.Name}}CURD().DeleteList{{pascal $e.Name}}By{{$n.Name}}Id(Get{{$e.Type.Name}}CURD().GetDeleter(),in.Uri.ID, &in.Query)
 }
 {{end}}
 {{end}}
 
 {{end}}
-{{end}}
+{{/*{{end}}*/}}
