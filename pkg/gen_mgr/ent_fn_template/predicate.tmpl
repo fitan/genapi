@@ -100,7 +100,7 @@ func (m *{{$n.Name}}Paging)BindPaging{{$n.Name}}(queryer *ent.{{$n.Name}}Query) 
     return nil
 }
         {{ range $f := $n.Fields }}
-            {{range $method := opsString (ops $f)}}
+            {{range $method := opsString (myOps $f)}}
 {{ if eq $method  "EQ"}}
 type {{$n.Name}}{{$f.StructField}}{{$method}} struct {
     // {{$f.StructField}} == %v

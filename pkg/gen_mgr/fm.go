@@ -3,6 +3,7 @@ package gen_mgr
 import (
 	"encoding/json"
 	"entgo.io/ent/entc/gen"
+	"entgo.io/ent/schema/field"
 	"github.com/davecgh/go-spew/spew"
 	gen_apiV2 "github.com/fitan/genapi/pkg/gin_api"
 	"log"
@@ -12,6 +13,7 @@ import (
 )
 
 var FM = template.FuncMap{
+	"myOps": MyFieldOps,
 	"opsString":                OpsString,
 	"PaseRestNodeOrderOp":      PaseRestNodeOrderOp,
 	"PaseRestFieldQueryOp":     PaseRestFieldQueryOp,
@@ -66,7 +68,61 @@ func SliceHasKey(l []string, k string) bool {
 	return false
 }
 
-func OpsString(ops []gen.Op) []string {
+type Op int
+
+const (
+	EQ           Op = iota // =
+	NEQ                    // <>
+	GT                     // >
+	GTE                    // >=
+	LT                     // <
+	LTE                    // <=
+	IsNil                  // IS NULL / has
+	NotNil                 // IS NOT NULL / hasNot
+	In                     // within
+	NotIn                  // without
+	EqualFold              // equals case-insensitive
+	Contains               // containing
+	ContainsFold           // containing case-insensitive
+	HasPrefix              // startingWith
+	HasSuffix              // endingWith
+)
+
+var (
+	// operations per type.
+	boolOps     = []Op{EQ, NEQ}
+	enumOps     = append(boolOps, In, NotIn)
+	numericOps  = append(enumOps, GT, GTE, LT, LTE)
+	stringOps   = append(numericOps, Contains, HasPrefix, HasSuffix)
+	nillableOps = []Op{IsNil, NotNil}
+)
+
+func MyFieldOps(f *gen.Field) (ops []Op) {
+	switch t := f.Type.Type; {
+	case f.HasGoType() && !f.ConvertedToBasic() && !f.Type.Valuer():
+	case t == field.TypeJSON:
+	case t == field.TypeBool:
+		ops = boolOps
+	case t == field.TypeString && strings.ToLower(f.Name) != "id":
+		ops = stringOps
+		if f.HasGoType() && !f.ConvertedToBasic() && f.Type.Valuer() {
+			ops = numericOps
+		}
+	case t == field.TypeEnum || f.IsEdgeField():
+		ops = enumOps
+	default:
+		ops = numericOps
+	}
+	if f.Optional {
+		ops = append(ops, nillableOps...)
+	}
+	if f.IsString() && f.ConvertedToBasic() {
+		ops = append(ops,EqualFold, ContainsFold)
+	}
+	return ops
+}
+
+func OpsString(ops []Op) []string {
 	opss := make([]string, 0, len(ops))
 	for _, op := range ops {
 		opss = append(opss, opText[op])
