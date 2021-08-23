@@ -1,6 +1,8 @@
 package casbin
 
 import (
+	"cmdb/ent"
+	"cmdb/gen/entrest"
 	"cmdb/public"
 	"context"
 	"fmt"
@@ -16,12 +18,16 @@ type GetRolesIn struct {
 type GetRolesOut []Role
 
 type Role struct {
-	RoleName string   `json:"role_name"`
-	Methods  []string `json:"methods"`
+	RoleID      string   `json:"role_name"`
+	Permissions []string `json:"permissions"`
 }
 
 // @Summary 获取所有角色
 // @GenApi /api/roles [get]
+func GetListRole(c *gin.Context, in *entrest.GetListRoleBindingIn) (*entrest.GetRoleBindingListData, error) {
+	return entrest.GetListRoleBinding(c, in)
+}
+
 func GetRoles(c *gin.Context, in *GetRolesIn) ([]Role, error) {
 	gs := public.GetCasbin().GetNamedGroupingPolicy("g")
 	out := make(GetRolesOut, 0, 0)
@@ -33,12 +39,12 @@ func GetRoles(c *gin.Context, in *GetRolesIn) ([]Role, error) {
 	<-observable.Map(func(ctx context.Context, i interface{}) (interface{}, error) {
 		v := i.([]string)
 		return Role{
-			RoleName: v[1],
-			Methods:  []string{v[0]},
+			RoleID:      v[1],
+			Permissions: []string{v[0]},
 		}, nil
 	}).GroupByDynamic(func(item rxgo.Item) string {
 		v := item.V.(Role)
-		return v.RoleName
+		return v.RoleID
 	}, rxgo.WithBufferedChannel(len(gs))).DoOnNext(func(i interface{}) {
 		g := i.(rxgo.GroupedObservable)
 		mergeV, _ := g.Reduce(func(ctx context.Context, i interface{}, i2 interface{}) (interface{}, error) {
@@ -48,8 +54,8 @@ func GetRoles(c *gin.Context, in *GetRolesIn) ([]Role, error) {
 			v1 := i.(Role)
 			v2 := i2.(Role)
 			return Role{
-				RoleName: v1.RoleName,
-				Methods:  append(v1.Methods, v2.Methods...),
+				RoleID:      v1.RoleID,
+				Permissions: append(v1.Permissions, v2.Permissions...),
 			}, nil
 		}).Get()
 		out = append(out, mergeV.V.(Role))
@@ -58,44 +64,110 @@ func GetRoles(c *gin.Context, in *GetRolesIn) ([]Role, error) {
 }
 
 type AddRoleIn struct {
-	Body struct {
-		// 角色
-		Name string `json:"name"`
-		// 允许的方法
-		Action []string `json:"action"`
-	} `json:"body"`
+	// 角色
+	RoleID string `json:"name"`
+	// 允许的方法
+	Permissions []string `json:"action"`
 }
 
 func (a *AddRoleIn) ToRoles() [][]string {
 	roles := make([][]string, 0, 0)
-	for _, action := range a.Body.Action {
-		roles = append(roles, []string{action, a.Body.Name})
+	for _, action := range a.Permissions {
+		roles = append(roles, []string{a.RoleID, action})
 	}
 	return roles
 }
 
 // @Summary 创建角色
 // @GenApi /api/roles [post]
-func AddRoles(c *gin.Context, in *AddRoleIn) (bool, error) {
-	return public.GetCasbin().AddNamedGroupingPolicies("g", in.ToRoles())
+func AddRole(c *gin.Context, in *entrest.CreateOneRoleBindingIn) (*ent.RoleBinding, error) {
+	tx, err := public.GetDB().Tx(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	creater := tx.RoleBinding.Create()
+	save, err := entrest.GetRoleBindingCURD().CreateOne(creater, &in.Body)
+	if err != nil {
+		return save, entrest.Rollback(tx, err)
+	}
+
+	roles := (&AddRoleIn{
+		RoleID:      in.Body.RoleID,
+		Permissions: in.Body.Permissions,
+	}).ToRoles()
+
+	_, err = public.GetCasbin().AddGroupingPolicies(roles)
+	if err != nil {
+		return save, entrest.Rollback(tx, err)
+	}
+
+	return save, nil
 }
 
 // @Summary 更新角色
 // @GenApi /api/roles [put]
-func UpdateRoles(c *gin.Context, in *AddRoleIn) (bool, error) {
-	return public.GetCasbin().UpdateFilteredNamedPolicies("g", in.ToRoles(), 1, in.Body.Name)
+func UpdateRoles(c *gin.Context, in *entrest.UpdateOneRoleBindingIn) (*ent.RoleBinding, error) {
+	tx, err := public.GetDB().Tx(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	save, err := entrest.GetRoleBindingCURD().UpdateOne(entrest.GetRoleBindingCURD().GetUpdaterById(in.Uri.ID), &in.Body)
+	if err != nil {
+		return save, entrest.Rollback(tx, err)
+	}
+
+	if !in.Body.Status {
+		_, err := public.GetCasbin().RemoveFilteredNamedGroupingPolicy("g", 0, in.Body.RoleID)
+		if err != nil {
+			return save, entrest.Rollback(tx, err)
+		}
+		return save, err
+	}
+
+	roles := (&AddRoleIn{
+		RoleID:      in.Body.RoleID,
+		Permissions: in.Body.Permissions,
+	}).ToRoles()
+	_, err = public.GetCasbin().UpdateFilteredNamedPolicies("g", roles, 0, in.Body.RoleID)
+	if err != nil {
+		return save, entrest.Rollback(tx, err)
+	}
+	return save, nil
 }
 
 type DeleteRolesIn struct {
 	Uri struct {
-		Name string `json:"name" uri:"name"`
+		ID int `json:"id" uri:"id"`
 	} `json:"uri"`
 }
 
 // @Summary 删除角色
-// @GenApi /api/role/{name} [delete]
+// @GenApi /api/role/{id} [delete]
 func DeleteRoles(c *gin.Context, in *DeleteRolesIn) (bool, error) {
-	return public.GetCasbin().RemoveFilteredGroupingPolicy(1, in.Uri.Name)
+	tx, client, err := entrest.GetRoleBindingCURD().GetTx()
+	if err != nil {
+		return false, err
+	}
+
+	data, err := client.Get(context.Background(), in.Uri.ID)
+
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return false, entrest.Rollback(tx, err)
+		}
+	} else {
+		err := client.DeleteOneID(in.Uri.ID).Exec(context.Background())
+		if err != nil {
+			return false, entrest.Rollback(tx, err)
+		}
+	}
+
+	_, err = public.GetCasbin().RemoveFilteredNamedGroupingPolicy("g", 0, data.RoleID)
+	if err != nil {
+		return false, entrest.Rollback(tx, err)
+	}
+	return true, nil
 }
 
 type RawPolicies [][]string
@@ -110,7 +182,7 @@ func (r RawPolicies) ToPolicies() []Policy {
 				ProjectId: resources[0],
 				ServiceId: resources[1],
 			},
-			Role: raw[2],
+			RoleID: raw[2],
 		})
 	}
 	return policies
@@ -119,7 +191,7 @@ func (r RawPolicies) ToPolicies() []Policy {
 type Policy struct {
 	User string `json:"user" binding:"required"`
 	Resource
-	Role string `json:"role" binding:"required"`
+	RoleID string `json:"role" binding:"required"`
 }
 
 type Resource struct {
