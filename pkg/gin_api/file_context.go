@@ -45,7 +45,7 @@ func (c *FileContext) Parse(option ParseOption) {
 }
 
 func (c *FileContext) Func2Ts() {
-	pendNodeRecord := make(map[string]struct{},0)
+	pendNodeRecord := make(map[string]struct{}, 0)
 	for index, _ := range c.Funcs {
 		inField := c.Funcs[index].Fd.Type.Params.List[1]
 		_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
@@ -66,7 +66,7 @@ func (c *FileContext) Func2Ts() {
 
 func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	fc := Func{
-		Fd:  f,
+		Fd:       f,
 		PkgName:  c.PkgName,
 		FuncName: f.Name.Name,
 		ResOut0:  "",
@@ -77,9 +77,9 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	inField := f.Type.Params.List[1]
 	outField := f.Type.Results.List[0]
 
-	_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
+	inPkg, inFile, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
 	//_, inStruct := c.FindStruct(inField)
-	fc.Bind = c.ParseBind(fc.FuncName, inStruct)
+	fc.Bind = c.ParseBind(inPkg, inFile, fc.FuncName, inStruct)
 	c.ParseComment(&fc, f.Doc.List, inField, outField)
 	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(copyAST(inField.Type), c.File.Name.Name))
 	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(copyAST(outField.Type), c.File.Name.Name))
@@ -148,7 +148,7 @@ func (c *FileContext) ParseComment(fc *Func, ms []*ast.Comment, inField *ast.Fie
 	fc.Comments = comments
 }
 
-func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bind {
+func (c *FileContext) ParseBind(inPkg *packages.Package, inFile *ast.File, funcName string, structType *ast.StructType) Bind {
 	bind := Bind{}
 	for _, field := range structType.Fields.List {
 		for _, ident := range field.Names {
@@ -196,7 +196,8 @@ func (c *FileContext) ParseBind(funcName string, structType *ast.StructType) Bin
 				//}
 			case "Uri":
 				bind.Uri.Has = true
-				bind.Uri.TagMsgs = FindTagAndCommentByField(c.Pkg, c.File, field, "uri")
+				log.Printf("funcName: %s, file: %s, field: %v", funcName, c.File.Name.Name)
+				bind.Uri.TagMsgs = FindTagAndCommentByField(inPkg, inFile, field, "uri")
 			case "Header":
 				bind.Header.Has = true
 				bind.Header.TagMsgs = FindTagAndCommentByField(c.Pkg, c.File, field, "header")
@@ -262,9 +263,9 @@ func (c *FileContext) ApiMark2SwagRouter(fields []string) (Router, string) {
 	}
 	return Router{
 		Method:         strings.ToUpper(method[1 : len(method)-1]),
-		GenMarkPath:  GenMarkPath,
+		GenMarkPath:    GenMarkPath,
 		GinPath:        ginPath,
-		TsPath: TsPath,
+		TsPath:         TsPath,
 		RouterGroupKey: routerGroupKey,
 	}, strings.Join(fields[:4], " ")
 }

@@ -5,7 +5,6 @@ import (
 	"cmdb/gen/entrest"
 	"cmdb/public"
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/reactivex/rxgo/v2"
 	"path"
@@ -218,7 +217,7 @@ func (p *PoliciesIn) GetCasbinListKeys() [][]interface{} {
 func (p *PoliciesIn) ToPolicies() [][]string {
 	ps := make([][]string, 0, 0)
 	for _, v := range p.Body {
-		ps = append(ps, []string{v.User, "/" + path.Join(v.ProjectId, v.ServiceId), v.Role})
+		ps = append(ps, []string{v.User, "/" + path.Join(v.ProjectId, v.ServiceId), v.RoleID})
 	}
 	return ps
 }
@@ -239,7 +238,6 @@ type GetPoliciesIn struct {
 // @GenApi /api/policies/get [get]
 func GetPolicies(c *gin.Context, in *GetPoliciesIn) ([]Policy, error) {
 	//userName, _ := public.GetUserNameByContext(c)
-	fmt.Println(in.Query.Username)
 	raw := public.GetCasbin().GetFilteredPolicy(0, in.Query.Username)
 
 	return RawPolicies(raw).ToPolicies(), nil

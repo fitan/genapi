@@ -90,7 +90,7 @@ func UpdateList{{$n.Name}}(c *gin.Context, in *UpdateList{{$n.Name}}In) (bool, e
 	}
 	err = Get{{$n.Name}}CURD().UpdateList(tx,in.Body)
 	if err != nil {
-		return false, rollback(tx, err)
+		return false, Rollback(tx, err)
 	}
 
 	return true, tx.Commit()

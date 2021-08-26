@@ -7,7 +7,6 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
-	"go/types"
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/packages"
 	"log"
@@ -281,24 +280,39 @@ func (s *Set) Get() []interface{} {
 }
 
 func FindTagAndCommentByField(pkg *packages.Package, file *ast.File, field *ast.Field, TagName string) []TagMsg {
-	_, ok := pkg.TypesInfo.TypeOf(field.Type).Underlying().(*types.Struct)
-	if !ok {
-		return []TagMsg{}
-	}
-
-	var findFile *ast.File
-	var findPkg *packages.Package
-	var findStruct *ast.StructType
-
-	findPkg, findFile, _, findStruct = FindStructByExpr(pkg, file, field.Type)
+	findPkg, findFile, _, findStruct := FindStructByExpr(pkg, file, field.Type)
 	return FindTagAndCommentByStruct(findPkg, findFile, findStruct, TagName)
+	//var findFile *ast.File
+	//var findPkg *packages.Package
+	//var findStruct *ast.StructType
+	//switch field.Type.(type) {
+	//case *ast.Ident, *ast.SelectorExpr:
+	//	findPkg, findFile, _, findStruct = FindStructByExpr(pkg, file, field.Type)
+	//	return FindTagAndCommentByStruct(findPkg, findFile, findStruct, TagName)
+	//case *ast.StructType:
+	//	return FindTagAndCommentByStruct(findPkg, findFile, findStruct, TagName)
+	//}
+	//
+	//panic("FindTagAndCommentByField: 未知类型")
+	//log.Printf("findTagAndComment file: %s, field: %s, tagName: %s", file.Name.Name, field.Names[0].Name, TagName)
+	//log.Println(field.Type)
+	//log.Println(pkg.TypesInfo.TypeOf(field.Type))
+	//fmt.Println(pkg.TypesInfo.TypeOf(field.Type).Underlying().String())
+	//_, ok := pkg.TypesInfo.TypeOf(field.Type).Underlying().(*types.Struct)
+	//if !ok {
+	//	return []TagMsg{}
+	//}
+	//
+	//
+	//findPkg, findFile, _, findStruct = FindStructByExpr(pkg, file, field.Type)
+	//return FindTagAndCommentByStruct(findPkg, findFile, findStruct, TagName)
 }
 
 func FindStructByExpr(pkg *packages.Package, file *ast.File, expr ast.Expr) (*packages.Package, *ast.File, *ast.TypeSpec, *ast.StructType) {
-	_, ok := pkg.TypesInfo.TypeOf(expr).Underlying().(*types.Struct)
-	if !ok {
-		return nil, nil, nil, nil
-	}
+	//_, ok := pkg.TypesInfo.TypeOf(expr).Underlying().(*types.Struct)
+	//if !ok {
+	//	return nil, nil, nil, nil
+	//}
 	switch t := expr.(type) {
 	// struct 在同一个pkg里面
 	case *ast.Ident:
