@@ -167,7 +167,7 @@ func (c *FileContext) ParseBind(inPkg *packages.Package, inFile *ast.File, funcN
 			//	fmt.Println("node2string: ", Node2String(c.Pkg.Fset, field.Type))
 			//	raw = Node2String(c.Pkg.Fset, Node2SwagType(field.Type, c.File.Name.Name))
 			//}
-			raw = Node2String(c.Pkg.Fset, Node2SwagType(field.Type, c.File.Name.Name))
+			raw = Node2String(c.Pkg.Fset, Node2SwagType(field.Type, inFile.Name.Name))
 			quoteType = StructType
 			switch ident.Name {
 			case "Query":
@@ -200,7 +200,7 @@ func (c *FileContext) ParseBind(inPkg *packages.Package, inFile *ast.File, funcN
 				bind.Uri.TagMsgs = FindTagAndCommentByField(inPkg, inFile, field, "uri")
 			case "Header":
 				bind.Header.Has = true
-				bind.Header.TagMsgs = FindTagAndCommentByField(c.Pkg, c.File, field, "header")
+				bind.Header.TagMsgs = FindTagAndCommentByField(inPkg, inFile, field, "header")
 			}
 		}
 	}

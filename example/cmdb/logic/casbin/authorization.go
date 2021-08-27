@@ -2,9 +2,11 @@ package casbin
 
 import (
 	"cmdb/ent"
+	"cmdb/ent/servicetree"
 	"cmdb/gen/entrest"
 	"cmdb/public"
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/reactivex/rxgo/v2"
 	"path"
@@ -21,12 +23,11 @@ type Role struct {
 	Permissions []string `json:"permissions"`
 }
 
-// @Summary 获取所有角色
-// @GenApi /api/roles [get]
 func GetListRole(c *gin.Context, in *entrest.GetListRoleBindingIn) (*entrest.GetRoleBindingListData, error) {
 	return entrest.GetListRoleBinding(c, in)
 }
-
+// @Summary 获取所有角色
+// @GenApi /api/roles [get]
 func GetRoles(c *gin.Context, in *GetRolesIn) ([]Role, error) {
 	gs := public.GetCasbin().GetNamedGroupingPolicy("g")
 	out := make(GetRolesOut, 0, 0)
@@ -198,6 +199,11 @@ type Resource struct {
 	ServiceId string `json:"service_id" binding:"required"`
 }
 
+func (r *Resource) IsExist() (bool, error) {
+	bg := context.Background()
+	return public.GetDB().ServiceTree.Query().Where(servicetree.NameEQ(r.ProjectId)).QueryService().Where(servicetree.NameEQ(r.ServiceId)).Exist(bg)
+}
+
 func (r *Resource) EncodeCasbinResource() string {
 	return "/" + r.ProjectId + "/" + r.ServiceId
 }
@@ -225,12 +231,21 @@ func (p *PoliciesIn) ToPolicies() [][]string {
 // @Summary 授权
 // @GenApi /api/policies/add [post]
 func AddPolicies(c *gin.Context, in *PoliciesIn) (bool, error) {
+	for _, policy := range in.Body {
+		exist, err := policy.IsExist()
+		if err != nil {
+			return false, err
+		}
+		if !exist {
+			return false, fmt.Errorf("project: %s, service: %s 不存在", policy.ProjectId, policy.ServiceId)
+		}
+	}
 	return public.GetCasbin().AddPolicies(in.ToPolicies())
 }
 
 type GetPoliciesIn struct {
 	Query struct {
-		Username string `json:"username" form:"user_name" binding:"required"`
+		Username string `json:"username" form:"username" binding:"required"`
 	} `json:"query"`
 }
 
