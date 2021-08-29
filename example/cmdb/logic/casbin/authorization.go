@@ -2,32 +2,20 @@ package casbin
 
 import (
 	"cmdb/ent"
-	"cmdb/ent/servicetree"
 	"cmdb/gen/entrest"
 	"cmdb/public"
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/reactivex/rxgo/v2"
-	"path"
-	"strings"
 )
 
-type GetRolesIn struct {
-}
-
-type GetRolesOut []Role
-
-type Role struct {
-	RoleID      string   `json:"role_name"`
-	Permissions []string `json:"permissions"`
-}
-
+// @Summary 获取所有角色
+// @GenApi /api/roles [get]
 func GetListRole(c *gin.Context, in *entrest.GetListRoleBindingIn) (*entrest.GetRoleBindingListData, error) {
 	return entrest.GetListRoleBinding(c, in)
 }
-// @Summary 获取所有角色
-// @GenApi /api/roles [get]
+
 func GetRoles(c *gin.Context, in *GetRolesIn) ([]Role, error) {
 	gs := public.GetCasbin().GetNamedGroupingPolicy("g")
 	out := make(GetRolesOut, 0, 0)
@@ -63,23 +51,8 @@ func GetRoles(c *gin.Context, in *GetRolesIn) ([]Role, error) {
 	return out, nil
 }
 
-type AddRoleIn struct {
-	// 角色
-	RoleID string `json:"name"`
-	// 允许的方法
-	Permissions []string `json:"action"`
-}
-
-func (a *AddRoleIn) ToRoles() [][]string {
-	roles := make([][]string, 0, 0)
-	for _, action := range a.Permissions {
-		roles = append(roles, []string{a.RoleID, action})
-	}
-	return roles
-}
-
 // @Summary 创建角色
-// @GenApi /api/roles [post]
+// @GenApi /api/role [post]
 func AddRole(c *gin.Context, in *entrest.CreateOneRoleBindingIn) (*ent.RoleBinding, error) {
 	tx, err := public.GetDB().Tx(context.Background())
 	if err != nil {
@@ -102,7 +75,7 @@ func AddRole(c *gin.Context, in *entrest.CreateOneRoleBindingIn) (*ent.RoleBindi
 		return save, entrest.Rollback(tx, err)
 	}
 
-	return save, nil
+	return save, tx.Commit()
 }
 
 // @Summary 更新角色
@@ -133,13 +106,7 @@ func UpdateRoles(c *gin.Context, in *entrest.UpdateOneRoleBindingIn) (*ent.RoleB
 	if err != nil {
 		return save, entrest.Rollback(tx, err)
 	}
-	return save, nil
-}
-
-type DeleteRolesIn struct {
-	Uri struct {
-		ID int `json:"id" uri:"id"`
-	} `json:"uri"`
+	return save, tx.Commit()
 }
 
 // @Summary 删除角色
@@ -167,65 +134,7 @@ func DeleteRoles(c *gin.Context, in *DeleteRolesIn) (bool, error) {
 	if err != nil {
 		return false, entrest.Rollback(tx, err)
 	}
-	return true, nil
-}
-
-type RawPolicies [][]string
-
-func (r RawPolicies) ToPolicies() []Policy {
-	policies := make([]Policy, 0, 0)
-	for _, raw := range r {
-		resources := strings.Split(raw[1][1:], "/")
-		policies = append(policies, Policy{
-			User: raw[0],
-			Resource: Resource{
-				ProjectId: resources[0],
-				ServiceId: resources[1],
-			},
-			RoleID: raw[2],
-		})
-	}
-	return policies
-}
-
-type Policy struct {
-	User string `json:"user" binding:"required"`
-	Resource
-	RoleID string `json:"role" binding:"required"`
-}
-
-type Resource struct {
-	ProjectId string `json:"project_id" binding:"required"`
-	ServiceId string `json:"service_id" binding:"required"`
-}
-
-func (r *Resource) IsExist() (bool, error) {
-	bg := context.Background()
-	return public.GetDB().ServiceTree.Query().Where(servicetree.NameEQ(r.ProjectId)).QueryService().Where(servicetree.NameEQ(r.ServiceId)).Exist(bg)
-}
-
-func (r *Resource) EncodeCasbinResource() string {
-	return "/" + r.ProjectId + "/" + r.ServiceId
-}
-
-type PoliciesIn struct {
-	Body []Policy `json:"body"`
-}
-
-func (p *PoliciesIn) GetCasbinListKeys() [][]interface{} {
-	keys := make([][]interface{}, 0, 0)
-	for _, b := range p.Body {
-		keys = append(keys, []interface{}{b.EncodeCasbinResource()})
-	}
-	return keys
-}
-
-func (p *PoliciesIn) ToPolicies() [][]string {
-	ps := make([][]string, 0, 0)
-	for _, v := range p.Body {
-		ps = append(ps, []string{v.User, "/" + path.Join(v.ProjectId, v.ServiceId), v.RoleID})
-	}
-	return ps
+	return true, tx.Commit()
 }
 
 // @Summary 授权
@@ -243,19 +152,19 @@ func AddPolicies(c *gin.Context, in *PoliciesIn) (bool, error) {
 	return public.GetCasbin().AddPolicies(in.ToPolicies())
 }
 
-type GetPoliciesIn struct {
-	Query struct {
-		Username string `json:"username" form:"username" binding:"required"`
-	} `json:"query"`
-}
-
 // @Summary 获取授权
 // @GenApi /api/policies/get [get]
 func GetPolicies(c *gin.Context, in *GetPoliciesIn) ([]Policy, error) {
-	//userName, _ := public.GetUserNameByContext(c)
 	raw := public.GetCasbin().GetFilteredPolicy(0, in.Query.Username)
+	policies := RawPolicies(raw).ToPolicies()
+	var filterP []Policy
+	for _, p := range policies {
+		if public.GetCasbin().HasGroupingPolicy(p.RoleID, "authorization") {
+			filterP = append(filterP, p)
+		}
+	}
 
-	return RawPolicies(raw).ToPolicies(), nil
+	return filterP, nil
 
 }
 

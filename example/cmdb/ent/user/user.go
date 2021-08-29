@@ -3,7 +3,7 @@
 package user
 
 import (
-	"fmt"
+	"time"
 )
 
 const (
@@ -19,8 +19,10 @@ const (
 	FieldEmail = "email"
 	// FieldPhone holds the string denoting the phone field in the database.
 	FieldPhone = "phone"
-	// FieldRole holds the string denoting the role field in the database.
-	FieldRole = "role"
+	// FieldCreateTime holds the string denoting the create_time field in the database.
+	FieldCreateTime = "create_time"
+	// FieldUpdateTime holds the string denoting the update_time field in the database.
+	FieldUpdateTime = "update_time"
 	// EdgeRoleBind holds the string denoting the role_bind edge name in mutations.
 	EdgeRoleBind = "role_bind"
 	// EdgeAlert holds the string denoting the alert edge name in mutations.
@@ -57,7 +59,8 @@ var Columns = []string{
 	FieldPassword,
 	FieldEmail,
 	FieldPhone,
-	FieldRole,
+	FieldCreateTime,
+	FieldUpdateTime,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "users"
@@ -87,26 +90,9 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-// Role defines the type for the "role" enum field.
-type Role string
-
-// Role values.
-const (
-	RoleUser    Role = "user"
-	RoleAdmin   Role = "admin"
-	RoleTourist Role = "tourist"
+var (
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime func() time.Time
+	// DefaultUpdateTime holds the default value on creation for the "update_time" field.
+	DefaultUpdateTime func() time.Time
 )
-
-func (r Role) String() string {
-	return string(r)
-}
-
-// RoleValidator is a validator for the "role" field enum values. It is called by the builders before save.
-func RoleValidator(r Role) error {
-	switch r {
-	case RoleUser, RoleAdmin, RoleTourist:
-		return nil
-	default:
-		return fmt.Errorf("user: invalid enum value for role field: %q", r)
-	}
-}

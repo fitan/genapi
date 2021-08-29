@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/fitan/genapi/pkg/gen_mgr"
+	"time"
 )
 
 // User holds the schema definition for the User entity.
@@ -45,12 +46,6 @@ func (User) Annotations() []schema.Annotation {
 		},
 	}
 }
-
-//func (User) Mixin() []ent.Mixin {
-//	return []ent.Mixin{
-//		mixin.Time{},
-//	}
-//}
 
 // Fields of the User.
 func (User) Fields() []ent.Field {
@@ -105,12 +100,11 @@ func (User) Fields() []ent.Field {
 				NotIn:        0,
 				Order:        gen_mgr.GenRestTrue,
 			},
-			FieldOperability: gen_mgr.FieldOperability{
-				Selete: gen_mgr.GenRestFalse,
-			},
 		}),
 		field.String("phone").Comment("这是我的电话"),
-		field.Enum("role").Values("user", "admin", "tourist"),
+		field.Bool("disable"),
+		field.Time("create_time").Default(time.Now).Optional().Immutable().Nillable(),
+		field.Time("update_time").Default(time.Now).Optional().Nillable(),
 	}
 }
 

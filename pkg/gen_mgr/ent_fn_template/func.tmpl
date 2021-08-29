@@ -154,7 +154,7 @@ func CreateOne{{pascal $e.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateOne{{p
 	}
 	save, err := Get{{$n.Name}}CURD().CreateOne{{pascal $e.Name}}By{{$n.Name}}Id(tx, in.Uri.ID, &in.Body)
 	if err != nil {
-		return save, rollback(tx, err)
+		return save, Rollback(tx, err)
 	}
 
 	return save, tx.Commit()
@@ -201,7 +201,7 @@ func CreateList{{pascal $e.Name}}By{{$n.Name}}Id(c *gin.Context, in *CreateList{
 	}
 	save, err := Get{{$n.Name}}CURD().CreateList{{pascal $e.Name}}By{{$n.Name}}Id(tx,in.Uri.ID, in.Body)
 	if err != nil {
-		return save, rollback(tx, err)
+		return save, Rollback(tx, err)
 	}
 
 	return save, tx.Commit()

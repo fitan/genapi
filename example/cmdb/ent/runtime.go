@@ -5,6 +5,7 @@ package ent
 import (
 	"cmdb/ent/rolebinding"
 	"cmdb/ent/schema"
+	"cmdb/ent/user"
 	"time"
 )
 
@@ -18,4 +19,14 @@ func init() {
 	rolebindingDescCreatedAt := rolebindingFields[3].Descriptor()
 	// rolebinding.DefaultCreatedAt holds the default value on creation for the created_at field.
 	rolebinding.DefaultCreatedAt = rolebindingDescCreatedAt.Default.(func() time.Time)
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescCreateTime is the schema descriptor for create_time field.
+	userDescCreateTime := userFields[4].Descriptor()
+	// user.DefaultCreateTime holds the default value on creation for the create_time field.
+	user.DefaultCreateTime = userDescCreateTime.Default.(func() time.Time)
+	// userDescUpdateTime is the schema descriptor for update_time field.
+	userDescUpdateTime := userFields[5].Descriptor()
+	// user.DefaultUpdateTime holds the default value on creation for the update_time field.
+	user.DefaultUpdateTime = userDescUpdateTime.Default.(func() time.Time)
 }

@@ -7,6 +7,7 @@ import (
 	"cmdb/ent/user"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -25,8 +26,10 @@ type User struct {
 	// Phone holds the value of the "phone" field.
 	// 这是我的电话
 	Phone string `json:"phone,omitempty"`
-	// Role holds the value of the "role" field.
-	Role user.Role `json:"role,omitempty"`
+	// CreateTime holds the value of the "create_time" field.
+	CreateTime *time.Time `json:"create_time,omitempty"`
+	// UpdateTime holds the value of the "update_time" field.
+	UpdateTime *time.Time `json:"update_time,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges    UserEdges `json:"edges"`
@@ -85,8 +88,10 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldName, user.FieldPassword, user.FieldEmail, user.FieldPhone, user.FieldRole:
+		case user.FieldName, user.FieldPassword, user.FieldEmail, user.FieldPhone:
 			values[i] = new(sql.NullString)
+		case user.FieldCreateTime, user.FieldUpdateTime:
+			values[i] = new(sql.NullTime)
 		case user.ForeignKeys[0]: // user_msg
 			values[i] = new(sql.NullInt64)
 		default:
@@ -134,11 +139,19 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				u.Phone = value.String
 			}
-		case user.FieldRole:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field role", values[i])
+		case user.FieldCreateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field create_time", values[i])
 			} else if value.Valid {
-				u.Role = user.Role(value.String)
+				u.CreateTime = new(time.Time)
+				*u.CreateTime = value.Time
+			}
+		case user.FieldUpdateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field update_time", values[i])
+			} else if value.Valid {
+				u.UpdateTime = new(time.Time)
+				*u.UpdateTime = value.Time
 			}
 		case user.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -197,8 +210,14 @@ func (u *User) String() string {
 	builder.WriteString(u.Email)
 	builder.WriteString(", phone=")
 	builder.WriteString(u.Phone)
-	builder.WriteString(", role=")
-	builder.WriteString(fmt.Sprintf("%v", u.Role))
+	if v := u.CreateTime; v != nil {
+		builder.WriteString(", create_time=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	if v := u.UpdateTime; v != nil {
+		builder.WriteString(", update_time=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }
