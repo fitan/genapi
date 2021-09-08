@@ -19,6 +19,8 @@ const (
 	FieldEmail = "email"
 	// FieldPhone holds the string denoting the phone field in the database.
 	FieldPhone = "phone"
+	// FieldDisable holds the string denoting the disable field in the database.
+	FieldDisable = "disable"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
 	FieldCreateTime = "create_time"
 	// FieldUpdateTime holds the string denoting the update_time field in the database.
@@ -59,6 +61,7 @@ var Columns = []string{
 	FieldPassword,
 	FieldEmail,
 	FieldPhone,
+	FieldDisable,
 	FieldCreateTime,
 	FieldUpdateTime,
 }

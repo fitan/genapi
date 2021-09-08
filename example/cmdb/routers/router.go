@@ -4,6 +4,7 @@ import (
 	"cmdb/middleware/jwt"
 	"cmdb/public"
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"sync"
 )
 
@@ -17,6 +18,7 @@ func NewRouter() *gin.Engine {
 	r.Use(func(c *gin.Context) {
 		public.GetXLog().Info().Str("handlername", c.HandlerName()).Strs("handlernames", c.HandlerNames()).Msg(c.FullPath())
 	})
+	r.Use(otelgin.Middleware("my-cmdb"))
 	return r
 }
 

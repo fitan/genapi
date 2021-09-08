@@ -107,6 +107,7 @@ var (
 		{Name: "password", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString},
 		{Name: "phone", Type: field.TypeString},
+		{Name: "disable", Type: field.TypeBool},
 		{Name: "create_time", Type: field.TypeTime, Nullable: true},
 		{Name: "update_time", Type: field.TypeTime, Nullable: true},
 		{Name: "user_msg", Type: field.TypeInt, Nullable: true},
@@ -119,7 +120,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_messages_msg",
-				Columns:    []*schema.Column{UsersColumns[7]},
+				Columns:    []*schema.Column{UsersColumns[8]},
 				RefColumns: []*schema.Column{MessagesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

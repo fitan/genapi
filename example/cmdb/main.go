@@ -1,26 +1,23 @@
 package main
 
 import (
+	"cmdb/pkg/trace"
 	"cmdb/public"
 	"cmdb/routers"
 	"context"
 	"fmt"
-	"github.com/asim/go-micro/plugins/config/encoder/yaml/v3"
-	"github.com/asim/go-micro/v3/config"
-	"github.com/asim/go-micro/v3/config/reader"
-	"github.com/asim/go-micro/v3/config/reader/json"
-	"github.com/asim/go-micro/v3/config/source"
+	"github.com/asim/go-micro/plugins/client/http/v3"
+	_ "github.com/asim/go-micro/plugins/config/encoder/yaml/v3"
+	"github.com/asim/go-micro/plugins/registry/memory/v3"
+	httpServer "github.com/asim/go-micro/plugins/server/http/v3"
+	"github.com/asim/go-micro/plugins/wrapper/trace/opentracing/v3"
+	"github.com/asim/go-micro/v3"
+	"github.com/asim/go-micro/v3/client"
+	"github.com/asim/go-micro/v3/selector"
+	"github.com/asim/go-micro/v3/server"
 	"log"
 	"os"
-
-	httpServer "github.com/asim/go-micro/plugins/server/http/v3"
-	"github.com/asim/go-micro/v3"
-
-	_ "github.com/asim/go-micro/plugins/config/encoder/yaml/v3"
-	consulSource "github.com/asim/go-micro/plugins/config/source/consul/v3"
-	"github.com/asim/go-micro/plugins/registry/consul/v3"
-	"github.com/asim/go-micro/v3/server"
-	"github.com/hashicorp/consul/api"
+	"time"
 )
 
 // go build -ldflags "-X main.GitCommitId=`git rev-parse HEAD` -X 'main.goVersion=$(go version)' -X 'main.gitHash=$(git show -s --format=%H)' -X 'main.buildTime=$(git show -s --format=%cd)'" -o main.exe version.go
@@ -88,41 +85,30 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	enc := yaml.NewEncoder()
-
-	cs := consulSource.NewSource(consulSource.WithAddress("localhost:8500"), consulSource.WithPrefix(consulSource.DefaultPrefix+SERVER_NAME+"/"), consulSource.StripPrefix(true), source.WithEncoder(enc))
-	//conf, err := config.NewConfig(config.WithReader(json.NewReader(reader.WithEncoder(enc))))
-	conf, err := config.NewConfig(config.WithReader(json.NewReader(reader.WithEncoder(enc))))
+	jaegerTracer, closer, err := trace.NewJaegerTracer("micro-go","10.170.34.122:6831")
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-	err = conf.Load(cs)
-	if err != nil {
-		panic(err)
-	}
+	defer closer.Close()
 
-	fmt.Println("data", conf.Map())
 
-	cf := new(Cf)
 
-	w, err := conf.Watch()
-	if err != nil {
-		panic(err)
-	}
-	go func() {
-		for {
-			v, err := w.Next()
-			if err != nil {
-				public.GetXLog().Error().Err(err).Send()
-			}
-			v.Scan(cf)
-			fmt.Println(cf)
-		}
-	}()
+	//tr := trace.GetTr()
+	//ctx, cancel := context.WithCancel(context.Background())
+	//defer cancel()
+	//ctx, span := tr.Start(ctx, "call")
+	//span.End()
+	//
+	//client := httpclient.NewClient(httpclient.WithDebug(true),httpclient.WithTraceContext("call baidu ", ctx),httpclient.WithHost("http://localhost:8080"))
+	r := memory.NewRegistry()
+	s := selector.NewSelector(selector.Registry(r))
+
 
 	srv := httpServer.NewServer(
 		server.Name(SERVER_NAME),
+		server.Registry(r),
 		server.Address(":"+public.GetConf().App.Port),
+		server.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
 	)
 
 	hd := srv.NewHandler(routers.GetDefaultRouter())
@@ -130,14 +116,35 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	c := api.DefaultConfig()
-	c.Address = "localhost:8500"
-	registry := consul.NewRegistry(consul.Config(c))
+
+	//c := api.DefaultConfig()
+	//c.Address = "consul.default.10.170.34.122.xip.io:8080"
+	//registry := consul.NewRegistry(consul.Config(c))
 	service := micro.NewService(
 		micro.Server(srv),
-		micro.Registry(registry),
 	)
 	service.Init()
-	service.Run()
-	//routers.GetDefaultRouter().Run(public.GetConf().App.Host + ":" + public.GetConf().App.Port)
+	go func() {
+		err := service.Run()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+	//go routers.GetDefaultRouter().Run(public.GetConf().App.Host + ":" + public.GetConf().App.Port)
+
+
+	c := http.NewClient(client.Selector(s),client.Wrap(opentracing.NewClientWrapper(jaegerTracer)))
+
+	time.Sleep(3 * time.Second)
+	for {
+		request := c.NewRequest(SERVER_NAME, "/users", "",  client.WithContentType("application/json"), client.wit)
+		response := new(map[string]interface{})
+		c.Call(context.TODO(), request, response)
+		time.Sleep(5 * time.Second)
+	}
+
+
+	//client.R().SetContext(ctx).Get("/users")
+
+	//for {}
 }

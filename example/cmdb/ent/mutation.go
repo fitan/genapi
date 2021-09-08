@@ -2557,6 +2557,7 @@ type UserMutation struct {
 	password         *string
 	email            *string
 	phone            *string
+	disable          *bool
 	create_time      *time.Time
 	update_time      *time.Time
 	clearedFields    map[string]struct{}
@@ -2807,6 +2808,42 @@ func (m *UserMutation) OldPhone(ctx context.Context) (v string, err error) {
 // ResetPhone resets all changes to the "phone" field.
 func (m *UserMutation) ResetPhone() {
 	m.phone = nil
+}
+
+// SetDisable sets the "disable" field.
+func (m *UserMutation) SetDisable(b bool) {
+	m.disable = &b
+}
+
+// Disable returns the value of the "disable" field in the mutation.
+func (m *UserMutation) Disable() (r bool, exists bool) {
+	v := m.disable
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDisable returns the old "disable" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldDisable(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldDisable is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldDisable requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDisable: %w", err)
+	}
+	return oldValue.Disable, nil
+}
+
+// ResetDisable resets all changes to the "disable" field.
+func (m *UserMutation) ResetDisable() {
+	m.disable = nil
 }
 
 // SetCreateTime sets the "create_time" field.
@@ -3073,7 +3110,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.name != nil {
 		fields = append(fields, user.FieldName)
 	}
@@ -3085,6 +3122,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.phone != nil {
 		fields = append(fields, user.FieldPhone)
+	}
+	if m.disable != nil {
+		fields = append(fields, user.FieldDisable)
 	}
 	if m.create_time != nil {
 		fields = append(fields, user.FieldCreateTime)
@@ -3108,6 +3148,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case user.FieldPhone:
 		return m.Phone()
+	case user.FieldDisable:
+		return m.Disable()
 	case user.FieldCreateTime:
 		return m.CreateTime()
 	case user.FieldUpdateTime:
@@ -3129,6 +3171,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldEmail(ctx)
 	case user.FieldPhone:
 		return m.OldPhone(ctx)
+	case user.FieldDisable:
+		return m.OldDisable(ctx)
 	case user.FieldCreateTime:
 		return m.OldCreateTime(ctx)
 	case user.FieldUpdateTime:
@@ -3169,6 +3213,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPhone(v)
+		return nil
+	case user.FieldDisable:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDisable(v)
 		return nil
 	case user.FieldCreateTime:
 		v, ok := value.(time.Time)
@@ -3265,6 +3316,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldPhone:
 		m.ResetPhone()
+		return nil
+	case user.FieldDisable:
+		m.ResetDisable()
 		return nil
 	case user.FieldCreateTime:
 		m.ResetCreateTime()

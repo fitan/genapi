@@ -121,6 +121,13 @@ func Phone(v string) predicate.User {
 	})
 }
 
+// Disable applies equality check predicate on the "disable" field. It's identical to DisableEQ.
+func Disable(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDisable), v))
+	})
+}
+
 // CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
 func CreateTime(v time.Time) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -590,6 +597,20 @@ func PhoneEqualFold(v string) predicate.User {
 func PhoneContainsFold(v string) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldPhone), v))
+	})
+}
+
+// DisableEQ applies the EQ predicate on the "disable" field.
+func DisableEQ(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDisable), v))
+	})
+}
+
+// DisableNEQ applies the NEQ predicate on the "disable" field.
+func DisableNEQ(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldDisable), v))
 	})
 }
 

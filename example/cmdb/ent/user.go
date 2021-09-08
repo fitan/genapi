@@ -26,6 +26,8 @@ type User struct {
 	// Phone holds the value of the "phone" field.
 	// 这是我的电话
 	Phone string `json:"phone,omitempty"`
+	// Disable holds the value of the "disable" field.
+	Disable bool `json:"disable,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime *time.Time `json:"create_time,omitempty"`
 	// UpdateTime holds the value of the "update_time" field.
@@ -86,6 +88,8 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldDisable:
+			values[i] = new(sql.NullBool)
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
 		case user.FieldName, user.FieldPassword, user.FieldEmail, user.FieldPhone:
@@ -138,6 +142,12 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field phone", values[i])
 			} else if value.Valid {
 				u.Phone = value.String
+			}
+		case user.FieldDisable:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field disable", values[i])
+			} else if value.Valid {
+				u.Disable = value.Bool
 			}
 		case user.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -210,6 +220,8 @@ func (u *User) String() string {
 	builder.WriteString(u.Email)
 	builder.WriteString(", phone=")
 	builder.WriteString(u.Phone)
+	builder.WriteString(", disable=")
+	builder.WriteString(fmt.Sprintf("%v", u.Disable))
 	if v := u.CreateTime; v != nil {
 		builder.WriteString(", create_time=")
 		builder.WriteString(v.Format(time.ANSIC))

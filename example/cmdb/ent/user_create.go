@@ -55,6 +55,12 @@ func (uc *UserCreate) SetPhone(s string) *UserCreate {
 	return uc
 }
 
+// SetDisable sets the "disable" field.
+func (uc *UserCreate) SetDisable(b bool) *UserCreate {
+	uc.mutation.SetDisable(b)
+	return uc
+}
+
 // SetCreateTime sets the "create_time" field.
 func (uc *UserCreate) SetCreateTime(t time.Time) *UserCreate {
 	uc.mutation.SetCreateTime(t)
@@ -224,6 +230,9 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Phone(); !ok {
 		return &ValidationError{Name: "phone", err: errors.New(`ent: missing required field "phone"`)}
 	}
+	if _, ok := uc.mutation.Disable(); !ok {
+		return &ValidationError{Name: "disable", err: errors.New(`ent: missing required field "disable"`)}
+	}
 	return nil
 }
 
@@ -282,6 +291,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldPhone,
 		})
 		_node.Phone = value
+	}
+	if value, ok := uc.mutation.Disable(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldDisable,
+		})
+		_node.Disable = value
 	}
 	if value, ok := uc.mutation.CreateTime(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

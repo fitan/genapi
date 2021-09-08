@@ -68,6 +68,12 @@ func (uu *UserUpdate) SetPhone(s string) *UserUpdate {
 	return uu
 }
 
+// SetDisable sets the "disable" field.
+func (uu *UserUpdate) SetDisable(b bool) *UserUpdate {
+	uu.mutation.SetDisable(b)
+	return uu
+}
+
 // SetUpdateTime sets the "update_time" field.
 func (uu *UserUpdate) SetUpdateTime(t time.Time) *UserUpdate {
 	uu.mutation.SetUpdateTime(t)
@@ -296,6 +302,13 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldPhone,
 		})
 	}
+	if value, ok := uu.mutation.Disable(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldDisable,
+		})
+	}
 	if uu.mutation.CreateTimeCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -512,6 +525,12 @@ func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 // SetPhone sets the "phone" field.
 func (uuo *UserUpdateOne) SetPhone(s string) *UserUpdateOne {
 	uuo.mutation.SetPhone(s)
+	return uuo
+}
+
+// SetDisable sets the "disable" field.
+func (uuo *UserUpdateOne) SetDisable(b bool) *UserUpdateOne {
+	uuo.mutation.SetDisable(b)
 	return uuo
 }
 
@@ -765,6 +784,13 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: user.FieldPhone,
+		})
+	}
+	if value, ok := uuo.mutation.Disable(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldDisable,
 		})
 	}
 	if uuo.mutation.CreateTimeCleared() {
