@@ -2,11 +2,11 @@ package log
 
 import (
 	"cmdb/pkg/trace"
-	"context"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestNewXlog(t *testing.T) {
@@ -21,7 +21,7 @@ func TestNewXlog(t *testing.T) {
 	}{
 		{
 			name:    "echo",
-			args: args{fs: []Option{WithTrace(trace.GetTr(), zapcore.DebugLevel)}},
+			args:    args{fs: []Option{WithTrace(zapcore.DebugLevel)}},
 			want:    nil,
 			wantErr: false,
 		},
@@ -30,8 +30,9 @@ func TestNewXlog(t *testing.T) {
 		t.Run(
 			tt.name, func(t *testing.T) {
 				got, err := NewXlog(tt.args.fs...)
-				got.TraceLog(context.Background(), "log test").Info("log hello", zap.String("an", "bo"))
-				got.Sync()
+				got.TraceLog(trace.GetTr(), "log test").Info("log hello", zap.String("an", "bo"))
+				time.Sleep(3 * time.Second)
+
 				if (err != nil) != tt.wantErr {
 					t.Errorf("NewXlog() error = %v, wantErr %v", err, tt.wantErr)
 					return

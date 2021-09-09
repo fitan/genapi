@@ -1,14 +1,11 @@
 package log
 
 import (
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 type Option func(xlog *Xlog)
-
-
 
 func WithLogger(logger *zap.Logger) Option {
 	return func(xlog *Xlog) {
@@ -16,20 +13,19 @@ func WithLogger(logger *zap.Logger) Option {
 	}
 }
 
-func WithTrace(tr trace.Tracer, level zapcore.Level) Option {
+func WithTrace(level zapcore.Level) Option {
 	return func(xlog *Xlog) {
-		xlog.tr = tr
 		xlog.traceLevel = level
 	}
 }
 
 func NewXlog(fs ...Option) (*Xlog, error) {
 	xlog := new(Xlog)
-	for _,f := range fs {
+	for _, f := range fs {
 		f(xlog)
 	}
 	if xlog.Logger == nil {
-		log,err := zap.NewProduction()
+		log, err := zap.NewProduction()
 		xlog.Logger = log
 		return xlog, err
 	}

@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"fmt"
 	"go.opentelemetry.io/otel/trace"
 
 	//"github.com/uber/jaeger-client-go/log/zap"
@@ -9,25 +10,23 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-
-
 type Xlog struct {
-	tr trace.Tracer
 	traceLevel zapcore.Level
 	*zap.Logger
 }
 
-func (x Xlog) TraceLog(ctx context.Context, spanName string) TraceLog {
-	//traceID := trace.SpanFromContext(ctx).SpanContext().TraceID().String()
-	hook := NewTraceHook(x.tr, ctx, spanName)
+func (x Xlog) TraceLog(ctx context.Context, spanName string) *TraceLog {
+	fmt.Println("ctx", ctx, "spanname ", spanName)
+	traceID := trace.SpanFromContext(ctx).SpanContext().TraceID().String()
+	hook := NewTraceHook(ctx, spanName)
 	traceCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), hook, x.traceLevel)
 	wrapCore := zap.WrapCore(
 		func(core zapcore.Core) zapcore.Core {
 			return zapcore.NewTee(core, traceCore)
 		})
-	return TraceLog{
+	return &TraceLog{
 		traceHook: hook,
-		Logger: x.Logger.WithOptions(wrapCore),
+		Logger:    x.Logger.WithOptions(wrapCore, zap.Fields(zap.String("traceID", traceID))),
 		//Logger: x.Logger.WithOptions(
 		//	wrapCore,
 		//	zap.Fields(zap.String("traceID", traceID))),
@@ -42,10 +41,6 @@ type TraceLog struct {
 func (t *TraceLog) GetSpanCtx() context.Context {
 	return t.traceHook.GetSpanCtx()
 }
-
-
-
-
 
 //var xlog *Xlog
 
