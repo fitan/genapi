@@ -2,6 +2,7 @@ package log
 
 import (
 	"cmdb/pkg/trace"
+	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"reflect"
@@ -30,7 +31,12 @@ func TestNewXlog(t *testing.T) {
 		t.Run(
 			tt.name, func(t *testing.T) {
 				got, err := NewXlog(tt.args.fs...)
-				got.TraceLog(trace.GetTr(), "log test").Info("log hello", zap.String("an", "bo"))
+				tl := got.TraceLog(trace.GetTrCxt(), "log test", trace.GetTp())
+				tl.Info("log hello", zap.String("an", "bo"))
+				err = tl.Sync()
+				if err != nil {
+					fmt.Println(err)
+				}
 				time.Sleep(3 * time.Second)
 
 				if (err != nil) != tt.wantErr {

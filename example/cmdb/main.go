@@ -1,20 +1,19 @@
 package main
 
 import (
+	log2 "cmdb/pkg/log"
 	"cmdb/pkg/trace"
 	"cmdb/public"
 	"cmdb/routers"
 	"context"
 	"fmt"
-	"github.com/asim/go-micro/plugins/client/http/v3"
 	_ "github.com/asim/go-micro/plugins/config/encoder/yaml/v3"
 	"github.com/asim/go-micro/plugins/registry/memory/v3"
 	httpServer "github.com/asim/go-micro/plugins/server/http/v3"
 	"github.com/asim/go-micro/plugins/wrapper/trace/opentracing/v3"
 	"github.com/asim/go-micro/v3"
-	"github.com/asim/go-micro/v3/client"
-	"github.com/asim/go-micro/v3/selector"
 	"github.com/asim/go-micro/v3/server"
+	"go.uber.org/zap"
 	"log"
 	"os"
 	"time"
@@ -101,7 +100,7 @@ func main() {
 	//
 	//client := httpclient.NewClient(httpclient.WithDebug(true),httpclient.WithTraceContext("call baidu ", ctx),httpclient.WithHost("http://localhost:8080"))
 	r := memory.NewRegistry()
-	s := selector.NewSelector(selector.Registry(r))
+	//s := selector.NewSelector(selector.Registry(r))
 
 
 	srv := httpServer.NewServer(
@@ -117,6 +116,8 @@ func main() {
 	}
 
 
+	l,_ := log2.NewXlog(log2.WithTrace(zap.InfoLevel))
+
 	//c := api.DefaultConfig()
 	//c.Address = "consul.default.10.170.34.122.xip.io:8080"
 	//registry := consul.NewRegistry(consul.Config(c))
@@ -125,23 +126,30 @@ func main() {
 	)
 	service.Init()
 	go func() {
-		err := service.Run()
-		if err != nil {
-			fmt.Println(err)
+		//c := http.NewClient(client.Selector(s),client.Wrap(opentracing.NewClientWrapper(jaegerTracer)))
+
+		time.Sleep(3 * time.Second)
+		for {
+			ctx  := trace.GetTrCxt()
+			tl := l.TraceLog(ctx, "htis is log", trace.GetTp())
+			tl.Info("第一次")
+			time.Sleep(3 * time.Second)
+			tl.Info("第二次")
+
+			//request := c.NewRequest(SERVER_NAME, "/users", "",  client.WithContentType("application/json"))
+			//response := new(map[string]interface{})
+			//c.Call(context.TODO(), request, response)
+			time.Sleep(5 * time.Second)
 		}
 	}()
+
+
+	err = service.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
 	//go routers.GetDefaultRouter().Run(public.GetConf().App.Host + ":" + public.GetConf().App.Port)
 
-
-	c := http.NewClient(client.Selector(s),client.Wrap(opentracing.NewClientWrapper(jaegerTracer)))
-
-	time.Sleep(3 * time.Second)
-	for {
-		request := c.NewRequest(SERVER_NAME, "/users", "",  client.WithContentType("application/json"), client.wit)
-		response := new(map[string]interface{})
-		c.Call(context.TODO(), request, response)
-		time.Sleep(5 * time.Second)
-	}
 
 
 	//client.R().SetContext(ctx).Get("/users")

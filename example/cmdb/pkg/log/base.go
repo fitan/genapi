@@ -2,7 +2,7 @@ package log
 
 import (
 	"context"
-	"fmt"
+	otelsdk "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
 
 	//"github.com/uber/jaeger-client-go/log/zap"
@@ -15,10 +15,9 @@ type Xlog struct {
 	*zap.Logger
 }
 
-func (x Xlog) TraceLog(ctx context.Context, spanName string) *TraceLog {
-	fmt.Println("ctx", ctx, "spanname ", spanName)
+func (x Xlog) TraceLog(ctx context.Context, spanName string, provider *otelsdk.TracerProvider) *TraceLog {
 	traceID := trace.SpanFromContext(ctx).SpanContext().TraceID().String()
-	hook := NewTraceHook(ctx, spanName)
+	hook := NewTraceHook(ctx, spanName, provider)
 	traceCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), hook, x.traceLevel)
 	wrapCore := zap.WrapCore(
 		func(core zapcore.Core) zapcore.Core {
@@ -38,9 +37,7 @@ type TraceLog struct {
 	*zap.Logger
 }
 
-func (t *TraceLog) GetSpanCtx() context.Context {
-	return t.traceHook.GetSpanCtx()
-}
+
 
 //var xlog *Xlog
 

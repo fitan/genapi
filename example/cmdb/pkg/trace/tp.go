@@ -2,7 +2,6 @@ package trace
 
 import (
 	"context"
-	"fmt"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -11,6 +10,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"log"
 )
 
@@ -56,9 +56,9 @@ func TracerProvider(serviceName string, url string) (*trace.TracerProvider, erro
 	return tp, nil
 }
 
-func Init() context.Context {
+func init()  {
 	var err error
-	tp, err = TracerProvider("demo", "http://localhost:14268/api/traces")
+	tp, err = TracerProvider("demo", "http://10.170.34.122:14268/api/traces")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,18 +68,29 @@ func Init() context.Context {
 	defer span.End()
 	tr = otel.Tracer("new-")
 	ctx, span = tr.Start(ctx, "bar")
-	fmt.Println("执行到 这里了")
 	defer span.End()
-	return ctx
 }
 
-func GetTr() context.Context {
+func GetTp() *trace.TracerProvider {
+	return tp
+}
+
+func GetTrCxt() context.Context {
 	StdTracerProvider()
-	tr := stdTp.Tracer("cmdb")
+	tr := tp.Tracer("cmdb")
 	ctx := context.Background()
 	ctx, span := tr.Start(ctx, "ent")
 	defer span.End()
-	tr = otel.Tracer("new_cmdb")
-	tr.Start(ctx, "fsdf")
+	tr = tp.Tracer("new_cmdb")
+	ctx, span = tr.Start(ctx, "fsdf")
+	span.End()
 	return ctx
+}
+
+func GetTr() oteltrace.Tracer {
+	tr := tp.Tracer("cmdb")
+	ctx := context.Background()
+	ctx, span := tr.Start(ctx, "ent")
+	defer span.End()
+	return tp.Tracer("new_cmdb")
 }

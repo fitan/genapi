@@ -3,30 +3,38 @@ package log
 import (
 	"context"
 	"fmt"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
+	otelsdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func NewTraceHook(ctx context.Context, spanName string) *TraceHook {
+func NewTraceHook(ctx context.Context, spanName string, provider *otelsdk.TracerProvider) *TraceHook {
 	return &TraceHook{
-		spanName: spanName,
-		ctx:      ctx,
+		traceOption: &TraceOption{
+			spanName: spanName,
+			ctx:      ctx,
+			tp:       provider,
+		},
 	}
 }
 
-type TraceHook struct {
+type TraceOption struct {
 	spanName string
 	ctx      context.Context
-	spanCtx  context.Context
+	tp *otelsdk.TracerProvider
+}
+
+type TraceHook struct {
+	traceOption *TraceOption
 }
 
 func (t TraceHook) Write(p []byte) (n int, err error) {
-	tr := otel.Tracer(t.spanName)
-	spanCtx, span := tr.Start(t.ctx, t.spanName, trace.WithAttributes(attribute.String("zap_log", string(p))))
-	defer span.End()
-	fmt.Println(span.IsRecording())
-	t.spanCtx = spanCtx
+	tr := t.traceOption.tp.Tracer("send log")
+	spanCtx, span := tr.Start(t.traceOption.ctx, t.traceOption.spanName)
+	fmt.Println(span.SpanContext().SpanID())
+	span.AddEvent(semconv.ExceptionEventName,trace.WithAttributes(semconv.ExceptionTypeKey.String("info"),semconv.ExceptionMessageKey.String(string(p))))
+	span.End()
+	t.traceOption.ctx = spanCtx
 	return 0, nil
 }
 
@@ -34,6 +42,4 @@ func (t TraceHook) Sync() error {
 	return nil
 }
 
-func (t TraceHook) GetSpanCtx() context.Context {
-	return t.spanCtx
-}
+

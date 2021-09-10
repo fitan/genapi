@@ -13,6 +13,15 @@ var log *xLog
 var logLock sync.Mutex
 var buildLog bool
 
+type SeverityHook struct{}
+
+func (h SeverityHook) Run(e *zerolog.Event, level zerolog.Level, msg string) {
+	if level != zerolog.NoLevel {
+		e.Str("severity", level.String())
+	}
+}
+
+
 func GetXLog() *xLog {
 	if log == nil {
 		logLock.Lock()
@@ -73,6 +82,7 @@ func NewXLog(dir string, mark string) *xLog {
 	}
 
 	l := zerolog.New(os.Stdout).With().Logger()
+
 	return &xLog{
 		infoLog:  l,
 		wainLog:  l,
