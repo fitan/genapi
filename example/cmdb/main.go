@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmdb/pkg/httpclient"
 	log2 "cmdb/pkg/log"
 	"cmdb/pkg/trace"
 	"cmdb/public"
@@ -116,7 +117,7 @@ func main() {
 	}
 
 
-	l,_ := log2.NewXlog(log2.WithTrace(zap.InfoLevel))
+	l,_ := log2.NewXlog(log2.WithTrace(trace.GetTp(),zap.InfoLevel))
 
 	//c := api.DefaultConfig()
 	//c.Address = "consul.default.10.170.34.122.xip.io:8080"
@@ -131,10 +132,14 @@ func main() {
 		time.Sleep(3 * time.Second)
 		for {
 			ctx  := trace.GetTrCxt()
-			tl := l.TraceLog(ctx, "htis is log", trace.GetTp())
+			tl := l.TraceLog(ctx,  "get")
 			tl.Info("第一次")
 			time.Sleep(3 * time.Second)
 			tl.Info("第二次")
+
+			tl.End()
+			cli := httpclient.NewClient(httpclient.WithHost("http://www.baidu.com"), httpclient.WithTrace(trace.GetTp(),"call baidu",true), httpclient.WithDebug(true))
+			cli.R().SetContext(tl.Context()).Get("/")
 
 			//request := c.NewRequest(SERVER_NAME, "/users", "",  client.WithContentType("application/json"))
 			//response := new(map[string]interface{})

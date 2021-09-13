@@ -2,14 +2,15 @@ package httpclient
 
 import (
 	"github.com/go-resty/resty/v2"
+	"go.opentelemetry.io/otel/sdk/trace"
 	"time"
-
-	"go.opentelemetry.io/otel"
 )
 
 type option struct {
 	Host string
 
+
+	Tp *trace.TracerProvider
 	TraceName string
 	// 记录所有的详细的http info, 否则只记录发生错误时的http info
 	TraceDebug bool
@@ -37,13 +38,12 @@ func NewClient(fs ...Option) *resty.Client {
 
 	client := resty.New().SetDebug(o.Debug).SetTimeout(o.TimeOut).SetRetryCount(o.RetryCount).SetRetryWaitTime(o.RetryWaitTime).SetRetryMaxWaitTime(o.RetryMaxWaitTime)
 	if o.TraceName != "" {
-		tr := otel.Tracer(o.TraceName)
 		client = client.EnableTrace()
 		client = client.OnBeforeRequest(BeforeTrace())
-		if o.Debug {
-			client = client.OnAfterResponse(AfterTraceDebug(tr))
+		if o.TraceDebug {
+			client = client.OnAfterResponse(AfterTraceDebug(o.Tp.Tracer(o.TraceName)))
 		} else {
-			client = client.OnError(ErrorTrace(tr))
+			client = client.OnError(ErrorTrace(o.Tp.Tracer(o.TraceName)))
 		}
 	}
 
@@ -53,8 +53,9 @@ func NewClient(fs ...Option) *resty.Client {
 	return client
 }
 
-func WithTrace(traceName string, traceDebug bool) func(o *option) {
+func WithTrace(tp *trace.TracerProvider,traceName string, traceDebug bool) func(o *option) {
 	return func(o *option) {
+		o.Tp = tp
 		o.TraceName = traceName
 		o.TraceDebug = traceDebug
 	}

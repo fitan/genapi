@@ -1,6 +1,7 @@
 package log
 
 import (
+	"go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -13,9 +14,10 @@ func WithLogger(logger *zap.Logger) Option {
 	}
 }
 
-func WithTrace(level zapcore.Level) Option {
+func WithTrace(tp *trace.TracerProvider,level zapcore.Level) Option {
 	return func(xlog *Xlog) {
 		xlog.traceLevel = level
+		xlog.tp = tp
 	}
 }
 

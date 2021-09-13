@@ -12,12 +12,13 @@ import (
 
 type Xlog struct {
 	traceLevel zapcore.Level
+	tp *otelsdk.TracerProvider
 	*zap.Logger
 }
 
-func (x Xlog) TraceLog(ctx context.Context, spanName string, provider *otelsdk.TracerProvider) *TraceLog {
+func (x Xlog) TraceLog(ctx context.Context, spanName string) *TraceLog {
 	traceID := trace.SpanFromContext(ctx).SpanContext().TraceID().String()
-	hook := NewTraceHook(ctx, spanName, provider)
+	hook := NewTraceHook(ctx, spanName, x.tp)
 	traceCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), hook, x.traceLevel)
 	wrapCore := zap.WrapCore(
 		func(core zapcore.Core) zapcore.Core {
@@ -35,6 +36,14 @@ func (x Xlog) TraceLog(ctx context.Context, spanName string, provider *otelsdk.T
 type TraceLog struct {
 	traceHook *TraceHook
 	*zap.Logger
+}
+
+func (t *TraceLog) Context() context.Context {
+	return t.traceHook.traceOption.spanCtx
+}
+
+func (t *TraceLog) End() {
+	t.traceHook.traceOption.span.End()
 }
 
 
