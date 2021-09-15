@@ -39,7 +39,7 @@ func NewClient(fs ...Option) *resty.Client {
 	client := resty.New().SetDebug(o.Debug).SetTimeout(o.TimeOut).SetRetryCount(o.RetryCount).SetRetryWaitTime(o.RetryWaitTime).SetRetryMaxWaitTime(o.RetryMaxWaitTime)
 	if o.TraceName != "" {
 		client = client.EnableTrace()
-		client = client.OnBeforeRequest(BeforeTrace())
+		client = client.OnBeforeRequest(BeforeTrace(o.Tp))
 		if o.TraceDebug {
 			client = client.OnAfterResponse(AfterTraceDebug(o.Tp.Tracer(o.TraceName)))
 		} else {

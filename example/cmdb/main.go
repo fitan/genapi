@@ -3,6 +3,7 @@ package main
 import (
 	"cmdb/pkg/httpclient"
 	log2 "cmdb/pkg/log"
+	"cmdb/pkg/log/zlog"
 	"cmdb/pkg/trace"
 	"cmdb/public"
 	"cmdb/routers"
@@ -14,8 +15,11 @@ import (
 	"github.com/asim/go-micro/plugins/wrapper/trace/opentracing/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/server"
+	"github.com/go-resty/resty/v2"
+	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 	"log"
+	"net/http"
 	"os"
 	"time"
 )
@@ -117,7 +121,9 @@ func main() {
 	}
 
 
-	l,_ := log2.NewXlog(log2.WithTrace(trace.GetTp(),zap.InfoLevel))
+
+	z := zlog.NewZlog(zlog.WithTrace(trace.GetTp(), zerolog.InfoLevel))
+	l := log2.NewXlog(log2.WithTrace(trace.GetTp(),zap.InfoLevel))
 
 	//c := api.DefaultConfig()
 	//c.Address = "consul.default.10.170.34.122.xip.io:8080"
@@ -132,14 +138,27 @@ func main() {
 		time.Sleep(3 * time.Second)
 		for {
 			ctx  := trace.GetTrCxt()
-			tl := l.TraceLog(ctx,  "get")
+
+			zl := z.TraceLog(ctx, "zlog get")
+			zl.Info().Str("an", "bo").Msg("zlog 第一次")
+			zl.Error().Str("bo", "wei").Msg("zlog 第二次")
+			zl.End()
+
+
+			tl := l.TraceLog(zl.Context(),  "xlog get")
 			tl.Info("第一次")
 			time.Sleep(3 * time.Second)
 			tl.Info("第二次")
+			tl.Error("错误")
 
 			tl.End()
-			cli := httpclient.NewClient(httpclient.WithHost("http://www.baidu.com"), httpclient.WithTrace(trace.GetTp(),"call baidu",true), httpclient.WithDebug(true))
-			cli.R().SetContext(tl.Context()).Get("/")
+			cli := httpclient.NewClient(httpclient.WithHost("http://www.baidu.com"), httpclient.WithTrace(trace.GetTp(),"call baidu",false), httpclient.WithTimeOut(3 * time.Second))
+			req := cli.R()
+			req.Method = resty.MethodGet
+			req.URL = "/abc"
+			req.URL
+			req.SetContext(tl.Context())
+			req.Send()
 
 			//request := c.NewRequest(SERVER_NAME, "/users", "",  client.WithContentType("application/json"))
 			//response := new(map[string]interface{})
