@@ -56,33 +56,3 @@ func (t *TraceLog) Error(msg string, fields ...zap.Field) {
 	t.traceHook.traceOption.span.SetStatus(codes.Error, "")
 	t.Logger.Error(msg, fields...)
 }
-
-
-
-
-//var xlog *Xlog
-
-//func NewLog()  {
-//
-//
-//	level := zap.DebugLevel
-//	core := zapcore.NewCore(
-//		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), // json格式日志（ELK渲染收集）
-//		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout)),  // 打印到控制台和文件
-//		level,                                                    // 日志级别
-//	)
-//
-//
-//	// 开启文件及行号
-//	development := zap.Development()
-//	Logger = zap.New(core,
-//		zap.AddCaller(),
-//		zap.AddStacktrace(zap.ErrorLevel),	// error级别日志，打印堆栈
-//		development)
-//	xlog = &Xlog{Logger}
-//}
-//
-//func TestLog()  {
-//	xlog.log.Debug("fdsdf")
-//	xlog.log.
-//}

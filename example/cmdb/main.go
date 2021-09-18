@@ -19,7 +19,6 @@ import (
 	"github.com/rs/zerolog"
 	"go.uber.org/zap"
 	"log"
-	"net/http"
 	"os"
 	"time"
 )
@@ -156,7 +155,6 @@ func main() {
 			req := cli.R()
 			req.Method = resty.MethodGet
 			req.URL = "/abc"
-			req.URL
 			req.SetContext(tl.Context())
 			req.Send()
 
