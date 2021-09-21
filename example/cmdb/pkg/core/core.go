@@ -2,69 +2,55 @@ package core
 
 import (
 	"cmdb/pkg/log"
-	"github.com/gin-gonic/gin"
 )
 
-type WrapFn func(core *Core)
+type Register interface {
+	Set(c *Core)
+	Unset(c *Core)
+}
 
+type Option func(c *Core)
+
+func WithInitRegister(rs ...Register) Option {
+	return func(c *Core) {
+		for _, r := range rs {
+			c.Register(r)
+		}
+	}
+}
 
 type Core struct {
-	Log     *log.Xlog
+	baseLog *log.Xlog
 
-	GinCtx  *gin.Context
+	objRegister []Register
 
-	Api     *Api
+	Log *log.Xlog
 
-	wrapMid []WrapFn
+	TraceLog *log.TraceLog
 
-	endBefor WrapFn
+	Api *Api
 
-	handlerData struct{
-		inData interface{}
-		outData interface{}
-		outErr error
+	Gin *Gin
+
+	Storage
+
+	releaseFn func(x interface{})
+}
+
+func (c *Core) Register(register Register) {
+	c.objRegister = append(c.objRegister, register)
+}
+
+func (c *Core) Init() {
+	for _, m := range c.objRegister {
+		m.Set(c)
+	}
+}
+
+func (c *Core) Release() {
+	for _, m := range c.objRegister {
+		m.Unset(c)
 	}
 
+	c.releaseFn(c)
 }
-
-func (c *Core) Execute() {
-	for _, wrapMid := range c.wrapMid {
-		wrapMid(c)
-	}
-
-	c.endBefor(c)
-}
-
-func (c *Core) SetGinCtx(ginCtx *gin.Context) {
-	c.GinCtx = ginCtx
-}
-
-func (c *Core) SetHandlerIn(in interface{})  {
-	c.handlerData.inData = in
-}
-
-func (c *Core) SetHandlerOut(data interface{}, err error) {
-	c.handlerData.outData = data
-	c.handlerData.outErr = err
-}
-
-func (c *Core) unsetHandlerData() {
-	c.handlerData.outData = nil
-	c.handlerData.outErr = nil
-	c.handlerData.inData = nil
-}
-
-func (c *Core) unsetGinCtx() {
-	c.GinCtx = nil
-}
-
-func (c *Core) UnSet() {
-	c.unsetGinCtx()
-	c.unsetHandlerData()
-	corePool.Put(c)
-}
-
-func GetCore() interface{} {
-	return corePool.Get()
-}
-
