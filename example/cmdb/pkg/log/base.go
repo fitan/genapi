@@ -18,23 +18,24 @@ type Xlog struct {
 
 func (x Xlog) TraceLog(ctx context.Context, spanName string) *TraceLog {
 	traceID := trace.SpanFromContext(ctx).SpanContext().TraceID().String()
-	hook := NewTraceHook(ctx, spanName, x.tp)
+	spanCtx, span := x.tp.Tracer(spanName).Start(ctx, spanName)
+	traceLog := new(TraceLog)
+	hook := NewTraceHook(traceLog)
 	traceCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), zapcore.AddSync(hook), x.traceLevel)
 	wrapCore := zap.WrapCore(
 		func(core zapcore.Core) zapcore.Core {
 			return zapcore.NewTee(core, traceCore)
 		})
-	return &TraceLog{
-		traceHook: hook,
-		Logger:    x.Logger.WithOptions(wrapCore, zap.Fields(zap.String("traceID", traceID))),
-		//Logger: x.Logger.WithOptions(
-		//	wrapCore,
-		//	zap.Fields(zap.String("traceID", traceID))),
-	}
+
+	traceLog.span = span
+	traceLog.ctx = spanCtx
+	traceLog.Logger = x.Logger.WithOptions(wrapCore, zap.Fields(zap.String("traceID", traceID)))
+	return traceLog
 }
 
 type TraceLog struct {
-	traceHook *TraceHook
+	span trace.Span
+	ctx context.Context
 	*zap.Logger
 }
 
@@ -44,15 +45,14 @@ func (t *TraceLog) With(fields ...zap.Field) {
 }
 
 func (t *TraceLog) Context() context.Context {
-	return t.traceHook.traceOption.spanCtx
+	return t.ctx
 }
 
 func (t *TraceLog) End() {
-	t.Sync()
-	t.traceHook.traceOption.span.End()
+	t.span.End()
 }
 
 func (t *TraceLog) Error(msg string, fields ...zap.Field) {
-	t.traceHook.traceOption.span.SetStatus(codes.Error, "")
+	t.span.SetStatus(codes.Error, "")
 	t.Logger.Error(msg, fields...)
 }

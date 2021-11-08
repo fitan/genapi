@@ -28,7 +28,7 @@ func WithBeforMid(ops ...GinMid) GinOption {
 	}
 }
 
-func WithResultWrap(ops ...Option) GinOption {
+func WithWrap(ops ...Option) GinOption {
 	wrap := make([]Option, 0, len(ops))
 	for _, o := range ops {
 		wrap = append(wrap, o)
@@ -43,12 +43,12 @@ func GinResultWrap(c *Core) {
 	if c.Gin.handlerData.outData != nil {
 		res.Msg = c.Gin.handlerData.err.Error()
 		res.Code = 5003
-		c.Gin.ctx.JSON(http.StatusInternalServerError, res)
+		c.Gin.GinContext.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
 	res.Code = 2000
-	c.Gin.ctx.JSON(http.StatusOK, res)
+	c.Gin.GinContext.JSON(http.StatusOK, res)
 }
 
 type result struct {
@@ -58,14 +58,14 @@ type result struct {
 }
 
 func GinTraceWrap(c *Core) {
-	l := c.Log.TraceLog(c.Gin.ctx.Request.Context(), "core trace")
+	l := c.Log.TraceLog("GinTraceWrap")
+	defer l.End()
 	inData, _ := json.Marshal(c.Gin.handlerData.inData)
 	outData, _ := json.Marshal(c.Gin.handlerData.outData)
 	zf := []zap.Field{zap.String("in", string(inData)), zap.String("out", string(outData))}
 	if c.Gin.handlerData.err != nil {
-		l.Error(c.Gin.handlerData.err.Error(), zap.String("in", string(inData)), zap.String("out", string(outData)))
+		l.Error(c.Gin.handlerData.err.Error(),zf...)
 	} else {
 		l.Info("handler info", zf...)
 	}
-	l.End()
 }

@@ -19,6 +19,9 @@ var gen_api_tmplV2 string
 //go:embed gin_api_template/register.tmpl
 var register_tmplV2 string
 
+//go:embed gin_api_template/transfer.tmpl
+var transfer_tmpl string
+
 //go:embed ent_fn_template/pkg_name.tmpl
 var pkg_name_tmpl string
 
@@ -37,7 +40,8 @@ func genApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 	}
 
 	for fileName, fileContext := range apiMap {
-		tpl, err := parse.Parse(gen_api_tmplV2)
+		tpl, err :=parse.Parse(transfer_tmpl)
+		//tpl, err := parse.Parse(gen_api_tmplV2)
 		if err != nil {
 			log.Fatalln(err.Error())
 		}

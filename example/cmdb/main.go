@@ -153,6 +153,7 @@ func main() {
 			tl.End()
 			cli := httpclient.NewClient(httpclient.WithHost("http://www.baidu.com"), httpclient.WithTrace(trace.GetTp(),"call baidu",false), httpclient.WithTimeOut(3 * time.Second))
 			req := cli.R()
+			req.SetBody()
 			req.Method = resty.MethodGet
 			req.URL = "/abc"
 			req.SetContext(tl.Context())

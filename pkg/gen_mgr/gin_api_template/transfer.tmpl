@@ -1,0 +1,98 @@
+{{template "pkg_name" $.PkgName}}
+import (
+	"github.com/gin-gonic/gin"
+	{{FuncImportUnique $.Funcs}}
+{{/*	{{range $index, $fc := $.Funcs}}*/}}
+{{/*	{{if $fc.Plugins.CallBack.Has}}*/}}
+{{/*	{{$fc.Plugins.CallBack.Template.ImportPath}}*/}}
+{{/*	{{end}}*/}}
+{{/*	{{range $tmp := $fc.Plugins.Point}}*/}}
+{{/*	{{if $tmp.Has}}*/}}
+{{/*	{{$tmp.BindAfter.ImportPath}}*/}}
+{{/*	{{$tmp.BindBefor.ImportPath}}*/}}
+{{/*	{{end}}*/}}
+{{/*	{{end}}*/}}
+{{/*	{{end}}*/}}
+)
+	
+
+
+{{range $index, $fc := $.Funcs}}
+{{if (and $fc.Bind.Body.Has (eq $fc.Bind.Body.QuoteType "struct")) }}
+type {{$fc.Bind.Body.SwagStructName}} {{$fc.Bind.Body.SwagRaw}}
+{{end}}
+{{if (and $fc.Bind.Query.Has (eq $fc.Bind.Query.QuoteType "struct")) }}
+type {{$fc.Bind.Query.SwagStructName}} {{$fc.Bind.Query.SwagRaw}}
+{{end}}	
+    
+type {{$fc.FuncName}}Transfer struct {
+}
+
+func (t *{{$fc.FuncName}}Transfer) Method() string {
+	return http.MethodGet
+}
+
+func (t *{{$fc.FuncName}}Transfer) Url() string {
+	return "/user"
+}
+
+func (t *{{$fc.FuncName}}Transfer) Binder() types.GinXBinder {
+	return new({{$fc.FuncName}}Binder)
+}
+
+type {{$fc.FuncName}}Binder struct {
+	val user.{{$fc.FuncName}}In
+}
+
+func (b *{{$fc.FuncName}}Binder) BindVal(core *types.Core) (interface{}, error) {
+	in := &{{$fc.ParamIn1}}{}
+	{{if $fc.Bind.Body.Has}}
+	err = core.GinX.GinCtx().ShouldBindJSON(&in.Body)
+	if err != nil {
+		return nil, err
+	}
+	{{end}}
+	{{if $fc.Bind.Uri.Has}}
+	err = core.GinX.GinCtx().ShouldBindUri(&in.Uri)
+	if err != nil {
+		return nil, err
+	}
+	{{end}}
+	{{if $fc.Bind.Header.Has}}
+	err = core.GinX.GinCtx().ShouldBindHeader(&in.Header)
+	if err != nil {
+		return nil, err
+	}
+	{{end}}
+	{{if $fc.Bind.Query.Has}}
+	err = core.GinX.GinCtx().ShouldBindQuery(&in.Query)
+	if err != nil {
+		return nil, err
+	}
+	{{end}}
+
+	return b.val, err
+}
+
+// @Accept  json
+// @Produce  json{{if $fc.Bind.Body.Has}}
+// @Param body body {{$fc.Bind.Body.SwagObj}} true "{{$fc.Bind.Body.Comment}} "
+{{- end}}{{if $fc.Bind.Query.Has}}
+// @Param query query {{$fc.Bind.Query.SwagObj}} false "{{$fc.Bind.Query.Comment}} "
+{{- end}}{{if $fc.Bind.Uri.Has}}
+{{- range $TagMsg := $fc.Bind.Uri.TagMsgs}}
+// @Param {{$TagMsg.TagValue}} path string true "{{$TagMsg.Comment}} "
+{{- end}}{{if $fc.Bind.Header.Has}}
+{{- range $TagMsg := $fc.Bind.Header.TagMsgs}}
+// @Param {{$TagMsg.TagValue}} header string false "{{$TagMsg.Comment}} "
+{{- end}}
+{{- end}}
+{{- end}}
+// @Success 200 {object} {{$.BaseConf.WrapResult.WrapResultType}}{data={{$fc.ResOut0}}}{{range $index, $comment := $fc.Comments}}
+{{$comment }}
+{{- end}}	
+func (b *{{$fc.FuncName}}Binder) BindFn(core *types.Core) (interface{}, error) {
+	return {{$fc.PkgName}}.{{$fc.FuncName}}(core, &b.val)
+}
+
+{{end}}

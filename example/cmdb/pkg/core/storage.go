@@ -1,46 +1,62 @@
 package core
 
 import (
+	"cmdb/ent"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
-	"time"
 )
-
-type StorageInterface interface {
-	Get(key string) (interface{}, error)
-	Update(key string) (interface{}, error)
-	Delete(key string) (interface{}, error)
-}
 
 type Storage struct {
 	core *Core
-	expiration time.Duration
-	db StorageInterface
-	cache *redis.Client
+	DB *ent.Client
+	Redis *redis.Client
 }
 
-func (s *Storage) Get(key string) (interface{}, error) {
-	data,err := s.cache.Get(s.core.TraceLog.Context(), key).Result()
-	if err != nil {
+func (s *Storage) Get(callBack func() (interface{}, error),key string) (interface{}, error) {
+	val,err := s.Redis.Get(s.core.TraceLog.Context(), key).Result()
+	switch {
+	case err == redis.Nil:
+		s.core.TraceLog.Info("key does not exist", zap.String("key", key))
+	case err != nil:
 		s.core.TraceLog.Error("redis get key error", zap.Error(err), zap.String("key", key))
-		return data, nil
+	default:
+		return val,err
 	}
-	return s.db.Get(key)
+	return callBack()
 }
 
-func (s *Storage) Update(key string, value string, expiration time.Duration) (interface{}, error) {
-	s.cache.GetSet()
-	s.cache.Set(s.core.TraceLog.Context(), key, value, expiration)
-	data, err := s.cache.(s.core.TraceLog.Context(), key).Result()
+func (s *Storage) Update(callBack func() (interface{}, error),key string) (interface{}, error) {
+	val, err := callBack()
 	if err != nil {
-		s.core.TraceLog.Error("redis update key error", zap.Error(err), zap.String("key", key))
-	} else {
-		return data, nil
+		s.core.TraceLog.Error("redis update callback error", zap.Error(err), zap.String("key", key))
+		return val, err
 	}
-	return s.db.Update(key)
+	
+	_, err = s.Redis.Del(s.core.TraceLog.Context(), key).Result()
+	switch {
+	case err == redis.Nil:
+		s.core.TraceLog.Info("redis update to delete key is nil")
+	case err != nil :
+		s.core.TraceLog.Error("redis update to delete key error", zap.Error(err), zap.String("key", key))
+	}
+	return val, nil
+
+
 }
 
-func (s *Storage) Delete(key string) (interface{}, error) {
-	data, err := s.cache.Get(s.core.TraceLog.Context(), key).Result()
+func (s *Storage) Delete(callBack func() (interface{}, error),key string) (interface{}, error) {
+	val, err := callBack()
+	if err != nil {
+		s.core.TraceLog.Error("redis delete error", zap.Error(err), zap.String("key", key))
+		return val, err
+	}
+	_,err = s.Redis.Del(s.core.TraceLog.Context(), key).Result()
+	switch  {
+	case err == redis.Nil:
+		s.core.TraceLog.Info("redis delete is nil")
+	case err != nil:
+		s.core.TraceLog.Error("redis delete error", zap.Error(err), zap.String("key", key))
+	}
+	return val, nil
 }
 

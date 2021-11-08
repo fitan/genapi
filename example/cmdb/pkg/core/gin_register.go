@@ -10,7 +10,7 @@ type BindHandlerInterface interface {
 }
 
 type Gin struct {
-	ctx         *gin.Context
+	*gin.Context
 	beforMid    []GinMid
 	afterMid    []GinMid
 	handlerData struct {
@@ -51,11 +51,11 @@ func (g *Gin) BindFn(core *Core, c *gin.Context, i BindHandlerInterface) {
 }
 
 func (g *Gin) setCtx(c *gin.Context) {
-	g.ctx = c
+	g.Context = c
 }
 
 func (g *Gin) Ctx() *gin.Context {
-	return g.ctx
+	return g.Context
 }
 
 func (g *Gin) setIn(data interface{}) {
@@ -109,11 +109,11 @@ type ginRegister struct {
 }
 
 func (g *ginRegister) Set(c *Core) {
-	c.Gin = NewGin(WithResultWrap(GinResultWrap, GinResultWrap))
+	c.Gin = NewGin(WithWrap(GinResultWrap, GinTraceWrap))
 }
 
 func (g *ginRegister) Unset(c *Core) {
-	c.Gin.ctx = nil
+	c.Gin.Context = nil
 	c.Gin.handlerData.inData = nil
 	c.Gin.handlerData.outData = nil
 	c.Gin.handlerData.err = nil

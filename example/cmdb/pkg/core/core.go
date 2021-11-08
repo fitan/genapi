@@ -2,6 +2,7 @@ package core
 
 import (
 	"cmdb/pkg/log"
+	"context"
 )
 
 type Register interface {
@@ -20,19 +21,22 @@ func WithInitRegister(rs ...Register) Option {
 }
 
 type Core struct {
-	baseLog *log.Xlog
+
+	Log *CoreLog
+
 
 	objRegister []Register
 
-	Log *log.Xlog
+	//Log *log.Xlog
 
 	TraceLog *log.TraceLog
 
-	Api *Api
 
 	Gin *Gin
 
-	Storage
+	Storage *Storage
+
+	Ctx context.Context
 
 	releaseFn func(x interface{})
 }

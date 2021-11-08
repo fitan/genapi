@@ -8,6 +8,22 @@ import (
 
 var xlog *log.Xlog
 
+type CoreLog struct {
+	core *Core
+	xlog *log.Xlog
+}
+
+func (c *CoreLog) TraceLog(spanName string) *log.TraceLog {
+	if c.core.TraceLog == nil {
+		c.core.TraceLog = c.xlog.TraceLog(c.core.Ctx, spanName)
+		return c.core.TraceLog
+	} else {
+		c.core.TraceLog = c.xlog.TraceLog(c.core.TraceLog.Context(), spanName)
+		return c.core.TraceLog
+	}
+}
+
+
 func NewXlog() *log.Xlog {
 	if xlog != nil {
 		return xlog
@@ -19,7 +35,10 @@ type logRegister struct {
 }
 
 func (l logRegister) Set(c *Core) {
-	c.Log = NewXlog()
+	c.Log = &CoreLog{
+		core: c,
+		xlog: NewXlog(),
+	}
 }
 
 func (l logRegister) Unset(c *Core) {
