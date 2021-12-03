@@ -2,6 +2,8 @@
 import (
 	"github.com/gin-gonic/gin"
 	{{FuncImportUnique $.Funcs}}
+	"net/http"
+
 {{/*	{{range $index, $fc := $.Funcs}}*/}}
 {{/*	{{if $fc.Plugins.CallBack.Has}}*/}}
 {{/*	{{$fc.Plugins.CallBack.Template.ImportPath}}*/}}
@@ -29,11 +31,11 @@ type {{$fc.FuncName}}Transfer struct {
 }
 
 func (t *{{$fc.FuncName}}Transfer) Method() string {
-	return http.MethodGet
+	return http.Method{{$fc.Router.Method}}
 }
 
 func (t *{{$fc.FuncName}}Transfer) Url() string {
-	return "/user"
+	return "{{$fc.Router.GinPath}}"
 }
 
 func (t *{{$fc.FuncName}}Transfer) Binder() types.GinXBinder {
@@ -41,11 +43,12 @@ func (t *{{$fc.FuncName}}Transfer) Binder() types.GinXBinder {
 }
 
 type {{$fc.FuncName}}Binder struct {
-	val user.{{$fc.FuncName}}In
+	val *{{$fc.ParamIn1}}
 }
 
-func (b *{{$fc.FuncName}}Binder) BindVal(core *types.Core) (interface{}, error) {
+func (b *{{$fc.FuncName}}Binder) BindVal(core *types.Core) (res interface{},err error) {
 	in := &{{$fc.ParamIn1}}{}
+	b.val = in
 	{{if $fc.Bind.Body.Has}}
 	err = core.GinX.GinCtx().ShouldBindJSON(&in.Body)
 	if err != nil {
@@ -70,6 +73,12 @@ func (b *{{$fc.FuncName}}Binder) BindVal(core *types.Core) (interface{}, error) 
 		return nil, err
 	}
 	{{end}}
+	{{if $fc.Bind.CtxKey.Has}}
+	err = ginbind.BindCtxKey(core.GinX.GinCtx(), &in.CtxKey)
+	if err != nil {
+		return nil, err
+	}
+    {{end}}
 
 	return b.val, err
 }
@@ -92,7 +101,7 @@ func (b *{{$fc.FuncName}}Binder) BindVal(core *types.Core) (interface{}, error) 
 {{$comment }}
 {{- end}}	
 func (b *{{$fc.FuncName}}Binder) BindFn(core *types.Core) (interface{}, error) {
-	return {{$fc.PkgName}}.{{$fc.FuncName}}(core, &b.val)
+	return {{$fc.PkgName}}.{{$fc.FuncName}}(core, b.val)
 }
 
 {{end}}

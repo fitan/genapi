@@ -1,0 +1,15 @@
+{{template "pkg_name" $.PkgName}}
+import (
+    "github.com/fitan/magic/pkg/core"
+    "github.com/fitan/magic/pkg/ginx"
+    "github.com/gin-gonic/gin"
+)
+
+
+{{range $key,$funcs := $.ReginsterMap}}
+func Register{{pascal $key}}(r gin.IRouter, reg *ginx.GinXHandlerRegister) {
+	{{range $func := $funcs}}
+    reg.Register(r, &{{$func.FuncName}}Transfer{},ginx.WithHandlerName("{{$func.FuncName}}"))
+	{{end}}
+}
+{{end}}

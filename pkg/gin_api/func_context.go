@@ -63,4 +63,7 @@ type Bind struct {
 		Has     bool
 		TagMsgs []TagMsg
 	}
+	CtxKey struct{
+		Has bool
+	}
 }

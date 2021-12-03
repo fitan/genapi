@@ -201,6 +201,9 @@ func (c *FileContext) ParseBind(inPkg *packages.Package, inFile *ast.File, funcN
 			case "Header":
 				bind.Header.Has = true
 				bind.Header.TagMsgs = FindTagAndCommentByField(inPkg, inFile, field, "header")
+			case "CtxKey":
+				bind.CtxKey.Has = true
+
 			}
 		}
 	}
@@ -262,7 +265,7 @@ func (c *FileContext) ApiMark2SwagRouter(fields []string) (Router, string) {
 		fields[2] = path.Join("/"+routerGroupKey, fields[2])
 	}
 	return Router{
-		Method:         strings.ToUpper(method[1 : len(method)-1]),
+		Method:        strings.ToUpper(method[1: 2]) + method[2 : len(method)-1],
 		GenMarkPath:    GenMarkPath,
 		GinPath:        ginPath,
 		TsPath:         TsPath,
