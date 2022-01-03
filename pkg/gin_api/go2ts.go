@@ -348,6 +348,175 @@ func (e *ExtractStruct2Ts) AddPendNodes(pkg *packages.Package, file *ast.File, n
 		return true
 	}
 }
+func (e *ExtractStruct2Ts) SpliceTypeV2() bool {
+	replace := false
+	newNode := astutil.Apply(e.TempNodeInfo.Node, func(c *astutil.Cursor) bool {
+		switch t := c.Node().(type) {
+		case *ast.Field:
+
+			//匿名字段
+			if t.Names == nil {
+				switch tt := t.Type.(type) {
+				case *ast.SelectorExpr:
+					log.Printf("FindPkgBySelector.pkgName: %v, filePath: %v, type: %v", e.TempNodeInfo.Pkg.Name, GetFileNameByPos(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File.Pos()), Node2String(e.TempNodeInfo.Pkg.Fset, tt))
+					findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, tt)
+					log.Printf("FindTypeByName: %v", Node2String(e.TempNodeInfo.Pkg.Fset, tt))
+					findFile, findTs := FindTypeByName(findPkg, tt.Sel.Name)
+					//e.AddPendNodes(findPkg, findFile, findTs)
+					//if e.TempNodeInfo.Pkg.PkgPath != findPkg.PkgPath {
+					//	e.MergePkg(findPkg)
+					//	e.TempNodeInfo.File.Imports = append(e.TempNodeInfo.File.Imports, findFile.Imports...)
+					//}
+					_, ok := findTs.Type.(*ast.StructType)
+					if ok {
+						e.AddPendNodes(findPkg, findFile, findTs)
+						tmpField := &ast.Field{
+							Doc:     t.Doc,
+							Names:   []*ast.Ident{ast.NewIdent(tt.Sel.Name)},
+							Type:    ast.NewIdent(tt.Sel.Name),
+							Tag:     t.Tag,
+							Comment: t.Comment,
+						}
+						//t.Type = ast.NewIdent(tt.Sel.Name)
+
+						c.Replace(tmpField)
+						//for _, f := range structType.Fields.List {
+						//	c.InsertBefore(f)
+						//}
+						//c.Delete()
+						//replace = true
+						return false
+						//return false
+					}
+					ct := t
+					ident := ast.NewIdent(findTs.Name.Name)
+					ident.Obj = ast.NewObj(ast.Var, findTs.Name.Name)
+					ct.Names = []*ast.Ident{ident}
+					ct.Type = findTs.Type
+					ct.Doc = findTs.Doc
+					c.Replace(ct)
+					replace = true
+					return false
+
+				case *ast.Ident:
+					findFile, findTs := FindTypeByName(e.TempNodeInfo.Pkg, tt.Name)
+					_, ok := findTs.Type.(*ast.StructType)
+					if ok {
+						e.AddPendNodes(e.TempNodeInfo.Pkg, findFile, findTs)
+						return false
+						//for _, f := range structType.Fields.List {
+						//	c.InsertBefore(f)
+						//}
+						//c.Delete()
+						//replace = true
+						//return false
+					}
+					ct := t
+					ident := ast.NewIdent(findTs.Name.Name)
+					ident.Obj = ast.NewObj(ast.Var, findTs.Name.Name)
+					ct.Names = []*ast.Ident{ident}
+					ct.Type = findTs.Type
+					ct.Doc = findTs.Doc
+					c.Replace(ct)
+					replace = true
+					return false
+					//case *ast.SelectorExpr:
+					//	_, findTs := findtype
+					//
+				}
+			}
+
+			if t.Tag == nil {
+				return false
+			}
+
+			if tags, ok := reflect.StructTag(t.Tag.Value[1 : len(t.Tag.Value)-1]).Lookup("json"); ok {
+				for _, tag := range strings.Split(tags, ",") {
+					if tag == "-" {
+						return false
+					}
+				}
+			}
+			return true
+
+		case *ast.Ident:
+			if t.Obj != nil {
+				if t.Obj.Kind.String() == "type" {
+					f, findTs := FindTypeByName(e.TempNodeInfo.Pkg, t.Name)
+					if _, ok := findTs.Type.(*ast.StructType); ok {
+						e.AddPendNodes(e.TempNodeInfo.Pkg, f, findTs)
+						return false
+					}
+					//e.TempNodeInfo.File.Imports = append(e.TempNodeInfo.File.Imports, f.Imports...)
+					replace = true
+					c.Replace(findTs.Type)
+				}
+			} else {
+				if !JudgeBuiltInType(t.Name) {
+					log.Printf("findtypeByName. pkgName: %v, typeName: %v.", e.TempNodeInfo.Pkg.Name, t.Name)
+					f, findTs := FindTypeByName(e.TempNodeInfo.Pkg, t.Name)
+					if _, ok := findTs.Type.(*ast.StructType); ok {
+						e.AddPendNodes(e.TempNodeInfo.Pkg, f, findTs)
+						return false
+					}
+					//e.TempNodeInfo.File.Imports = append(e.TempNodeInfo.File.Imports, f.Imports...)
+					replace = true
+					c.Replace(findTs.Type)
+				}
+			}
+		case *ast.SelectorExpr:
+			if n := e.selectorCover(t); n != nil {
+				c.Replace(n)
+				return false
+			}
+
+			fmt.Println(t.End()+t.Pos(), Node2String(e.TempNodeInfo.Pkg.Fset, t))
+			//if t.End() + t.Pos() == 6 {
+			//	fmt.Println(t.End()+t.Pos(), Node2String(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File))
+			//}
+
+			var findPkg *packages.Package
+
+			if e.TempNodeInfo.Pkg.Name != t.X.(*ast.Ident).Name {
+				findPkg = FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, t)
+				if findPkg == nil {
+					log.Fatalln("file: ", e.TempNodeInfo.File.Name.Name, " type: ", Node2String(e.TempNodeInfo.Pkg.Fset, t))
+				}
+				//e.MergePkg(findPkg)
+			} else {
+				findPkg = e.TempNodeInfo.Pkg
+			}
+
+			//fmt.Println("this pkg name: ", e.TempNodeInfo.Pkg.Name)
+			//findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, t)
+
+			//fmt.Println("find need merge pkg: ", e.TempNodeInfo.Pkg.Name, t.X.(*ast.Ident).Name,t.Sel.Name)
+			//fmt.Println(Node2String(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File))
+			//e.MergePkg(findPkg)
+			FindFile, findTs := FindTypeByName(findPkg, t.Sel.Name)
+			if _, ok := findTs.Type.(*ast.StructType); ok {
+				e.AddPendNodes(findPkg, FindFile, findTs)
+				tmpNode := ast.NewIdent(t.Sel.Name)
+				c.Replace(tmpNode)
+				return false
+			}
+			replace = true
+			//fmt.Println("replace selector: ", Node2String(e.TempNodeInfo.Pkg.Fset, findTs.Type))
+			c.Replace(findTs.Type)
+			//fmt.Println("replace after: ", Node2String(e.TempNodeInfo.Pkg.Fset, c.Node()))
+			//fmt.Println("echo file: ", Node2String(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File))
+			return false
+		}
+
+		return true
+	}, func(c *astutil.Cursor) bool {
+		return true
+	})
+	fmt.Println(Node2String(e.TempNodeInfo.Pkg.Fset, newNode))
+	//fmt.Println("new node: ", Node2String(e.TempNodeInfo.Pkg.Fset,newNode))
+	e.TempNodeInfo.Node = newNode
+	return replace
+}
 
 func (e *ExtractStruct2Ts) SpliceType() bool {
 	replace := false
@@ -513,20 +682,28 @@ func (e *ExtractStruct2Ts) selectorCover(expr *ast.SelectorExpr) *ast.Ident {
 }
 
 func (e *ExtractStruct2Ts) Parse() {
+	//e.TempNodeInfo = e.EnterType
+	//ok := e.SpliceType()
+	//for ok {
+	//	ok = e.SpliceType()
+	//}
+	//e.EnterType = e.TempNodeInfo
+	//
+	//for e.Pend2Temp() {
+	//	ok := e.SpliceType()
+	//	for ok {
+	//		ok = e.SpliceType()
+	//	}
+	//	e.Temp2ResolveNodes()
+	//}
+
 	e.TempNodeInfo = e.EnterType
-	//e.SpliceType()
-	ok := e.SpliceType()
-	for ok {
-		ok = e.SpliceType()
-	}
+	e.SpliceTypeV2()
+
 	e.EnterType = e.TempNodeInfo
-	//e.Temp2ResolveNodes()
 
 	for e.Pend2Temp() {
-		ok := e.SpliceType()
-		for ok {
-			ok = e.SpliceType()
-		}
+		e.SpliceTypeV2()
 		e.Temp2ResolveNodes()
 	}
 }

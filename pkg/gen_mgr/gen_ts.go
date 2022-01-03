@@ -15,7 +15,8 @@ import (
 
 // go:embed ts_template/client.tmpl
 // go:embed ts_template/angular_http.tmpl
-// go:embed ts_template/client.tmpl
+
+//go:embed ts_template/client.tmpl
 var gen_ts_client_tmpl string
 
 func genTs(apiMap map[string]*gen_apiV2.FileContext, baseConf public.BaseConf, dest string, prefix string) {

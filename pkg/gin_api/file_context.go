@@ -8,8 +8,7 @@ import (
 	"go/types"
 	"golang.org/x/tools/go/packages"
 	"log"
-	"net/http"
-	_ "net/http/pprof"
+	//_ "net/http/pprof"
 	"path"
 	"strings"
 )
@@ -47,11 +46,11 @@ func (c *FileContext) Parse(option ParseOption) {
 }
 
 func (c *FileContext) Func2Ts() {
-	go func() {
-		if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
-			panic(err)
-		}
-	}()
+	//go func() {
+	//	if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
+	//		panic(err)
+	//	}
+	//}()
 
 	pendNodeRecord := make(map[string]struct{}, 0)
 	for index, _ := range c.Funcs {
