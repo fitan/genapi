@@ -320,6 +320,7 @@ func FindStructByExpr(pkg *packages.Package, file *ast.File, expr ast.Expr) (*pa
 		return pkg, findFile, findType, findStruct
 	// struct 是selector类型， 在另外的pkg里面
 	case *ast.SelectorExpr:
+		log.Printf("find import path. path: %v, pkgName: %v, file: %v, typeName: %v", pkg.PkgPath, pkg.Name, GetFileNameByPos(pkg.Fset, file.Pos()), Node2String(pkg.Fset, t))
 		path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
 		findPkg := pkg.Imports[path]
 		findFile, findType, findStruct := FindStructTypeByName(findPkg, t.Sel.Name)
@@ -339,7 +340,9 @@ func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
 }
 
 func FindPkgBySelector(pkg *packages.Package, file *ast.File, selector *ast.SelectorExpr) *packages.Package {
+	log.Printf("find import path. path: %v, pkgName: %v, file: %v, typeName: %v", pkg.PkgPath, pkg.Name, GetFileNameByPos(pkg.Fset, file.Pos()), Node2String(pkg.Fset, selector))
 	path := FindImportPath(file.Imports, selector.X.(*ast.Ident).Name)
+	log.Println("find import path: ", path)
 	return pkg.Imports[path]
 }
 
@@ -444,10 +447,9 @@ func SpliceType(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 			if t.X.(*ast.Ident).Name == "time" && t.Sel.Name == "Time" {
 				return false
 			}
+			log.Printf("find import path. path: %v, pkgName: %v, file: %v, typeName: %v", pkg.PkgPath, pkg.Name, GetFileNameByPos(pkg.Fset, file.Pos()), Node2String(pkg.Fset, t))
 			path := FindImportPath(file.Imports, t.X.(*ast.Ident).Name)
-			fmt.Println("file name: ", file.Name, "find pkg path: ", t.X.(*ast.Ident).Name)
 			findPkg := pkg.Imports[path]
-			fmt.Println("find pkg : ", path)
 			if findPkg.Imports != nil {
 				for index, importPath := range findPkg.Imports {
 					pkg.Imports[index] = importPath
@@ -456,6 +458,7 @@ func SpliceType(pkg *packages.Package, file *ast.File, node ast.Node) bool {
 			for _, synx := range findPkg.Syntax {
 				pkg.Syntax = append(pkg.Syntax, synx)
 			}
+			fmt.Printf("FindTypeByName: %v", Node2String(pkg.Fset, t))
 			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
 			file.Imports = append(file.Imports, f.Imports...)
 

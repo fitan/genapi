@@ -30,6 +30,7 @@ func getIdent(s string) string {
 
 	return s
 }
+
 //func writeType(s *strings.Builder, t ast.Expr, depth int, optionalParens bool) {
 //	switch t := t.(type) {
 //	case *ast.StarExpr:
@@ -146,7 +147,7 @@ func writeFields(s *strings.Builder, fields []*ast.Field, depth int) {
 
 		if f.Doc != nil {
 			for _, m := range f.Doc.List {
-				s.WriteString( Indent + m.Text)
+				s.WriteString(Indent + m.Text)
 				s.WriteString("\n")
 				fmt.Println("doc: ", m.Text)
 			}
@@ -213,7 +214,7 @@ func writeFields(s *strings.Builder, fields []*ast.Field, depth int) {
 
 		s.WriteString(": ")
 
-		writeType(s, f.Type, depth )
+		writeType(s, f.Type, depth)
 
 		s.WriteString(";\n")
 	}
@@ -226,7 +227,7 @@ func Convert(s string) string {
 	}
 
 	var f ast.Node
-	f, err := parser.ParseExprFrom(token.NewFileSet(), "editor.go", s, parser.SpuriousErrors | parser.ParseComments)
+	f, err := parser.ParseExprFrom(token.NewFileSet(), "editor.go", s, parser.SpuriousErrors|parser.ParseComments)
 	if err != nil {
 		s = fmt.Sprintf(`package main
 func main() {
@@ -312,6 +313,7 @@ func (e *ExtractStruct2Ts) Temp2ResolveNodes() {
 
 func (e *ExtractStruct2Ts) MergePkg(pkg *packages.Package) {
 	log.Println("mergePkg", pkg)
+	log.Printf("merge imports: %v, syntax: %v", len(e.TempNodeInfo.Pkg.Imports), len(e.TempNodeInfo.Pkg.Syntax))
 	if pkg.Imports != nil {
 		for index, importPath := range pkg.Imports {
 			e.TempNodeInfo.Pkg.Imports[index] = importPath
@@ -321,6 +323,7 @@ func (e *ExtractStruct2Ts) MergePkg(pkg *packages.Package) {
 		if e.TempNodeInfo.Pkg.PkgPath != pkg.PkgPath {
 			for _, synx := range pkg.Syntax {
 				e.TempNodeInfo.Pkg.Syntax = append(e.TempNodeInfo.Pkg.Syntax, synx)
+				//e.TempNodeInfo.Pkg.Syntax = append(e.TempNodeInfo.Pkg.Syntax, synx)
 			}
 		}
 	} else {
@@ -355,10 +358,13 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 			if t.Names == nil {
 				switch tt := t.Type.(type) {
 				case *ast.SelectorExpr:
+					log.Printf("FindPkgBySelector.pkgName: %v, filePath: %v, type: %v", e.TempNodeInfo.Pkg.Name, GetFileNameByPos(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File.Pos()), Node2String(e.TempNodeInfo.Pkg.Fset, tt))
 					findPkg := FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, tt)
-					_, findTs := FindTypeByName(findPkg, tt.Sel.Name)
-					if e.TempNodeInfo.Pkg.Name != findPkg.Name {
+					log.Printf("FindTypeByName: %v", Node2String(e.TempNodeInfo.Pkg.Fset, tt))
+					findFile, findTs := FindTypeByName(findPkg, tt.Sel.Name)
+					if e.TempNodeInfo.Pkg.PkgPath != findPkg.PkgPath {
 						e.MergePkg(findPkg)
+						e.TempNodeInfo.File.Imports = append(e.TempNodeInfo.File.Imports, findFile.Imports...)
 					}
 					structType, ok := findTs.Type.(*ast.StructType)
 					if ok {
@@ -381,7 +387,7 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 
 				case *ast.Ident:
 					_, findTs := FindTypeByName(e.TempNodeInfo.Pkg, tt.Name)
-					structType,ok := findTs.Type.(*ast.StructType)
+					structType, ok := findTs.Type.(*ast.StructType)
 					if ok {
 						for _, f := range structType.Fields.List {
 							c.InsertBefore(f)
@@ -432,6 +438,7 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 				}
 			} else {
 				if !JudgeBuiltInType(t.Name) {
+					log.Printf("findtypeByName. pkgName: %v, typeName: %v.", e.TempNodeInfo.Pkg.Name, t.Name)
 					f, findTs := FindTypeByName(e.TempNodeInfo.Pkg, t.Name)
 					if _, ok := findTs.Type.(*ast.StructType); ok {
 						e.AddPendNodes(e.TempNodeInfo.Pkg, f, findTs)
@@ -457,6 +464,9 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 
 			if e.TempNodeInfo.Pkg.Name != t.X.(*ast.Ident).Name {
 				findPkg = FindPkgBySelector(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, t)
+				if findPkg == nil {
+					log.Fatalln("file: ", e.TempNodeInfo.File.Name.Name, " type: ", Node2String(e.TempNodeInfo.Pkg.Fset, t))
+				}
 				e.MergePkg(findPkg)
 			} else {
 				findPkg = e.TempNodeInfo.Pkg
@@ -468,9 +478,9 @@ func (e *ExtractStruct2Ts) SpliceType() bool {
 			//fmt.Println("find need merge pkg: ", e.TempNodeInfo.Pkg.Name, t.X.(*ast.Ident).Name,t.Sel.Name)
 			//fmt.Println(Node2String(e.TempNodeInfo.Pkg.Fset, e.TempNodeInfo.File))
 			//e.MergePkg(findPkg)
-			f, findTs := FindTypeByName(findPkg, t.Sel.Name)
+			FindFile, findTs := FindTypeByName(findPkg, t.Sel.Name)
 			if _, ok := findTs.Type.(*ast.StructType); ok {
-				e.AddPendNodes(findPkg, f, findTs)
+				e.AddPendNodes(findPkg, FindFile, findTs)
 				tmpNode := ast.NewIdent(t.Sel.Name)
 				c.Replace(tmpNode)
 				return false

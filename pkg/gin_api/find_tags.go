@@ -1,7 +1,7 @@
 package gen_apiV2
 
 import (
-	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"go/ast"
 	"go/types"
 	"golang.org/x/tools/go/packages"
@@ -53,17 +53,19 @@ func TrimImport(s string) string {
 func FindImportPath(importSpecs []*ast.ImportSpec, target string) string {
 	for _, importSpec := range importSpecs {
 		if importSpec.Name != nil {
-			fmt.Println("import name: ", importSpec.Name.Name, "import path: ", importSpec.Path.Value)
+			//log.Println("import name: ", importSpec.Name.Name, "import path: ", importSpec.Path.Value)
 			if importSpec.Name.Name == target {
 				return TrimImport(importSpec.Path.Value)
 			}
 		} else {
-			fmt.Println("import name: ", nil, "import path: ", importSpec.Path.Value)
+			//log.Println("import name: ", nil, "import path: ", importSpec.Path.Value)
 			if target == path.Base(TrimImport(importSpec.Path.Value)) {
 				return TrimImport(importSpec.Path.Value)
 			}
 		}
 	}
+	spew.Dump(importSpecs)
+	log.Fatalln("not find import path: ", target)
 	return ""
 }
 
@@ -81,6 +83,7 @@ func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName s
 					switch structType := t.(type) {
 					// remote pkg
 					case *ast.SelectorExpr:
+						log.Printf("find import path. path: %v, pkgName: %v, file: %v, typeName: %v", pkg.PkgPath, pkg.Name, GetFileNameByPos(pkg.Fset, file.Pos()), Node2String(pkg.Fset, t))
 						importPath := FindImportPath(file.Imports, structType.X.(*ast.Ident).Name)
 						remotePkg := pkg.Imports[importPath]
 						remoteFile, _, st := FindStructTypeByName(remotePkg, structType.Sel.Name)
@@ -133,13 +136,17 @@ func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, 
 }
 
 func FindTypeByName(pkg *packages.Package, TypeName string) (*ast.File, *ast.TypeSpec) {
+	log.Printf("findtypeByName pkgPath: %v, typeName: %v", pkg.PkgPath, TypeName)
 	var f *ast.File
 	var t *ast.TypeSpec
+	has := false
 	for _, file := range pkg.Syntax {
-		has := false
 		ast.Inspect(file, func(node ast.Node) bool {
 			ts, ok := node.(*ast.TypeSpec)
 			if ok {
+				//if TypeName == "Time" {
+				//	log.Printf("Typespec Name: %v", ts.Name.Name)
+				//}
 				if ts.Name.Name == TypeName {
 					has = true
 					f = file
@@ -147,11 +154,17 @@ func FindTypeByName(pkg *packages.Package, TypeName string) (*ast.File, *ast.Typ
 					return false
 				}
 			}
-			if has {
-				return false
-			}
+			//if has {
+			//	return false
+			//}
 			return true
 		})
+		if has {
+			return f, t
+		}
+	}
+	if f == nil || t == nil {
+		log.Panicln("not find type by name. pkg: " + pkg.Name + " typeName: " + TypeName)
 	}
 	return f, t
 }

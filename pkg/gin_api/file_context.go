@@ -8,6 +8,8 @@ import (
 	"go/types"
 	"golang.org/x/tools/go/packages"
 	"log"
+	"net/http"
+	_ "net/http/pprof"
 	"path"
 	"strings"
 )
@@ -45,6 +47,12 @@ func (c *FileContext) Parse(option ParseOption) {
 }
 
 func (c *FileContext) Func2Ts() {
+	go func() {
+		if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
+			panic(err)
+		}
+	}()
+
 	pendNodeRecord := make(map[string]struct{}, 0)
 	for index, _ := range c.Funcs {
 		inField := c.Funcs[index].Fd.Type.Params.List[1]
@@ -265,7 +273,7 @@ func (c *FileContext) ApiMark2SwagRouter(fields []string) (Router, string) {
 		fields[2] = path.Join("/"+routerGroupKey, fields[2])
 	}
 	return Router{
-		Method:        strings.ToUpper(method[1: 2]) + method[2 : len(method)-1],
+		Method:         strings.ToUpper(method[1:2]) + method[2:len(method)-1],
 		GenMarkPath:    GenMarkPath,
 		GinPath:        ginPath,
 		TsPath:         TsPath,
