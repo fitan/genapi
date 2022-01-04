@@ -341,6 +341,9 @@ func GetFileNameByPos(fset *token.FileSet, pos token.Pos) string {
 
 func FindPkgBySelector(pkg *packages.Package, file *ast.File, selector *ast.SelectorExpr) *packages.Package {
 	log.Printf("find import path. path: %v, pkgName: %v, file: %v, typeName: %v", pkg.PkgPath, pkg.Name, GetFileNameByPos(pkg.Fset, file.Pos()), Node2String(pkg.Fset, selector))
+	if pkg.Name == selector.X.(*ast.Ident).Name {
+		return pkg
+	}
 	path := FindImportPath(file.Imports, selector.X.(*ast.Ident).Name)
 	log.Println("find import path: ", path)
 	return pkg.Imports[path]
