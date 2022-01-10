@@ -2,6 +2,7 @@
 import (
 	"github.com/gin-gonic/gin"
 	{{FuncImportUnique $.Funcs}}
+	{{MergeImports $.Funcs}}
 {{/*	{{range $index, $fc := $.Funcs}}*/}}
 {{/*	{{if $fc.Plugins.CallBack.Has}}*/}}
 {{/*	{{$fc.Plugins.CallBack.Template.ImportPath}}*/}}

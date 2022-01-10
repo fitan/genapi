@@ -7,6 +7,7 @@ import (
 
 type Func struct {
 	Fd *ast.FuncDecl
+	NeedImport []string
 	PkgName    string
 	Comments   []string
 	Router     Router

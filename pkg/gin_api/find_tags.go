@@ -1,7 +1,6 @@
 package gen_apiV2
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"go/ast"
 	"go/types"
 	"golang.org/x/tools/go/packages"
@@ -64,9 +63,22 @@ func FindImportPath(importSpecs []*ast.ImportSpec, target string) string {
 			}
 		}
 	}
-	spew.Dump(importSpecs)
-	log.Fatalln("not find import path: ", target)
+	//spew.Dump(importSpecs)
+	log.Panicf("not find import path: %v", target)
 	return ""
+}
+
+// print "fmt.print"
+func ToImportRawPath(importSpecs []*ast.ImportSpec) []string {
+	l := make([]string,0,0)
+	for _, importSpec := range importSpecs {
+		if importSpec.Name != nil {
+			l = append(l, importSpec.Name.Name + " " + importSpec.Path.Value)
+		} else {
+			l = append(l, importSpec.Path.Value)
+		}
+	}
+	return l
 }
 
 func FindTagByType(pkg *packages.Package, file *ast.File, ty ast.Node, tagName string) []TagMsg {

@@ -76,10 +76,12 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 		Fd:       f,
 		PkgName:  c.PkgName,
 		FuncName: f.Name.Name,
+		ParamIn1: "",
 		ResOut0:  "",
 		Plugins: Plugins{
 			Point: []plugins.PointTemplate{},
 		},
+		NeedImport: []string{},
 	}
 	inField := f.Type.Params.List[1]
 	outField := f.Type.Results.List[0]
@@ -90,6 +92,7 @@ func (c *FileContext) ParseFunc(f *ast.FuncDecl) Func {
 	c.ParseComment(&fc, f.Doc.List, inField, outField)
 	fc.ParamIn1 = Node2String(c.Pkg.Fset, Node2SwagType(copyAST(inField.Type), c.File.Name.Name))
 	fc.ResOut0 = Node2String(c.Pkg.Fset, Node2SwagType(copyAST(outField.Type), c.File.Name.Name))
+	fc.NeedImport = ToImportRawPath(c.File.Imports)
 	//fmt.Println("enter func %s in", fc.FuncName)
 	//inTs := NewExtractStruct2Ts(c.Pkg, c.File, inStruct)
 	//inTs.Parse()

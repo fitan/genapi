@@ -32,8 +32,26 @@ var FM = template.FuncMap{
 	"Join":                     strings.Join,
 	"ForMat":                   GenForMat,
 	"FuncImportUnique":         FuncImportUnique,
+	"MergeImports": MergeImports,
 	"Dump":                     Dump,
 	"PathJoin":                 path.Join,
+}
+
+func MergeImports(fs []gen_apiV2.Func) string {
+	m := make(map[string]struct{},0)
+	l := make([]string, 0,0)
+
+	for _,f := range fs {
+		for _, i := range f.NeedImport {
+			if _, ok := m[i]; !ok {
+				m[i] = struct{}{}
+				l = append(l,i)
+			}
+		}
+	}
+
+	log.Println(strings.Join(l, "\n"))
+	return strings.Join(l, "\n")
 }
 
 func FuncImportUnique(fs []gen_apiV2.Func) string {

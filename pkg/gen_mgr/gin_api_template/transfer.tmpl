@@ -2,6 +2,7 @@
 import (
 	"github.com/gin-gonic/gin"
 	{{FuncImportUnique $.Funcs}}
+	{{MergeImports $.Funcs}}
 	"net/http"
 
 {{/*	{{range $index, $fc := $.Funcs}}*/}}
@@ -75,6 +76,11 @@ func (b *{{$fc.FuncName}}Binder) BindVal(core *types.Core) (res interface{},err 
 	{{end}}
 	{{if $fc.Bind.CtxKey.Has}}
 	err = ginbind.BindCtxKey(core.GinX.GinCtx(), &in.CtxKey)
+	if err != nil {
+		return nil, err
+	}
+
+	err = binding.Validator.ValidateStruct(&in.CtxKey)
 	if err != nil {
 		return nil, err
 	}
