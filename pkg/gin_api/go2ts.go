@@ -348,6 +348,8 @@ func (e *ExtractStruct2Ts) AddPendNodes(pkg *packages.Package, file *ast.File, n
 		return true
 	}
 }
+
+
 func (e *ExtractStruct2Ts) SpliceTypeV2() bool {
 	replace := false
 	newNode := astutil.Apply(e.TempNodeInfo.Node, func(c *astutil.Cursor) bool {
@@ -682,6 +684,10 @@ func (e *ExtractStruct2Ts) selectorCover(expr *ast.SelectorExpr) *ast.Ident {
 }
 
 func (e *ExtractStruct2Ts) Parse() {
+	ctx := NewDepthContext(e.TempNodeInfo.Pkg, e.TempNodeInfo.File, e.TempNodeInfo.Node)
+	node := DepthType(ctx)
+	fmt.Println("depthTyp: ",node)
+	return
 	//e.TempNodeInfo = e.EnterType
 	//ok := e.SpliceType()
 	//for ok {
