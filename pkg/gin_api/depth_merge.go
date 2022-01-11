@@ -1,6 +1,7 @@
 package gen_apiV2
 
 import (
+	"fmt"
 	"go/ast"
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/packages"
@@ -10,11 +11,14 @@ import (
 )
 
 type DepthContext struct {
-	Pkg *packages.Package
+	Pkg  *packages.Package
 	File *ast.File
 	Node ast.Node
 }
 
+func init() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+}
 
 func SelectorCover(expr *ast.SelectorExpr) *ast.Ident {
 	if expr.X.(*ast.Ident).Name == "time" && expr.Sel.Name == "Time" {
@@ -27,8 +31,9 @@ func NewDepthContext(pkg *packages.Package, file *ast.File, node ast.Node) *Dept
 	return &DepthContext{Pkg: pkg, File: file, Node: node}
 }
 
-
 func DepthType(ctx *DepthContext) ast.Node {
+	fmt.Println(ctx)
+	fmt.Println("start depth", Node2String(ctx.Pkg.Fset, ctx.Node))
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -36,9 +41,10 @@ func DepthType(ctx *DepthContext) ast.Node {
 		}
 	}()
 	newNode := astutil.Apply(ctx.Node, func(c *astutil.Cursor) bool {
-		switch t := c.Node().(type)  {
+		switch t := c.Node().(type) {
 		// 是struct 的field类型
 		case *ast.Field:
+			log.Printf("field name: %v, obj: %v", t.Names[0].Name, t.Names[0].Obj.Kind.String())
 			// 匿名字段 取出字段放入父struct
 			if t.Names == nil {
 				switch tt := t.Type.(type) {
@@ -47,7 +53,7 @@ func DepthType(ctx *DepthContext) ast.Node {
 					findPkg := FindPkgBySelector(ctx.Pkg, ctx.File, tt)
 					findFile, findTs := FindTypeByName(ctx.Pkg, tt.Sel.Name)
 
-					nextCtx := NewDepthContext(findPkg, findFile, findTs)
+					nextCtx := NewDepthContext(findPkg, findFile, findTs.Type)
 					nextNode := DepthType(nextCtx)
 
 					nextType := nextNode.(*ast.TypeSpec)
@@ -105,31 +111,33 @@ func DepthType(ctx *DepthContext) ast.Node {
 			}
 			findPkg := FindPkgBySelector(ctx.Pkg, ctx.File, t)
 			findFile, findTs := FindTypeByName(findPkg, t.Sel.Name)
-			nextCtx := NewDepthContext(findPkg, findFile, findTs)
+			nextCtx := NewDepthContext(findPkg, findFile, findTs.Type)
 			nextType := DepthType(nextCtx)
 
 			c.Replace(nextType.(*ast.TypeSpec).Type)
 			return false
 		case *ast.Ident:
-			if t.Obj !=nil {
+			if t.Obj != nil {
+				log.Printf("name: %v, decl: %v", t.Name, t.Obj.Decl)
 				if t.Obj.Kind.String() == "type" {
 					findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
 					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs)
 					nextType := DepthType(nextCtx)
 					c.Replace(nextType.(*ast.TypeSpec).Type)
 					return false
-				} else {
-					if !JudgeBuiltInType(t.Name) {
-						findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
-						nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs)
-						nextType := DepthType(nextCtx)
-						c.Replace(nextType.(*ast.TypeSpec).Type)
-						return false
-					}
+				}
+				if t.Obj.Kind.String() == "var" {
+					return false
+				}
+				if !JudgeBuiltInType(t.Name) {
+					findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
+					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs)
+					nextType := DepthType(nextCtx)
+					c.Replace(nextType.(*ast.TypeSpec).Type)
+					return false
 				}
 
 			}
-
 
 		}
 
