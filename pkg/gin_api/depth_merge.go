@@ -58,7 +58,7 @@ func DepthType(ctx *DepthContext) ast.Node {
 						}
 						c.Delete()
 					} else {
-						log.Panicf("匿名引用字段类型不为struct: ", Node2String(findPkg.Fset, findTs))
+						log.Panicf("匿名引用字段类型不为struct: %s", Node2String(findPkg.Fset, findTs))
 					}
 					return false
 				case *ast.Ident:
@@ -75,7 +75,7 @@ func DepthType(ctx *DepthContext) ast.Node {
 						}
 						c.Delete()
 					} else {
-						log.Panicf("匿名引用字段类型不为struct: ", Node2String(ctx.Pkg.Fset, findTs))
+						log.Panicf("匿名引用字段类型不为struct: %v", Node2String(ctx.Pkg.Fset, findTs))
 					}
 					return false
 				}
