@@ -2,6 +2,7 @@ package TestData
 
 import (
 	"github.com/fitan/genapi/pkg/gin_api/TestData/nest"
+	"k8s.io/api/apps/v1"
 	"time"
 )
 
@@ -11,6 +12,10 @@ type Form struct {
 	Notes []struct{
 		Node string `json:"node"`
 	} `json:"notes" ngform:"title=笔记"`
+}
+
+type K8sDeploy struct {
+	Result v1.Deployment `json:"result"`
 }
 
 type UserResult struct {
@@ -40,7 +45,7 @@ type User struct {
 	M          map[string]nest.Nest `json:"m"`
 	Fater      nest.Fater           `json:"fater"`
 	Time       time.Time            `json:"time"`
-	UserResult *UserResult
+	//UserResult *UserResult
 }
 
 type UserIncludes struct {

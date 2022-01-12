@@ -233,6 +233,8 @@ func Convert(s string) string {
 func main() {
 	%s
 }`, s)
+		fmt.Println("editor.go ")
+		fmt.Println(s)
 
 		f, err = parser.ParseFile(token.NewFileSet(), "editor.go", s, parser.SpuriousErrors)
 		if err != nil {

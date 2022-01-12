@@ -44,44 +44,57 @@ func DepthType(ctx *DepthContext) ast.Node {
 		switch t := c.Node().(type) {
 		// 是struct 的field类型
 		case *ast.Field:
-			log.Printf("field name: %v, obj: %v", t.Names[0].Name, t.Names[0].Obj.Kind.String())
+			//log.Printf("field name: %v, obj: %v", t.Names[0].Name, t.Names[0].Obj.Kind.String())
 			// 匿名字段 取出字段放入父struct
 			if t.Names == nil {
 				switch tt := t.Type.(type) {
 				// 匿名selector
 				case *ast.SelectorExpr:
 					findPkg := FindPkgBySelector(ctx.Pkg, ctx.File, tt)
-					findFile, findTs := FindTypeByName(ctx.Pkg, tt.Sel.Name)
+					findFile, findTs := FindTypeByName(findPkg, tt.Sel.Name)
 
 					nextCtx := NewDepthContext(findPkg, findFile, findTs.Type)
 					nextNode := DepthType(nextCtx)
 
-					nextType := nextNode.(*ast.TypeSpec)
-					structType, ok := nextType.Type.(*ast.StructType)
+					structType, ok := nextNode.(*ast.StructType)
 					if ok {
 						for _, f := range structType.Fields.List {
 							c.InsertBefore(f)
 						}
 						c.Delete()
 					} else {
-						log.Panicf("匿名引用字段类型不为struct: %s", Node2String(findPkg.Fset, findTs))
+						tmp := ast.Field{
+							Doc:     t.Doc,
+							Names:   t.Names,
+							Type:    nextNode.(ast.Expr),
+							Tag:     t.Tag,
+							Comment: t.Comment,
+						}
+						c.Replace(&tmp)
 					}
 					return false
 				case *ast.Ident:
 					findFile, findTs := FindTypeByName(ctx.Pkg, tt.Name)
 
-					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs)
+					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
 					nextNode := DepthType(nextCtx)
 
-					nextType := nextNode.(*ast.TypeSpec)
-					structType, ok := nextType.Type.(*ast.StructType)
+					structType, ok := nextNode.(*ast.StructType)
 					if ok {
 						for _, f := range structType.Fields.List {
 							c.InsertBefore(f)
 						}
 						c.Delete()
 					} else {
-						log.Panicf("匿名引用字段类型不为struct: %v", Node2String(ctx.Pkg.Fset, findTs))
+						tmp := ast.Field{
+							Doc:     t.Doc,
+							Names:   t.Names,
+							Type:    nextNode.(ast.Expr),
+							Tag:     t.Tag,
+							Comment: t.Comment,
+						}
+						c.Replace(&tmp)
+						//log.Panicf("匿名引用字段类型不为struct: %v, nextNode: %v", Node2String(ctx.Pkg.Fset, findTs), Node2String(ctx.Pkg.Fset, nextNode))
 					}
 					return false
 				}
@@ -114,16 +127,16 @@ func DepthType(ctx *DepthContext) ast.Node {
 			nextCtx := NewDepthContext(findPkg, findFile, findTs.Type)
 			nextType := DepthType(nextCtx)
 
-			c.Replace(nextType.(*ast.TypeSpec).Type)
+			c.Replace(nextType)
 			return false
 		case *ast.Ident:
 			if t.Obj != nil {
 				log.Printf("name: %v, decl: %v", t.Name, t.Obj.Decl)
 				if t.Obj.Kind.String() == "type" {
 					findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
-					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs)
+					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
 					nextType := DepthType(nextCtx)
-					c.Replace(nextType.(*ast.TypeSpec).Type)
+					c.Replace(nextType)
 					return false
 				}
 				if t.Obj.Kind.String() == "var" {
@@ -131,9 +144,9 @@ func DepthType(ctx *DepthContext) ast.Node {
 				}
 				if !JudgeBuiltInType(t.Name) {
 					findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
-					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs)
+					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
 					nextType := DepthType(nextCtx)
-					c.Replace(nextType.(*ast.TypeSpec).Type)
+					c.Replace(nextType)
 					return false
 				}
 
