@@ -37,7 +37,7 @@ func DepthType(ctx *DepthContext) ast.Node {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Panicf("err: %v, pkgName: %v, fileName: %v, nodeString %v", err, ctx.Pkg.Name, GetFileNameByPos(ctx.Pkg.Fset, ctx.File.Pos()), Node2String(ctx.Pkg.Fset, ctx.Node))
+			log.Printf("err: %v, pkgName: %v, fileName: %v, nodeString %v", err, ctx.Pkg.Name, GetFileNameByPos(ctx.Pkg.Fset, ctx.File.Pos()), Node2String(ctx.Pkg.Fset, ctx.Node))
 		}
 	}()
 	newNode := astutil.Apply(ctx.Node, func(c *astutil.Cursor) bool {
@@ -50,6 +50,7 @@ func DepthType(ctx *DepthContext) ast.Node {
 				switch tt := t.Type.(type) {
 				// 匿名selector
 				case *ast.SelectorExpr:
+
 					findPkg := FindPkgBySelector(ctx.Pkg, ctx.File, tt)
 					findFile, findTs := FindTypeByName(findPkg, tt.Sel.Name)
 
@@ -74,6 +75,9 @@ func DepthType(ctx *DepthContext) ast.Node {
 					}
 					return false
 				case *ast.Ident:
+					if JudgeBuiltInType(tt.Name) {
+						return true
+					}
 					findFile, findTs := FindTypeByName(ctx.Pkg, tt.Name)
 
 					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
@@ -131,8 +135,11 @@ func DepthType(ctx *DepthContext) ast.Node {
 			return false
 		case *ast.Ident:
 			if t.Obj != nil {
-				log.Printf("name: %v, decl: %v", t.Name, t.Obj.Decl)
 				if t.Obj.Kind.String() == "type" {
+					if JudgeBuiltInType(t.Name) {
+						return false
+					}
+					log.Printf("kind: type,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj.Decl)
 					findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
 					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
 					nextType := DepthType(nextCtx)
@@ -140,15 +147,18 @@ func DepthType(ctx *DepthContext) ast.Node {
 					return false
 				}
 				if t.Obj.Kind.String() == "var" {
+					log.Printf("kind: var,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj.Decl)
 					return false
 				}
 				if !JudgeBuiltInType(t.Name) {
+					log.Printf("kind: !judge,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj.Decl)
 					findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
 					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
 					nextType := DepthType(nextCtx)
 					c.Replace(nextType)
 					return false
 				}
+				log.Printf("kind: 未知,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj.Decl)
 
 			}
 

@@ -14,22 +14,22 @@ func TestNewExtractStruct2Ts(t *testing.T) {
 		node ast.Node
 	}
 	_, pkg, _ := LoadPackages("./TestData")
-	f, findTs := FindTypeByName(pkg, "UserResult")
+	//f, findTs := FindTypeByName(pkg, "UserResult")
 	k8sFile, k8sTs := FindTypeByName(pkg, "K8sDeploy")
 	tests := []struct {
 		name string
 		args args
 		want *ExtractStruct2Ts
 	}{
-		{
-			name: "UserResult",
-			args: args{
-				pkg:  pkg,
-				file: f,
-				node: findTs.Type,
-			},
-			want: nil,
-		},
+		//{
+		//	name: "UserResult",
+		//	args: args{
+		//		pkg:  pkg,
+		//		file: f,
+		//		node: findTs.Type,
+		//	},
+		//	want: nil,
+		//},
 		{
 			name: "k8s",
 			args: args{
@@ -45,7 +45,7 @@ func TestNewExtractStruct2Ts(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := NewDepthContext(tt.args.pkg, tt.args.file, tt.args.node)
 			n := DepthType(ctx)
-			ts := Convert("type MyInterface "+Node2String(tt.args.pkg.Fset, n))
+			ts := Convert("type MyInterface " + Node2String(tt.args.pkg.Fset, n))
 			fmt.Println(ts)
 			//got := NewExtractStruct2Ts(tt.args.pkg, tt.args.file, tt.args.node, make(map[string]struct{}, 0))
 			//got.Parse()

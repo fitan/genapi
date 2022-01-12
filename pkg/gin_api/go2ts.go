@@ -8,6 +8,7 @@ import (
 	"go/token"
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/packages"
+	"io/ioutil"
 	"log"
 	"reflect"
 	"regexp"
@@ -221,6 +222,7 @@ func writeFields(s *strings.Builder, fields []*ast.Field, depth int) {
 }
 
 func Convert(s string) string {
+	ioutil.WriteFile("structtype.go", []byte(s), 0777)
 	s = strings.TrimSpace(s)
 	if len(s) == 0 {
 		return s
