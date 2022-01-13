@@ -1,13 +1,34 @@
 package gen_apiV2
 
 import (
-	"fmt"
 	"go/ast"
 	"golang.org/x/tools/go/packages"
+	"io/ioutil"
 	"testing"
+	"time"
 )
 
+type Test2Json struct {
+	Link
+	time.Time
+}
+
+type Link string
+
+type LinkStruct struct {
+	I  string
+}
+
 func TestNewExtractStruct2Ts(t *testing.T) {
+
+	//l := Test2Json{
+	//	Link: "Fdsa",
+	//	Time: time.Now(),
+	//}
+	//b, _ := json.Marshal(l)
+	//fmt.Println(string(b))
+	//return
+
 	type args struct {
 		pkg  *packages.Package
 		file *ast.File
@@ -45,8 +66,9 @@ func TestNewExtractStruct2Ts(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := NewDepthContext(tt.args.pkg, tt.args.file, tt.args.node)
 			n := DepthType(ctx)
+			//fmt.Println(n)
 			ts := Convert("type MyInterface " + Node2String(tt.args.pkg.Fset, n))
-			fmt.Println(ts)
+			ioutil.WriteFile("gostruct.ts", []byte(ts), 0777)
 			//got := NewExtractStruct2Ts(tt.args.pkg, tt.args.file, tt.args.node, make(map[string]struct{}, 0))
 			//got.Parse()
 			//for index, v  := range got.ToTs(func(s string) string {

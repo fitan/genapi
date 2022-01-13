@@ -16,6 +16,7 @@ type Form struct {
 
 type K8sDeploy struct {
 	Result v1.Deployment `json:"result"`
+	Service v1.StatefulSet `json:"service"`
 }
 
 type UserResult struct {
