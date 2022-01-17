@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"strings"
 )
+
 var jsonInterface string = `
 package interfacepkg
 
@@ -56,7 +57,7 @@ func defineJsonInterface() *types.Interface {
 	return jsonInterface
 }
 
-func CheckJsonImplements(ctx *DepthContext ,node ast.Node) *ast.Ident {
+func CheckJsonImplements(ctx *DepthContext, node ast.Node) *ast.Ident {
 	typeOf := ctx.Pkg.TypesInfo.TypeOf(node.(ast.Expr))
 	if types.Implements(typeOf, JsonInterface) {
 		return ast.NewIdent("string")
@@ -77,11 +78,20 @@ func init() {
 	JsonInterface = defineJsonInterface()
 }
 
+
 func SelectorCover(expr *ast.SelectorExpr) *ast.Ident {
 	if expr.X.(*ast.Ident).Name == "time" && expr.Sel.Name == "Time" {
 		return ast.NewIdent("string")
 	}
 	return nil
+}
+
+func ToTs(pkg *packages.Package, file *ast.File, node ast.Node, format func(string) string) []string {
+	tss := make([]string,0,0)
+	ctx := NewDepthContext(pkg, file, node)
+	ts := Convert(format(Node2String(pkg.Fset,DepthType(ctx))))
+	tss = append(tss,ts)
+	return tss
 }
 
 func NewDepthContext(pkg *packages.Package, file *ast.File, node ast.Node) *DepthContext {
@@ -97,23 +107,6 @@ func DepthType(ctx *DepthContext) ast.Node {
 		}
 	}()
 	newNode := astutil.Apply(ctx.Node, func(c *astutil.Cursor) bool {
-		//if expr, ok := c.Node().(ast.Expr); ok {
-
-			//typeOf := ctx.Pkg.TypesInfo.TypeOf(expr)
-			//if types.Implements(typeOf, JsonInterface) {
-			//	switch nt:=c.Node().(type) {
-			//	case *ast.Ident:
-			//		log.Printf("jsoninterface: %v, type: %v, idenObj: %v", Node2String(ctx.Pkg.Fset, expr), "iden", nt.Obj.Kind.String())
-			//	case *ast.SelectorExpr:
-			//		log.Printf("jsoninterface: %v, type: %v", Node2String(ctx.Pkg.Fset, expr), "selector")
-			//	case *ast.StarExpr:
-			//		log.Printf("jsoninterface: %v, type: %v", Node2String(ctx.Pkg.Fset, expr), "start")
-			//	default:
-			//		log.Printf("jsoninterface: %v, type: %v", Node2String(ctx.Pkg.Fset, expr), "未知")
-			//	}
-			//}
-		//}
-
 		switch t := c.Node().(type) {
 		// 是struct 的field类型
 		case *ast.Field:
@@ -205,12 +198,19 @@ func DepthType(ctx *DepthContext) ast.Node {
 				}
 			}
 
+
+
 		case *ast.StarExpr:
 			jsonIdent := CheckJsonImplements(ctx, t)
 			if jsonIdent != nil {
 				c.Replace(jsonIdent)
 				return false
 			}
+
+			nextCtx := NewDepthContext(ctx.Pkg,ctx.File, t.X)
+			nextType := DepthType(nextCtx)
+			c.Replace(nextType)
+			return false
 
 		//非匿名selector
 		case *ast.SelectorExpr:
@@ -238,7 +238,6 @@ func DepthType(ctx *DepthContext) ast.Node {
 					//	return false
 					//}
 
-
 					jsonIdent := CheckJsonImplements(ctx, t)
 					if jsonIdent != nil {
 						c.Replace(jsonIdent)
@@ -248,33 +247,35 @@ func DepthType(ctx *DepthContext) ast.Node {
 					log.Printf("kind: type,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj.Decl)
 					findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
 
-
-
 					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
 					nextType := DepthType(nextCtx)
 					c.Replace(nextType)
 					return false
 				}
 				if t.Obj.Kind.String() == "var" {
-					log.Printf("kind: var,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj.Decl)
+					//if !JudgeBuiltInType(t.Name) {
+					//	//jsonIdent := CheckJsonImplements(ctx, t)
+					//	//if jsonIdent != nil {
+					//	//	c.Replace(jsonIdent)
+					//	//	return false
+					//	//}
+					//
+					//	findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
+					//
+					//	nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
+					//	nextType := DepthType(nextCtx)
+					//	c.Replace(nextType)
+					//	return false
+					//
+					//}
+					log.Printf("kind: var,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj)
+					return false
 					//jsonIdent := CheckJsonImplements(ctx, t)
 					//if jsonIdent != nil {
 					//	c.Replace(jsonIdent)
 					//}
 				}
-				//if !JudgeBuiltInType(t.Name) {
-				//	log.Printf("kind: !judge,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj.Decl)
-				//	jsonIdent := CheckJsonImplements(ctx, t)
-				//	if jsonIdent != nil {
-				//		c.Replace(jsonIdent)
-				//		return false
-				//	}
-				//	findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
-				//	nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
-				//	nextType := DepthType(nextCtx)
-				//	c.Replace(nextType)
-				//	return false
-				//}
+
 				log.Printf("kind: 未知,local pkg: %v, name: %v, decl: %v", ctx.Pkg.PkgPath, t.Name, t.Obj.Decl)
 
 			} else {
@@ -285,6 +286,11 @@ func DepthType(ctx *DepthContext) ast.Node {
 						c.Replace(jsonIdent)
 						return false
 					}
+					findFile, findTs := FindTypeByName(ctx.Pkg, t.Name)
+					nextCtx := NewDepthContext(ctx.Pkg, findFile, findTs.Type)
+					nextType := DepthType(nextCtx)
+					c.Replace(nextType)
+					return false
 				}
 			}
 

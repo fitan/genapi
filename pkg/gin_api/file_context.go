@@ -52,22 +52,29 @@ func (c *FileContext) Func2Ts() {
 	//	}
 	//}()
 
-	pendNodeRecord := make(map[string]struct{}, 0)
+	//pendNodeRecord := make(map[string]struct{}, 0)
 	for index, _ := range c.Funcs {
 		inField := c.Funcs[index].Fd.Type.Params.List[1]
 		_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
-		inTs := NewExtractStruct2Ts(c.Pkg, c.File, inStruct, pendNodeRecord)
-		inTs.Parse()
-		c.Funcs[index].ParamIn1Ts = inTs.ToTs(func(s string) string {
+		c.Funcs[index].ParamIn1Ts = ToTs(c.Pkg,  c.File, inStruct, func(s string) string {
 			return fmt.Sprintf("type %sIn %s", c.Funcs[index].Fd.Name.Name, s)
 		})
+		//inTs := NewExtractStruct2Ts(c.Pkg, c.File, inStruct, pendNodeRecord)
+		//inTs.Parse()
+		//c.Funcs[index].ParamIn1Ts = inTs.ToTs(func(s string) string {
+		//	return fmt.Sprintf("type %sIn %s", c.Funcs[index].Fd.Name.Name, s)
+		//})
 		outField := c.Funcs[index].Fd.Type.Results.List[0]
-		outTs := NewExtractStruct2Ts(c.Pkg, c.File, outField.Type, pendNodeRecord)
-		outTs.Parse()
-		c.Funcs[index].ResOut0Ts = outTs.ToTs(func(s string) string {
+		c.Funcs[index].ResOut0Ts = ToTs(c.Pkg, c.File,outField.Type, func(s string) string {
 			resutlStr := "type %sOut struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
 			return fmt.Sprintf(resutlStr, c.Funcs[index].Fd.Name.Name, s)
 		})
+		//outTs := NewExtractStruct2Ts(c.Pkg, c.File, outField.Type, pendNodeRecord)
+		//outTs.Parse()
+		//c.Funcs[index].ResOut0Ts = outTs.ToTs(func(s string) string {
+		//	resutlStr := "type %sOut struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
+		//	return fmt.Sprintf(resutlStr, c.Funcs[index].Fd.Name.Name, s)
+		//})
 	}
 }
 
@@ -206,7 +213,6 @@ func (c *FileContext) ParseBind(inPkg *packages.Package, inFile *ast.File, funcN
 				//}
 			case "Uri":
 				bind.Uri.Has = true
-				log.Printf("funcName: %s, file: %s, field: %v", funcName, c.File.Name.Name)
 				bind.Uri.TagMsgs = FindTagAndCommentByField(inPkg, inFile, field, "uri")
 			case "Header":
 				bind.Header.Has = true

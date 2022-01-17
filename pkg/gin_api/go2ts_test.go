@@ -36,7 +36,8 @@ func TestNewExtractStruct2Ts(t *testing.T) {
 	}
 	_, pkg, _ := LoadPackages("./TestData")
 	//f, findTs := FindTypeByName(pkg, "UserResult")
-	k8sFile, k8sTs := FindTypeByName(pkg, "K8sDeploy")
+	workFile, workTs := FindTypeByName(pkg, "Worker")
+	//k8sFile, k8sTs := FindTypeByName(pkg, "K8sDeploy")
 	tests := []struct {
 		name string
 		args args
@@ -51,12 +52,21 @@ func TestNewExtractStruct2Ts(t *testing.T) {
 		//	},
 		//	want: nil,
 		//},
+		//{
+		//	name: "k8s",
+		//	args: args{
+		//		pkg:  pkg,
+		//		file: k8sFile,
+		//		node: k8sTs.Type,
+		//	},
+		//	want: nil,
+		//},
 		{
 			name: "k8s",
 			args: args{
 				pkg:  pkg,
-				file: k8sFile,
-				node: k8sTs.Type,
+				file: workFile,
+				node: workTs.Type,
 			},
 			want: nil,
 		},

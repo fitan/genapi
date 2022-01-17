@@ -292,6 +292,7 @@ type ExtractStruct2Ts struct {
 	EnterType       NodeInfo
 }
 
+
 func NewExtractStruct2Ts(pkg *packages.Package, file *ast.File, node ast.Node, pendNodeRecord map[string]struct{}) *ExtractStruct2Ts {
 	e := &ExtractStruct2Ts{EnterType: NodeInfo{
 		Pkg:  pkg,
