@@ -39,6 +39,10 @@ func (t *{{$fc.FuncName}}Transfer) Url() string {
 	return "{{$fc.Router.GinPath}}"
 }
 
+func (t *{{$fc.FuncName}}Transfer) FuncName() string {
+	return "{{$fc.PkgName}}.{{$fc.FuncName}}"
+}
+
 func (t *{{$fc.FuncName}}Transfer) Binder() types.GinXBinder {
 	return new({{$fc.FuncName}}Binder)
 }

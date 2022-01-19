@@ -61,6 +61,7 @@ type Test1T []nest.Nest
 type Worker struct {
 	Metadata  K8sKey          `json:"metadata"`
 	Component WorkerComponent `json:"component"`
+	Next nest.Nest
 }
 
 type K8sKey struct {
