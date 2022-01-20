@@ -237,15 +237,24 @@ func (c *FileContext) Struct2Quote(fset *token.FileSet, field *ast.Field) string
 
 func (c *FileContext) FilterFunc() []*ast.FuncDecl {
 	fs := make([]*ast.FuncDecl, 0, 0)
-	ast.Inspect(c.File, func(node ast.Node) bool {
-		if funcDecl, ok := node.(*ast.FuncDecl); ok {
+
+	for _,decl := range c.File.Decls {
+		if funcDecl,ok := decl.(*ast.FuncDecl); ok {
 			if c.HasApiMark(funcDecl.Doc) && c.GinFormat(funcDecl) {
 				fs = append(fs, funcDecl)
 			}
-			return false
 		}
-		return true
-	})
+	}
+
+	//ast.Inspect(c.File, func(node ast.Node) bool {
+	//	if funcDecl, ok := node.(*ast.FuncDecl); ok {
+	//		if c.HasApiMark(funcDecl.Doc) && c.GinFormat(funcDecl) {
+	//			fs = append(fs, funcDecl)
+	//		}
+	//		return false
+	//	}
+	//	return true
+	//})
 	return fs
 }
 

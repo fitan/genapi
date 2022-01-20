@@ -56,7 +56,8 @@ func TestNewExtractStruct2Ts(t *testing.T) {
 
 		case *ast.Ident:
 			if t.Name == "Next" {
-				fmt.Printf("Next %+v", t.Obj)
+				fmt.Printf("Next %+v", pkg.Fset.Position(t.Obj.Pos()).String())
+				//pkg.Fset.Position(t.Pos()).String()
 			}
 			fmt.Printf("ident name: %s\n", t.Name)
 			if t.Obj != nil {

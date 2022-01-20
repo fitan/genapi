@@ -149,34 +149,49 @@ func FindStructTypeByName(pkg *packages.Package, structName string) (*ast.File, 
 
 func FindTypeByName(pkg *packages.Package, TypeName string) (*ast.File, *ast.TypeSpec) {
 	log.Printf("findtypeByName pkgPath: %v, typeName: %v", pkg.PkgPath, TypeName)
-	var f *ast.File
-	var t *ast.TypeSpec
-	has := false
+	//var f *ast.File
+	//var t *ast.TypeSpec
+	//has := false
+
 	for _, file := range pkg.Syntax {
-		ast.Inspect(file, func(node ast.Node) bool {
-			ts, ok := node.(*ast.TypeSpec)
-			if ok {
-				//if TypeName == "Time" {
-				//	log.Printf("Typespec Name: %v", ts.Name.Name)
-				//}
-				if ts.Name.Name == TypeName {
-					has = true
-					f = file
-					t = ts
-					return false
+		for _, decl := range file.Decls {
+			if genDecl, ok := decl.(*ast.GenDecl); ok {
+				for _, spec := range genDecl.Specs {
+					if typeSpec,ok := spec.(*ast.TypeSpec);ok {
+						if typeSpec.Name.Name == TypeName {
+							return file, typeSpec
+						}
+					}
 				}
 			}
-			//if has {
-			//	return false
-			//}
-			return true
-		})
-		if has {
-			return f, t
 		}
 	}
-	if f == nil || t == nil {
-		log.Panicln("not find type by name. pkg: " + pkg.Name + " typeName: " + TypeName)
-	}
-	return f, t
+
+	//for _, file := range pkg.Syntax {
+	//	ast.Inspect(file, func(node ast.Node) bool {
+	//		ts, ok := node.(*ast.TypeSpec)
+	//		if ok {
+	//			//if TypeName == "Time" {
+	//			//	log.Printf("Typespec Name: %v", ts.Name.Name)
+	//			//}
+	//			if ts.Name.Name == TypeName {
+	//				has = true
+	//				f = file
+	//				t = ts
+	//				return false
+	//			}
+	//		}
+	//		//if has {
+	//		//	return false
+	//		//}
+	//		return true
+	//	})
+	//	if has {
+	//		return f, t
+	//	}
+	//}
+	//if f == nil || t == nil {
+	log.Panicln("not find type by name. pkg: " + pkg.Name + " typeName: " + TypeName)
+	//}
+	return nil,nil
 }
