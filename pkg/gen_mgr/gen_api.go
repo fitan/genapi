@@ -10,6 +10,7 @@ import (
 	"log"
 	"path"
 	"path/filepath"
+	"sync"
 	"text/template"
 )
 
@@ -43,7 +44,7 @@ func genApiV2(apiMap map[string]*gen_apiV2.FileContext, ReginsterMap map[string]
 	}
 
 	for fileName, fileContext := range apiMap {
-		tpl, err :=parse.Parse(transfer_tmpl)
+		tpl, err := parse.Parse(transfer_tmpl)
 		//tpl, err := parse.Parse(gen_api_tmplV2)
 		if err != nil {
 			log.Fatalln(err.Error())
@@ -141,10 +142,12 @@ func DepthGen(src, dest string, fn func(src, dest string)) {
 		log.Panicln(err)
 	}
 
-	depthGen(tree, dest, fn)
+	g := sync.WaitGroup{}
+	depthGen(&g, tree, dest, fn)
+	g.Wait()
 }
 
-func depthGen(tree *directory_tree.Node, dest string, fn func(src, dest string)) {
+func depthGen(g *sync.WaitGroup, tree *directory_tree.Node, dest string, fn func(src, dest string)) {
 	//context := gen_apiV2.NewApiContext()
 	//context.Load(tree.FullPath)
 	//context.Parse()
@@ -154,11 +157,15 @@ func depthGen(tree *directory_tree.Node, dest string, fn func(src, dest string))
 	//		break
 	//	}
 	//}
-	fn(tree.FullPath, dest)
+	g.Add(1)
+	go func() {
+		fn(tree.FullPath, dest)
+		g.Done()
+	}()
 
 	for _, node := range tree.Children {
 		if node.Info.IsDir {
-			depthGen(node, path.Join(dest, node.Info.Name), fn)
+			depthGen(g, node, path.Join(dest, node.Info.Name), fn)
 		}
 	}
 }
