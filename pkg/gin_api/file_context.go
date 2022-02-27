@@ -56,7 +56,7 @@ func (c *FileContext) Func2Ts() {
 	for index, _ := range c.Funcs {
 		inField := c.Funcs[index].Fd.Type.Params.List[1]
 		_, _, _, inStruct := FindStructByExpr(c.Pkg, c.File, inField.Type.(*ast.StarExpr).X)
-		c.Funcs[index].ParamIn1Ts = ToTs(c.Pkg,  c.File, inStruct, func(s string) string {
+		c.Funcs[index].ParamIn1Ts = ToTs(c.Pkg, c.File, inStruct, func(s string) string {
 			return fmt.Sprintf("type %sIn %s", c.Funcs[index].Fd.Name.Name, s)
 		})
 		//inTs := NewExtractStruct2Ts(c.Pkg, c.File, inStruct, pendNodeRecord)
@@ -65,7 +65,7 @@ func (c *FileContext) Func2Ts() {
 		//	return fmt.Sprintf("type %sIn %s", c.Funcs[index].Fd.Name.Name, s)
 		//})
 		outField := c.Funcs[index].Fd.Type.Results.List[0]
-		c.Funcs[index].ResOut0Ts = ToTs(c.Pkg, c.File,outField.Type, func(s string) string {
+		c.Funcs[index].ResOut0Ts = ToTs(c.Pkg, c.File, outField.Type, func(s string) string {
 			resutlStr := "type %sOut struct {\nCode int `json:\"code\"`\nData %s `json:\"data\"`\nErr  string `json:\"err\"`}"
 			return fmt.Sprintf(resutlStr, c.Funcs[index].Fd.Name.Name, s)
 		})
@@ -238,8 +238,8 @@ func (c *FileContext) Struct2Quote(fset *token.FileSet, field *ast.Field) string
 func (c *FileContext) FilterFunc() []*ast.FuncDecl {
 	fs := make([]*ast.FuncDecl, 0, 0)
 
-	for _,decl := range c.File.Decls {
-		if funcDecl,ok := decl.(*ast.FuncDecl); ok {
+	for _, decl := range c.File.Decls {
+		if funcDecl, ok := decl.(*ast.FuncDecl); ok {
 			if c.HasApiMark(funcDecl.Doc) && c.GinFormat(funcDecl) {
 				fs = append(fs, funcDecl)
 			}
@@ -279,8 +279,16 @@ func (c *FileContext) ApiMark2SwagRouter(fields []string) (Router, string) {
 	fields[1] = "@Router"
 	method := fields[3]
 	ginPath := fields[2]
-	ginPath = strings.ReplaceAll(ginPath, "{", ":")
-	ginPath = strings.ReplaceAll(ginPath, "}", "")
+	split := strings.Split(ginPath, "/")
+	for index, _ := range split {
+		if len(split[index]) > 0 && split[index][0:1] == ":" {
+			split[index] = "{" + split[index][1:len(split[index])] + "}"
+		}
+	}
+
+	fields[2] = strings.Join(split, "/")
+	//ginPath = strings.ReplaceAll(ginPath, "{", ":")
+	//ginPath = strings.ReplaceAll(ginPath, "}", "")
 	GenMarkPath := fields[2]
 	TsPath := fields[2]
 	TsPath = strings.ReplaceAll(TsPath, "{", "${")
